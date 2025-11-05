@@ -9,6 +9,8 @@
  */
 // Mock virtual modules
 require('./module.mocks')(jest);
+const editorFactory = require('./editor.mock');
+const {component} = require('../src/common').default;
 
 /** @type {import('../src/options').RawWidget} */
 const rawSnpt = {
@@ -40,39 +42,52 @@ const { DomSrv } = require('../src/service/dom_service');
 const srv = require('../src/contextinit');
 
 describe('ContextInit', () => {
+
     beforeAll(() => {
         jest.clearAllMocks();
     });
 
-    it('creates', () => {
-        const editor = {
-            id: 'editor1',
-            ui: {
-                registry: {
-                    addIcon: jest.fn(),
-                    addButton: jest.fn(),
-                    addMenubarItem: jest.fn(),
-                    addMenuItem: jest.fn(),
-                    addContextMenu: jest.fn(),
-                    addToggleMenuButton: jest.fn(),
-                    addToggleMenuItem: jest.fn(),
-                    getAll: jest.fn().mockReturnValue("")
-                }
-            },
-            options: {
-                get: (/** @type {string} */ key) => {
-                    if (key === 'user') {
-                        return  {
-                            id: 1,
-                            username: 'joe',
-                            roles: ['teacher']
-                        };
-                    }
-                    return [rawSnpt];
-                }
+    it('It creates a context menu with unwrap item', async () => {
+        // @ts-ignore
+        const editor = editorFactory();
+        editor.options.get.mockImplementation((/** @type {string} */ key) => {
+            if (key === 'user') {
+                return {
+                    id: 1,
+                    username: 'joe',
+                    roles: ['teacher']
+                };
             }
-        };
-        srv.initContextActions(editor);
+            return [rawSnpt];
+        });
+        const ctx = await srv.initContextActions(editor);
         expect(editor.ui.registry.addIcon).toHaveBeenCalled();
+        // Test context menus
+        expect(editor.ui.registry.addContextMenu).toHaveBeenCalledWith(component, expect.any(Object));
+        const contextMenuUpdate = editor.ui.registry.addContextMenu.mock.calls[0][1].update;
+        expect(typeof contextMenuUpdate).toBe('function');
+
+        editor.setContent(`<p>ok</p>
+            <div class="iedib-capsa iedib-alerta-border">
+                <div class="iedib-central">
+                    <span>hello</span>
+                </div>
+            </div>`);
+        let nodeSelected = editor.getBody().querySelector('p');
+        let menuItems = contextMenuUpdate(nodeSelected);
+        expect(menuItems).toBe('');
+        expect(ctx.path?.selectedElement).toBe(nodeSelected);
+        expect(ctx.path?.widget).toBeFalsy();
+        expect(ctx.path?.elem).toBeFalsy();
+
+        nodeSelected = editor.getBody().querySelector('span');
+        menuItems = contextMenuUpdate(nodeSelected);
+        expect(menuItems).toBe('');
+        expect(ctx.path?.selectedElement).toBe(nodeSelected);
+        expect(ctx.path?.elem).toBe(editor.getBody().querySelector('div.iedib-capsa'));
+        expect(ctx.path?.widget?.key).toBe('capsa-generica');
+
+        // Test context toolbar
+        expect(editor.ui.registry.addContextToolbar).not.toHaveBeenCalled();
     });
 })

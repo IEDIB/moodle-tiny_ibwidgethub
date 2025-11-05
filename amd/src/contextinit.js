@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable max-len */
 // This file is part of Moodle - http://moodle.org/
 //
@@ -19,7 +20,6 @@ import {getDomSrv} from './service/dom_service';
 import {getWidgetPropertiesCtrl} from './controller/widgetproperties_ctrl';
 import {getMenuItemProviders, getListeners} from './extension';
 import Common from './common';
-// eslint-disable-next-line camelcase
 import {get_strings} from 'core/str';
 
 const {component, componentName} = Common;
@@ -39,19 +39,9 @@ const {component, componentName} = Common;
  * @property {Element} [elem] - Indicates the element corresponding to the selector of the widget found
  * @property {Element | null | undefined} [targetElement] - Indicates the element corresponding the intermediate selector
  * @property {import('./options').Widget=} widget - The current widget definition associated with the elem
+ * @property {string} [text] - Descriptive text for nested contextmenus
  */
 
-/**
- * @typedef {Object} ICONS
- * @property {string} gear
- * @property {string} arrowUpFromBracket
- * @property {string} arrowUp
- * @property {string} arrowDown
- * @property {string} arrowLeft
- * @property {string} arrowRight
- * @property {string} remove
- * @property {string} clone
- */
 const ICONS = {
     gear: 'gear',
     arrowUpFromBracket: 'arrow-up-from-bracket',
@@ -60,7 +50,9 @@ const ICONS = {
     arrowLeft: 'arrow-left',
     arrowRight: 'arrow-right',
     remove: 'remove',
-    clone: 'clone'
+    clone: 'clone',
+    cut: 'cut',
+    paste: 'paste'
 };
 
 /**
@@ -76,9 +68,12 @@ const defineIcons = function(editor) {
     editor.ui.registry.addIcon(ICONS.arrowLeft, '<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>');
     editor.ui.registry.addIcon(ICONS.arrowRight, '<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 448 512"><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>');
     editor.ui.registry.addIcon(ICONS.clone, '<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 512 512"><path d="M64 464l224 0c8.8 0 16-7.2 16-16l0-64 48 0 0 64c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 224c0-35.3 28.7-64 64-64l64 0 0 48-64 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16zM224 304l224 0c8.8 0 16-7.2 16-16l0-224c0-8.8-7.2-16-16-16L224 48c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16zm-64-16l0-224c0-35.3 28.7-64 64-64L448 0c35.3 0 64 28.7 64 64l0 224c0 35.3-28.7 64-64 64l-224 0c-35.3 0-64-28.7-64-64z"/></svg>');
+    editor.ui.registry.addIcon(ICONS.cut, '<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 640 640"><path d="M256 320L216.5 359.5C203.9 354.6 190.3 352 176 352C114.1 352 64 402.1 64 464C64 525.9 114.1 576 176 576C237.9 576 288 525.9 288 464C288 449.7 285.3 436.1 280.5 423.5L563.2 140.8C570.3 133.7 570.3 122.3 563.2 115.2C534.9 86.9 489.1 86.9 460.8 115.2L320 256L280.5 216.5C285.4 203.9 288 190.3 288 176C288 114.1 237.9 64 176 64C114.1 64 64 114.1 64 176C64 237.9 114.1 288 176 288C190.3 288 203.9 285.3 216.5 280.5L256 320zM353.9 417.9L460.8 524.8C489.1 553.1 534.9 553.1 563.2 524.8C570.3 517.7 570.3 506.3 563.2 499.2L417.9 353.9L353.9 417.9zM128 176C128 149.5 149.5 128 176 128C202.5 128 224 149.5 224 176C224 202.5 202.5 224 176 224C149.5 224 128 202.5 128 176zM176 416C202.5 416 224 437.5 224 464C224 490.5 202.5 512 176 512C149.5 512 128 490.5 128 464C128 437.5 149.5 416 176 416z"/></svg>');
+    editor.ui.registry.addIcon(ICONS.paste, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M128 64C92.7 64 64 92.7 64 128L64 448C64 483.3 92.7 512 128 512L240 512L240 288C240 226.1 290.1 176 352 176L416 176L416 128C416 92.7 387.3 64 352 64L128 64zM312 176L168 176C154.7 176 144 165.3 144 152C144 138.7 154.7 128 168 128L312 128C325.3 128 336 138.7 336 152C336 165.3 325.3 176 312 176zM352 224C316.7 224 288 252.7 288 288L288 512C288 547.3 316.7 576 352 576L512 576C547.3 576 576 547.3 576 512L576 346.5C576 329.5 569.3 313.2 557.3 301.2L498.8 242.7C486.8 230.7 470.5 224 453.5 224L352 224z"/></svg>');
 };
 
 /**
+ * Determine if a widget contains bindings
  * @param {import('./options').Widget} widget
  * @returns {boolean}
  */
@@ -86,23 +81,18 @@ function hasBindings(widget) {
     return widget.parameters?.some(param => {
         if (param.type === 'repeatable') {
             const hasFieldBindings = param.fields?.some(f => f.bind !== undefined);
-            return typeof param.bind === 'object' || (hasFieldBindings && typeof param.item_selector === 'string');
+            return (typeof param.bind === 'object') ||
+                (hasFieldBindings && typeof param.item_selector === 'string');
         } else {
             return param.bind !== undefined;
         }
     });
 }
 
-/**
- * Decides if a widget needs some kind of context menu or toolbar
- * @param {import('./options').Widget} widget - The widget
- * @returns {boolean}
- */
-const needsContextMenu = function(widget) {
-    return widget.hasBindings() || (widget.unwrap ?? '').trim().length > 0;
-};
 
 /**
+ * Each MenuAction includes a condition property that is evaluated against
+ * the current widget key to decide if the action should be executed.
  * @param {string | RegExp | (() => boolean) | undefined} condition
  * @param {string} key
  * @returns {boolean}
@@ -119,6 +109,12 @@ const matchesCondition = function(condition, key) {
 };
 
 /**
+ * @type {{widget: import("./options").Widget, html: string} | null}
+ */
+let widgetCutClipboard = null;
+
+/**
+ * Common actions used in context menus
  * @param {import('./plugin').TinyMCE} editor
  * @param {import('./service/dom_service').DomSrv} domSrv
  */
@@ -245,7 +241,14 @@ const predefinedActionsFactory = function(editor, domSrv) {
         remove: (context) => {
             const el = context?.targetElement;
             const root = context?.elem;
-            if (!el || !root) {
+            const widget = context?.widget;
+            if (!el || !root || !widget) {
+                return;
+            }
+            // Is it removing the entire widget?
+            if (el === root) {
+                root.remove();
+                getListeners('widgetRemoved').forEach(listener => listener(editor, widget));
                 return;
             }
 
@@ -259,6 +262,7 @@ const predefinedActionsFactory = function(editor, domSrv) {
             // If parent is now empty, remove the root widget
             if (parent && parent.children.length === 0) {
                 root.remove();
+                getListeners('widgetRemoved').forEach(listener => listener(editor, widget));
             }
         },
         /**
@@ -271,22 +275,46 @@ const predefinedActionsFactory = function(editor, domSrv) {
                 return;
             }
             el.classList.toggle('d-print-none');
+        },
+        /**
+         * Removes the widget from DOM and stores HTML in the clipboard
+         * @param {PathResult} context
+         */
+        cut: (context) => {
+            const el = context?.elem;
+            if (!el || !context?.widget) {
+                return;
+            }
+            widgetCutClipboard = {
+                widget: context.widget,
+                html: el.outerHTML
+            };
+            el.remove();
+
+            // Update TinyMCE content and selection
+            editor.nodeChanged();
+            editor.undoManager.add();
+
+            // Call any subscribers
+            getListeners('widgetRemoved').forEach(listener => listener(editor, context.widget));
         }
     };
+    // Alias.
     factory.moveup = factory.movebefore;
     factory.movedown = factory.moveafter;
-    // Alias.
     factory.moveleft = factory.movebefore;
     factory.moveright = factory.moveafter;
+    factory.insert = factory.insertafter;
     return factory;
 };
 
 /**
- * @typedef {{editor: import('./plugin').TinyMCE, path?: PathResult, actionPaths: Record<string, PathResult>}} ItemMenuContext
+ * ActionPaths allows to define more than one path per action.
+ * @typedef {{editor: import('./plugin').TinyMCE, path?: PathResult, actionPaths: Record<string, PathResult[]>}} ItemMenuContext
  */
 
 /**
- * Looks for widgets that need to display context toolbars or menus
+ * Looks for widgets that need to display context toolbars or context menus
  * and binds the corresponding actions.
  * @param {import("./plugin").TinyMCE} editor
  */
@@ -307,7 +335,7 @@ export async function initContextActions(editor) {
     // Get translations
     const [
         strProperties, strUnwrap, strMoveUp, strMoveDown, strMoveAfter, strMoveBefore,
-        strInsert, strRemove, strPrintable
+        strInsert, strRemove, strPrintable, strCut, strPaste
     ] = await get_strings([
         {key: 'properties', component},
         {key: 'unwrap', component},
@@ -317,7 +345,9 @@ export async function initContextActions(editor) {
         {key: 'movebefore', component},
         {key: 'insert', component},
         {key: 'remove', component},
-        {key: 'printable', component}
+        {key: 'printable', component},
+        {key: 'cut', component},
+        {key: 'paste', component}
     ]);
 
     const widgetList = Object.values(getWidgetDict(editor));
@@ -337,16 +367,68 @@ export async function initContextActions(editor) {
         await widgetPropertiesCtrl.show(path);
     };
 
-    // Generic button action for opening the properties modal
-    editor.ui.registry.addButton(`${componentName}_modal_btn`, {
+    const pasteAction = () => {
+        const html = widgetCutClipboard?.html;
+        const widget = widgetCutClipboard?.html;
+        if (!html || !widget) {
+            return;
+        }
+        // Insert HTML at current position
+        editor.insertContent(html);
+        editor.undoManager.add();
+        editor.nodeChanged();
+        // Call any subscribers
+        getListeners('widgetInserted').forEach(listener => listener(editor, widget));
+        widgetCutClipboard = null;
+    };
+
+    /**
+     * It creates menuItem, nestedMenuItem, Button and SplitButton to handle
+     * all possible scenarios regarding this action.
+     * @param {{name: string, icon: string, tooltip: string, text?: string, onAction: (localPath?: PathResult) => void }} spec
+     */
+    const registerUIElement = (spec) => {
+        editor.ui.registry.addButton(`${componentName}_${spec.name}_btn`, {
+            icon: spec.icon,
+            tooltip: spec.tooltip,
+            onAction: spec.onAction
+        });
+        editor.ui.registry.addMenuItem(`${componentName}_${spec.name}_item`, {
+            icon: spec.icon,
+            tooltip: spec.tooltip,
+            onAction: spec.onAction
+        });
+        editor.ui.registry.addNestedMenuItem(`${componentName}_${spec.name}_nesteditem`, {
+            icon: spec.icon,
+            tooltip: spec.tooltip,
+            getSubmenuItems: () => {
+                /** @type {any[]} */
+                const items = [];
+                ctx.actionPaths[spec.name]?.forEach(path => {
+                    items.push({
+                        type: 'menuitem',
+                        text: path.text,
+                        tooltip: spec.name + '/' + (path.widget?.name ?? ''),
+                        onAction: () => spec.onAction(path)
+                    });
+                });
+                return items;
+            }
+        });
+    };
+
+    // Generic button action for opening the properties modal.
+    registerUIElement({
+        name: 'modal',
         icon: ICONS.gear,
         tooltip: strProperties,
         onAction: showPropertiesAction
     });
-    editor.ui.registry.addMenuItem(`${componentName}_modal_item`, {
-        icon: ICONS.gear,
-        text: strProperties,
-        onAction: showPropertiesAction
+    // Only one instance allowed.
+    editor.ui.registry.addMenuItem(`${componentName}_paste_item`, {
+        icon: ICONS.paste,
+        text: strPaste,
+        onAction: pasteAction
     });
 
     /**
@@ -354,63 +436,77 @@ export async function initContextActions(editor) {
      * @param {string} name
      */
     function genericAction(name) {
-        return function() {
-            if (!ctx.path?.widget) {
-                ctx.path = domSrv.findWidgetOnEventPath(widgetList, editor.selection.getNode());
-                if (!ctx.path?.widget) {
+        /**
+         * @param {PathResult} [path]
+         */
+        return function(path) {
+            path = path ?? ctx.path;
+            if (!path?.widget) {
+                path = domSrv.findWidgetOnEventPath(widgetList, editor.selection.getNode());
+                if (!path?.widget) {
                     return;
                 }
             }
             const action = predefinedActions[name];
             if (action) {
-                action(ctx.path);
+                action(path);
                 // Call any subscriber
-                getListeners('ctxAction').forEach(listener => listener(editor, ctx.path?.widget));
+                getListeners('ctxAction').forEach(listener => listener(editor, path?.widget));
             }
         };
     }
 
     // Generic button action for unwrapping those widgets that support this feature
-    editor.ui.registry.addButton(`${componentName}_unwrap_btn`, {
+    registerUIElement({
+        name: 'unwrap',
         icon: ICONS.arrowUpFromBracket,
         tooltip: strUnwrap,
         onAction: genericAction('unwrap')
     });
-    editor.ui.registry.addMenuItem(`${componentName}_unwrap_item`, {
-        icon: ICONS.arrowUpFromBracket,
-        text: strUnwrap,
-        onAction: genericAction('unwrap')
-    });
-    editor.ui.registry.addMenuItem(`${componentName}_moveup_item`, {
+    registerUIElement({
+        name: 'moveup',
         icon: ICONS.arrowUp,
-        text: strMoveUp,
+        tooltip: strMoveUp,
         onAction: genericAction('movebefore')
     });
-    editor.ui.registry.addMenuItem(`${componentName}_movedown_item`, {
+    registerUIElement({
+        name: 'movedown',
         icon: ICONS.arrowDown,
-        text: strMoveDown,
+        tooltip: strMoveDown,
         onAction: genericAction('moveafter')
     });
-   editor.ui.registry.addMenuItem('widgethub_movebefore_item', {
+    registerUIElement({
+        name: 'movebefore',
         icon: ICONS.arrowLeft,
-        text: strMoveBefore,
+        tooltip: strMoveBefore,
         onAction: genericAction('movebefore')
     });
-    editor.ui.registry.addMenuItem('widgethub_moveafter_item', {
+    registerUIElement({
+        name: 'moveafter',
         icon: ICONS.arrowRight,
-        text: strMoveAfter,
+        tooltip: strMoveAfter,
         onAction: genericAction('moveafter')
     });
-    editor.ui.registry.addMenuItem(`${componentName}_insertafter_item`, {
+    registerUIElement({
+        name: 'insertafter',
         icon: ICONS.clone,
-        text: strInsert,
+        tooltip: strInsert,
         onAction: genericAction('insertafter')
     });
-    editor.ui.registry.addMenuItem(`${componentName}_remove_item`, {
+    registerUIElement({
+        name: 'remove',
         icon: ICONS.remove,
-        text: strRemove,
+        tooltip: strRemove,
         onAction: genericAction('remove')
     });
+    // Only one instance allowed. At root level.
+    registerUIElement({
+        name: 'cut',
+        icon: ICONS.cut,
+        tooltip: strCut,
+        onAction: genericAction('cut')
+    });
+    // Only one instance allowed. At root level.
     editor.ui.registry.addToggleMenuItem(`${componentName}_printable_item`, {
         icon: 'print',
         text: strPrintable,
@@ -425,45 +521,59 @@ export async function initContextActions(editor) {
         }
     });
 
-    // Let extensions to register additional menuItem and nestedMenuItem
+    // Let extensions register additional menuItem and nestedMenuItem.
     /** @type {import('./extension').UserDefinedItem[]} */
     const widgetsWithExtensions = (
         await Promise.all(getMenuItemProviders().map(provider => provider(ctx)))
     ).flat();
     widgetsWithExtensions.forEach(menuItem => {
         if (menuItem.subMenuItems) {
-                // It is a nested menu.
-                editor.ui.registry.addNestedMenuItem(`${componentName}_${menuItem.name}`, {
-                    icon: menuItem.icon,
-                    text: menuItem.title,
-                    getSubmenuItems: menuItem.subMenuItems
-                });
-            } else if (menuItem.onAction) {
-                // It is a simple menu item.
-                editor.ui.registry.addMenuItem(`${componentName}_${menuItem.name}`, {
-                    icon: menuItem.icon,
-                    text: menuItem.title,
-                    onAction: menuItem.onAction
-                });
-            }
+            // It is a nested menu.
+            editor.ui.registry.addNestedMenuItem(`${componentName}_${menuItem.name}`, {
+                icon: menuItem.icon,
+                text: menuItem.title,
+                getSubmenuItems: menuItem.subMenuItems
+            });
+        } else if (menuItem.onAction) {
+            // It is a simple menu item.
+            editor.ui.registry.addMenuItem(`${componentName}_${menuItem.name}`, {
+                icon: menuItem.icon,
+                text: menuItem.title,
+                onAction: menuItem.onAction
+            });
+        }
     });
 
+    /**
+     * Any menu item, different from |, is prefixed by componentName_ and ended with _item.
+     * @param {string[]} menuItems
+     * @returns {string[]}
+     */
+    const prefixMenuItems = (menuItems) => menuItems.map(e => e === '|' ? '|' : `${componentName}_${e}`);
+
+    // Creates the actual context menu items.
     editor.ui.registry.addContextMenu(component, {
         /** @param {HTMLElement} element */
         update: (element) => {
-            // Look for a context
-            ctx.path = domSrv.findWidgetOnEventPath(widgetList, element);
-            if (!ctx.path?.widget || ctx.path.widget.prop("contexttoolbar")) {
-                // Widget not found in the searchPath or it must be displayed as toolbar
-                return '';
-            }
-            const widget = ctx.path.widget;
             /** @type {string[]} */
             let menuItems = [];
-            if (hasBindings(widget)) {
-                menuItems.push('modal');
+
+            // Is there anything in widget Node clipboard?
+            if (widgetCutClipboard) {
+                menuItems.push('paste_item');
             }
-            // Does this widget bubble?
+            // Look for a context
+            ctx.path = domSrv.findWidgetOnEventPath(widgetList, element);
+            ctx.actionPaths = {
+                modal: []
+            };
+            const widget = ctx.path.widget;
+            if (!widget) {
+                // Widget not found in the searchPath.
+                return prefixMenuItems(menuItems).join(' ');
+            }
+
+            // Does this widget bubble? Look for a parent widget named widget.bubbles
             /** @type {PathResult | null} */
             let parentPath = null;
             if (widget.prop('bubbles')) {
@@ -471,15 +581,21 @@ export async function initContextActions(editor) {
                 if (parentElem) {
                     const p = domSrv.findWidgetOnEventPath(widgetList, parentElem);
                     if (p && p.widget?.key === widget.prop('bubbles')) {
-                        parentPath = p;
+                        parentPath = {...p};
                     }
                 }
             }
 
             const populateMenuItems = function(/** @type {PathResult} **/ path) {
+                if (!path.widget) {
+                    return;
+                }
+                if (hasBindings(path.widget)) {
+                    ctx.actionPaths.modal.push({...path});
+                }
                 // Now look for contextmenu property in widget definition
-                /** @type {{predicate: string, actions: string}[] | undefined} */
-                let contextmenu = path.widget?.prop('contextmenu');
+                /** @type {import('./options').Action[] | undefined} */
+                let contextmenu = path.widget.prop('contextmenu');
                 if (!contextmenu) {
                     return;
                 }
@@ -502,68 +618,100 @@ export async function initContextActions(editor) {
                         return;
                     }
                     const newActionsToAdd = cm.actions.split(' ')
-                        .map(e => e.trim())
                         // Moveleft/right should be mapped into movebefore/moveafter
+                        // insert should be mapped into insertafter
                         .map(action => {
+                            action = action.trim().toLowerCase();
                             if (action === 'moveleft') {
                                 return 'movebefore';
-                            }
-                            if (action === 'moveright') {
+                            } else if (action === 'moveright') {
                                 return 'moveafter';
+                            } else if (action === 'insert') {
+                                return 'insertafter';
                             }
                             return action;
                         })
-                        // Never duplicate actions from different sources.
-                        .filter(e => e === '|' || !menuItems.includes(e));
+                        // Do not insert multiple times the same action
+                        .filter(action => action === '|' || !menuItems.includes(action));
+
                     menuItems.push(...newActionsToAdd);
 
                     // Register the new paths of every action
                     newActionsToAdd.filter(e => e !== '|').forEach((/** @type {string} */ e) => {
                         path.targetElement = targetElem;
-                        ctx.actionPaths[e] = {...path};
+                        ctx.actionPaths[e] = ctx.actionPaths[e] || [];
+                        ctx.actionPaths[e].push({...path, text: cm.description});
                     });
                 });
+
+                // Unwrap action always to the end
+                if (path.widget.unwrap) {
+                    menuItems.push('unwrap');
+                    ctx.actionPaths.unwrap = ctx.actionPaths.unwrap || [];
+                    ctx.actionPaths.unwrap.push({...path});
+                }
             };
 
             if (parentPath) {
                 // Give precedence to the parent menus.
                 populateMenuItems(parentPath);
             }
+            // Populate with selected widget.
             populateMenuItems(ctx.path);
 
-            menuItems = menuItems.map(e => e === '|' ? '|' : `${componentName}_${e}_item`);
+            // Deal with repeated menu items. Add suffix _item or _nesteditem.
+            menuItems = menuItems.map(e => {
+                if (e === '|') {
+                    return e;
+                } else if (['cut', 'paste'].includes(e)) {
+                    // Only one instance is allowed for these actions.
+                    return `${e}_item`;
+                } else if (ctx.actionPaths[e]?.length > 1) {
+                    return `${e}_nesteditem`;
+                }
+                return `${e}_item`;
+            });
+
+
             // Check if the current widget has any action registered by extensions
             const actionNames = widgetsWithExtensions
                 .filter(e => matchesCondition(e.condition, widget.key))
-                .map(e => `${componentName}_${e.name}`);
+                .map(e => e.name);
             menuItems.push(...actionNames);
 
-            // Unwrap action always to the end
-            if (widget.unwrap) {
-                menuItems.push(`${componentName}_unwrap_item`);
-            }
-            return menuItems.join(' ');
+            return prefixMenuItems(menuItems).join(' ');
         }
     });
 
-    // Look for widgets that need context toolbar
-    widgetList.filter(widget => needsContextMenu(widget)).forEach(widget => {
+    // Look for widgets that need a context toolbar
+    widgetList.filter(widget => widget.prop('contexttoolbar') && !widget.isFilter()).forEach(widget => {
         const items = [];
         if (hasBindings(widget)) {
             items.push('modal');
         }
+        /** @type {import('./options').Action[]} */
+        const contextToolbar = widget.prop('contexttoolbar');
+        contextToolbar.filter(ctbSpec => !ctbSpec.predicate).forEach(ctbSpec => {
+            const actionsToAdd = ctbSpec.actions.toLowerCase().split('')
+                .map(e => e.trim())
+                .filter(e => ['|', 'cut', 'printable'].includes(e));
+            items.push(actionsToAdd);
+        });
         if (widget.unwrap) {
             items.push('unwrap');
         }
-        if (widget.prop("contexttoolbar")) {
-            editor.ui.registry.addContextToolbar(`${componentName}_ctb_${widget.key}`, {
-                /** @param {HTMLElement} node */
-                predicate: function(node) {
-                    return domSrv.matchesSelectors(node, widget.selectors);
-                },
-                items: items.map(e => `${componentName}_${e}_btn`).join(' '),
-                position: 'node'
-            });
-        }
+        editor.ui.registry.addContextToolbar(`${componentName}_ctb_${widget.key}`, {
+            /** @param {HTMLElement} node */
+            predicate: function(node) {
+                const path = domSrv.findWidgetOnEventPath(widgetList, node);
+                // Only activate if the first widget found in path is the current one
+                return path.widget?.key === widget.key;
+            },
+            items: items.map(e => e === '|' ? '|' : `${componentName}_${e}_btn`).join(' '),
+            position: 'node',
+            scope: 'node',
+        });
     });
+
+    return ctx;
 }

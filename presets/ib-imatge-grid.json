@@ -106,8 +106,8 @@
             ]
         }
     ],
-    "requires": "/sd/images.min.js | effect!='none'",
+    "requires": "/sd/images.min.js | table[data-snptd]",
     "stars": 0,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "3.3.0"
+    "version": "3.4.0"
 }

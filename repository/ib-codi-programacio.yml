@@ -96,7 +96,7 @@ parameters:
     title: Mostra el nom del llenguatge
     bind: hasClass('display-lang')
     when: "syntax"
-requires: "/sd/programacio.min.js | syntax"
+requires: "/sd/programacio.min.js | code:not(.nohighlight)"
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.29
+version: 3.0.0
