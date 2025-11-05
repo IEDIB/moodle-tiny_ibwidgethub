@@ -1,12 +1,10 @@
-/**
- * @jest-environment jsdom
- */
- jest.mock("../../src/options", () => ({
-        __esModule: true,
-        default: {
-            getGlobalConfig: jest.fn()
-        }
-    }), {virtual: true});
+
+jest.mock("../../src/options", () => ({
+    __esModule: true,
+    default: {
+        getGlobalConfig: jest.fn()
+    }
+}), { virtual: true });
 
 
 
@@ -181,104 +179,104 @@ describe('emulateAttoNewlineBehaviour', () => {
     });
 
     describe('emulateAttoNewlineBehaviour extended', () => {
-    /** @type {any} */
-    let editor;
-    /** @type {HTMLTextAreaElement} */
-    let textarea;
+        /** @type {any} */
+        let editor;
+        /** @type {HTMLTextAreaElement} */
+        let textarea;
 
-    beforeEach(() => {
-        textarea = document.createElement("textarea");
-        document.body.innerHTML = '';
-        document.body.append(textarea);
-        editor = {
-            setContent: jest.fn().mockImplementation((e, args) => textarea.value = e),
-            getContent: jest.fn().mockImplementation(() => textarea.value),
-        };
-    });
-
-    test('getContent afegeix <br> a paràgrafs buits amb comentaris', () => {
-        textarea.value = '<p><!-- comment --></p><p>keep</p>';
-        expect(editor.getContent()).toBe('<p><!-- comment --></p><p>keep</p>');
-        emulateAttoNewlineBehaviour(editor);
-
-        const result = editor.getContent();
-        expect(result).toBe('<p><br><!-- comment --></p><p>keep</p>');
-    });
-
-     test('getContent NO afegeix <br> a paràgrafs plens amb comentaris', () => {
-        textarea.value = '<p><!-- comment --><span>q</span></p><p>keep</p>';
-        emulateAttoNewlineBehaviour(editor);
-
-        const result = editor.getContent();
-        expect(result).toBe('<p><!-- comment --><span>q</span></p><p>keep</p>');
-    });
-
-    test('setContent afegeix <br> a paràgrafs buits amb spans buits', () => {
-        textarea.value = '';
-        emulateAttoNewlineBehaviour(editor);
-        editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
-
-        const result = editor.setContent('<p><span></span></p><p>text</p>');
-        expect(textarea.value).toBe('<p>text</p>');
-    });
-
-    test('setContent amb &nbsp; no l\'elimina', () => {
-        textarea.value = '';
-        emulateAttoNewlineBehaviour(editor);
-
-        const result = editor.setContent('<p>&nbsp;</p>');
-        expect(editor._orgSetContent).toHaveBeenCalledWith('<p>&nbsp;</p>', undefined);
-        expect(textarea.value).toBe('<p>&nbsp;</p>');
-
-        // GetContent should not modify it
-        expect(editor.getContent()).toBe('<p>&nbsp;</p>');
-    });
-
-    test('getContent no toca paràgrafs amb spans amb text', () => {
-        textarea.value = '<p><span>hi</span></p><p>hello</p>';
-        emulateAttoNewlineBehaviour(editor);
-        editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
-
-        const result = editor.getContent();
-        expect(result).toBe('<p><span>hi</span></p><p>hello</p>');
-    });
-
-    test('getContent no modifica paràgrafs dins de pre/code/script', () => {
-        textarea.value = '<pre><p></p></pre><code><p></p></code><script><p></p></script>';
-        emulateAttoNewlineBehaviour(editor);
-        editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
-
-        const result = editor.getContent();
-        expect(result).toBe(textarea.value);
-    });
-
-    test('getContent combina paràgrafs buits, comentaris i text', () => {
-        textarea.value = '<p><!--c--></p><p>hello</p><p> </p>';
-        emulateAttoNewlineBehaviour(editor);
-        editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
-
-        const result = editor.getContent();
-        expect(result).toBe('<p><br><!--c--></p><p>hello</p><p><br></p>');
-    });
-
-    test('setContent i getContent funcionen conjuntament', () => {
-        textarea.value = '<p></p><p>text</p>';
-        emulateAttoNewlineBehaviour(editor);
-
-        editor._orgSetContent = jest.fn((content) => {
-            textarea.value = content;
-            return content;
+        beforeEach(() => {
+            textarea = document.createElement("textarea");
+            document.body.innerHTML = '';
+            document.body.append(textarea);
+            editor = {
+                setContent: jest.fn().mockImplementation((e, args) => textarea.value = e),
+                getContent: jest.fn().mockImplementation(() => textarea.value),
+            };
         });
 
-        editor.setContent('<p></p><p>text</p><p><br></p>', { format: 'html' });
-        expect(textarea.value).toBe('<p>text</p><p><br></p>'); // després de setContent
-        let result = editor.getContent();
-        expect(result).toBe('<p>text</p><p><br></p>'); // després de getContent
-        textarea.value = '<p></p>' + textarea.value;
-        result = editor.getContent();
-        expect(result).toBe('<p><br></p><p>text</p><p><br></p>'); // després de getContent
+        test('getContent afegeix <br> a paràgrafs buits amb comentaris', () => {
+            textarea.value = '<p><!-- comment --></p><p>keep</p>';
+            expect(editor.getContent()).toBe('<p><!-- comment --></p><p>keep</p>');
+            emulateAttoNewlineBehaviour(editor);
 
+            const result = editor.getContent();
+            expect(result).toBe('<p><br><!-- comment --></p><p>keep</p>');
+        });
+
+        test('getContent NO afegeix <br> a paràgrafs plens amb comentaris', () => {
+            textarea.value = '<p><!-- comment --><span>q</span></p><p>keep</p>';
+            emulateAttoNewlineBehaviour(editor);
+
+            const result = editor.getContent();
+            expect(result).toBe('<p><!-- comment --><span>q</span></p><p>keep</p>');
+        });
+
+        test('setContent afegeix <br> a paràgrafs buits amb spans buits', () => {
+            textarea.value = '';
+            emulateAttoNewlineBehaviour(editor);
+            editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
+
+            const result = editor.setContent('<p><span></span></p><p>text</p>');
+            expect(textarea.value).toBe('<p>text</p>');
+        });
+
+        test('setContent amb &nbsp; no l\'elimina', () => {
+            textarea.value = '';
+            emulateAttoNewlineBehaviour(editor);
+
+            const result = editor.setContent('<p>&nbsp;</p>');
+            expect(editor._orgSetContent).toHaveBeenCalledWith('<p>&nbsp;</p>', undefined);
+            expect(textarea.value).toBe('<p>&nbsp;</p>');
+
+            // GetContent should not modify it
+            expect(editor.getContent()).toBe('<p>&nbsp;</p>');
+        });
+
+        test('getContent no toca paràgrafs amb spans amb text', () => {
+            textarea.value = '<p><span>hi</span></p><p>hello</p>';
+            emulateAttoNewlineBehaviour(editor);
+            editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
+
+            const result = editor.getContent();
+            expect(result).toBe('<p><span>hi</span></p><p>hello</p>');
+        });
+
+        test('getContent no modifica paràgrafs dins de pre/code/script', () => {
+            textarea.value = '<pre><p></p></pre><code><p></p></code><script><p></p></script>';
+            emulateAttoNewlineBehaviour(editor);
+            editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
+
+            const result = editor.getContent();
+            expect(result).toBe(textarea.value);
+        });
+
+        test('getContent combina paràgrafs buits, comentaris i text', () => {
+            textarea.value = '<p><!--c--></p><p>hello</p><p> </p>';
+            emulateAttoNewlineBehaviour(editor);
+            editor._orgGetContent = jest.fn().mockReturnValue(textarea.value);
+
+            const result = editor.getContent();
+            expect(result).toBe('<p><br><!--c--></p><p>hello</p><p><br></p>');
+        });
+
+        test('setContent i getContent funcionen conjuntament', () => {
+            textarea.value = '<p></p><p>text</p>';
+            emulateAttoNewlineBehaviour(editor);
+
+            editor._orgSetContent = jest.fn((content) => {
+                textarea.value = content;
+                return content;
+            });
+
+            editor.setContent('<p></p><p>text</p><p><br></p>', { format: 'html' });
+            expect(textarea.value).toBe('<p>text</p><p><br></p>'); // després de setContent
+            let result = editor.getContent();
+            expect(result).toBe('<p>text</p><p><br></p>'); // després de getContent
+            textarea.value = '<p></p>' + textarea.value;
+            result = editor.getContent();
+            expect(result).toBe('<p><br></p><p>text</p><p><br></p>'); // després de getContent
+
+        });
     });
-});
 
 });

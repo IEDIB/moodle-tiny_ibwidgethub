@@ -89,7 +89,10 @@
             "when": "syntax"
         }
     ],
-    "requires": "/sd/programacio.min.js | code:not(.nohighlight)",
+    "requires": {
+        "url": "/sd/programacio.min.js",
+        "query": "pre.iedib-code > code:not(.nohighlight)"
+    },
     "stars": 2,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
     "version": "3.0.0"

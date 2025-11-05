@@ -22,25 +22,36 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import Common from '../common';
-import {registerMenuItemProvider} from "../extension";
-import {getUserStorage} from "../service/userstorage_service";
-import {convertInt, findVariableByName, removeStyleMCE, setStyleMCE} from "../util";
+import { registerMenuItemProvider } from "../extension";
+import { getUserStorage } from "../service/userstorage_service";
+import { convertInt, findVariableByName, removeStyleMCE, setStyleMCE } from "../util";
 import * as Action from './contextactions';
 // eslint-disable-next-line camelcase
-import {get_strings} from "core/str";
+import { get_strings } from "core/str";
 
-const {component} = Common;
+const { component } = Common;
 
 /**
  * @typedef {{type: string, text: string, icon?: string, onAction: (api?: *) => void}} MenuItem
  * @typedef {{name: string, title: string, condition?: string | RegExp | (() => boolean), icon?: string, onAction?: ()=> void, subMenuItems?: () => (string | MenuItem[])}} UserDefinedItem
  */
 
+export const SUPPORTED_LANGS = [
+    { iso: 'ca', title: 'Català' },
+    { iso: 'es', title: 'Castellà' },
+    { iso: 'en', title: 'English' },
+    { iso: 'fr', title: 'Francès' },
+    { iso: 'de', title: 'Alemany' },
+];
+
+
+
+
 /**
- * @param {import("../contextinit").ItemMenuContext} ctx
+ * @param {import("../contextactions").ItemMenuContext} ctx
  * @returns {Promise<UserDefinedItem[]>}
  **/
-async function provider(ctx) {
+export async function provider(ctx) {
     // Get translations
     const [
         strAccept, strAdd, strBeautified, strBehavior, strBig, strCancel, strChooseBackground, strChooseColor,
@@ -49,47 +60,39 @@ async function provider(ctx) {
         strRow, strSmall, strStartsAt, strStartsNumerationAt, strTableWidth, strToBootstrapTable,
         strToExample2Rows, strToExampleSimple, strToList, strToOneCol, strToPredefinedTable, strToWidgetImage,
     ] = await get_strings([
-            'accept',
-            'add',
-            'beautified',
-            'behavior',
-            'big',
-            'cancel',
-            'choosebackground',
-            'choosecolor',
-            'dependent',
-            'footer',
-            'fullscreen',
-            'header',
-            'imageeffects',
-            'independent',
-            'maxwidthpx',
-            'medium',
-            'minusonenolimit',
-            'remove',
-            'removebackground',
-            'responsivity',
-            'row',
-            'small',
-            'startsat',
-            'startsnumerationat',
-            'tablewidth',
-            'tobootstraptable',
-            'toexamplerows',
-            'toexamplesimple',
-            'tolist',
-            'toonecol',
-            'topredefinedtable',
-            'towidgetimage',
-        ].map(key => ({key, component})));
-
-    const SUPPORTED_LANGS = [
-        {iso: 'ca', title: 'Català'},
-        {iso: 'es', title: 'Castellà'},
-        {iso: 'en', title: 'English'},
-        {iso: 'fr', title: 'Francès'},
-        {iso: 'de', title: 'Alemany'},
-    ];
+        'accept',
+        'add',
+        'beautified',
+        'behavior',
+        'big',
+        'cancel',
+        'choosebackground',
+        'choosecolor',
+        'dependent',
+        'footer',
+        'fullscreen',
+        'header',
+        'imageeffects',
+        'independent',
+        'maxwidthpx',
+        'medium',
+        'minusonenolimit',
+        'remove',
+        'removebackground',
+        'responsivity',
+        'row',
+        'small',
+        'startsat',
+        'startsnumerationat',
+        'tablewidth',
+        'tobootstraptable',
+        'toexamplerows',
+        'toexamplesimple',
+        'tolist',
+        'toonecol',
+        'topredefinedtable',
+        'towidgetimage',
+    ].map(key => ({ key, component })));
 
     const AVAILABLE_EFFECTS = [
         {name: 'zoom', title: 'Zoom'},
@@ -108,7 +111,7 @@ async function provider(ctx) {
      * @param {*} initialValue
      * @param {(api: *) => void} onSubmit
      */
-    const openInputDialog = function(title, label, initialValue, onSubmit) {
+    const openInputDialog = function (title, label, initialValue, onSubmit) {
         ctx.editor?.windowManager.open({
             title,
             body: {
@@ -144,20 +147,21 @@ async function provider(ctx) {
         subMenuItems: () => {
             const elem = ctx.path?.elem;
             if (!elem) {
-                return '';
+                return [];
             }
             if (!elem.getAttribute('data-snptd')) {
                 return AVAILABLE_EFFECTS.map(e => ({
                     type: 'menuitem',
                     text: e.title,
-                    onAction: Action.addImageEffectAction.bind({ctx, type: e.name})
+                    tooltip: e.name,
+                    onAction: Action.addImageEffectAction.bind({ ctx, type: e.name })
                 }));
             } else {
                 return [{
                     type: 'menuitem',
                     icon: 'remove',
                     text: strRemove,
-                    onAction: Action.removeImageEffectsAction.bind({ctx})
+                    onAction: Action.removeImageEffectsAction.bind({ ctx })
                 }];
             }
         }
@@ -186,7 +190,7 @@ async function provider(ctx) {
             return isImg;
         },
         title: strToWidgetImage,
-        onAction: Action.imageSwitchToSnippetAction.bind({ctx})
+        onAction: Action.imageSwitchToSnippetAction.bind({ ctx })
     };
 
     /**
@@ -202,11 +206,11 @@ async function provider(ctx) {
                 return '';
             }
             const currentLang = elem.getAttribute('data-lang') ?? '';
-            return SUPPORTED_LANGS.map(({iso, title}) => ({
+            return SUPPORTED_LANGS.map(({ iso, title }) => ({
                 type: 'menuitem',
                 text: title,
                 icon: iso === currentLang ? 'checkmark' : undefined,
-                onAction: Action.changeBoxLangAction.bind({ctx, iso})
+                onAction: Action.changeBoxLangAction.bind({ ctx, iso })
             }));
         }
     };
@@ -229,7 +233,7 @@ async function provider(ctx) {
                 type: 'menuitem',
                 text: e.l ?? e,
                 icon: elem.classList.contains('iedib-capsa-' + (e.v ?? e)) ? 'checkmark' : undefined,
-                onAction: Action.changeBoxSizeAction.bind({ctx, size: e.v ?? e})
+                onAction: Action.changeBoxSizeAction.bind({ ctx, size: e.v ?? e })
             }));
         }
     };
@@ -252,7 +256,7 @@ async function provider(ctx) {
                 type: 'menuitem',
                 text: e.l ?? e,
                 icon: elem.classList.contains('iedib-' + (e.v ?? e) + '-border') ? 'checkmark' : undefined,
-                onAction: Action.changeBoxSeverityAction.bind({ctx, severity: e.v ?? e})
+                onAction: Action.changeBoxSeverityAction.bind({ ctx, severity: e.v ?? e })
             }));
         }
     };
@@ -275,7 +279,7 @@ async function provider(ctx) {
             const menuItems = [{
                 type: 'menuitem',
                 text: strToOneCol,
-                onAction: Action.changeColumnWidth.bind({ctx, colSpan: 0})
+                onAction: Action.changeColumnWidth.bind({ ctx, colSpan: 0 })
             }];
 
             const firstDiv = elem.querySelector('div:first-child');
@@ -293,7 +297,7 @@ async function provider(ctx) {
                     type: 'menuitem',
                     text: label,
                     icon: isCurrent ? 'checkmark' : undefined,
-                    onAction: Action.changeColumnWidth.bind({ctx, colSpan: i})
+                    onAction: Action.changeColumnWidth.bind({ ctx, colSpan: i })
                 });
             }
             return menuItems;
@@ -307,7 +311,7 @@ async function provider(ctx) {
         name: 'switchBoxRowsExample',
         condition: 'capsa-exemple-cols',
         title: strToExample2Rows,
-        onAction: Action.switchBoxRowsExampleAction.bind({ctx})
+        onAction: Action.switchBoxRowsExampleAction.bind({ ctx })
     };
 
     /**
@@ -317,7 +321,7 @@ async function provider(ctx) {
         name: 'switchBoxSimpleExample',
         condition: 'capsa-exemple-rows',
         title: strToExampleSimple,
-        onAction: Action.switchBoxSimpleExampleAction.bind({ctx})
+        onAction: Action.switchBoxSimpleExampleAction.bind({ ctx })
     };
 
     /**
@@ -410,7 +414,7 @@ async function provider(ctx) {
                 type: 'menuitem',
                 text: opt ? strIndependent : strDependent,
                 icon: isDependentBehavior === opt ? undefined : 'checkmark',
-                onAction: Action.setAccordionBehavior.bind({ctx, isDependentBehavior: opt})
+                onAction: Action.setAccordionBehavior.bind({ ctx, isDependentBehavior: opt })
             }));
         }
     };
@@ -456,7 +460,7 @@ async function provider(ctx) {
         name: 'convertToBsTableMenu',
         condition: 'taula-predefinida',
         title: strToBootstrapTable,
-        onAction: Action.convert2BootstrapTable.bind({ctx}),
+        onAction: Action.convert2BootstrapTable.bind({ ctx }),
     };
 
     /**
@@ -466,7 +470,7 @@ async function provider(ctx) {
         name: 'convertToPredefinedTableMenu',
         condition: 'taula-bs',
         title: strToPredefinedTable,
-        onAction: Action.convert2PrefefinedTable.bind({ctx}),
+        onAction: Action.convert2PrefefinedTable.bind({ ctx }),
     };
 
     /**
@@ -487,7 +491,7 @@ async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: isResponsive ? strRemove : strAdd,
-                onAction: Action.toggleBootstapTableResponsiveness.bind({ctx})
+                onAction: Action.toggleBootstapTableResponsiveness.bind({ ctx })
             }];
         }
     };
@@ -509,7 +513,7 @@ async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: hasHeader ? strRemove : strAdd,
-                onAction: Action.toggleTableHeader.bind({ctx})
+                onAction: Action.toggleTableHeader.bind({ ctx })
             }];
         }
     };
@@ -531,7 +535,7 @@ async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: hasFooter ? strRemove : strAdd,
-                onAction: Action.toggleTableFooter.bind({ctx})
+                onAction: Action.toggleTableFooter.bind({ ctx })
             }];
         }
     };
@@ -543,7 +547,7 @@ async function provider(ctx) {
         name: 'convertDropdownToList',
         condition: 'desplegable2',
         title: strToList,
-        onAction: Action.convertDropdownToList.bind({ctx}),
+        onAction: Action.convertDropdownToList.bind({ ctx }),
     };
 
     /**

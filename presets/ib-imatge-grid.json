@@ -106,7 +106,10 @@
             ]
         }
     ],
-    "requires": "/sd/images.min.js | table[data-snptd]",
+    "requires": {
+        "url": "/sd/images.min.js",
+        "query": "table.iedib-imggrid[data-snptd]"
+    },
     "stars": 0,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
     "version": "3.4.0"

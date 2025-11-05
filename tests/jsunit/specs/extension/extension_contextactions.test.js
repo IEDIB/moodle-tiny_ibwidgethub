@@ -1,14 +1,8 @@
-/**
- * @jest-environment jsdom
- */
-// Mock virtual modules
-require('../module.mocks')(jest);
 const actions = require('../../src/extension/contextactions');
-const editorFactory = require('../editor.mock');
 
 const widget = {
-    selectors: 'div[data-snptd="zoom"]',
-    requires: '/sd/images.min.js',
+    selectors: 'div.iedib-img',
+    requires: {url: '/sd/images.min.js', query: 'div.iedib-img[data-snptd="zoom"]'},
 };
 
 /**
@@ -17,7 +11,7 @@ const widget = {
  * @returns {*}
  */
 const createEditor = (html) => {
-    const editor = editorFactory();
+    const editor = Mocks.editorFactory();
     editor.setContent(html);
     editor.options.get = jest.fn().mockReturnValue([widget])
     return editor;
@@ -27,7 +21,7 @@ describe('contextactions', () => {
 
     it('addImageEffectAction includes zoom effect', () => {
         const editor = createEditor(`
-        <div class="iedib-img">
+        <div class="iedib-img" data-snptd="zoom">
             <img src="https://server.com/sample.png"/>
         </div>    
         `);
@@ -35,7 +29,7 @@ describe('contextactions', () => {
         const selectedElement = editor.getBody().querySelector('img');
         /** @type {HTMLElement} */
         const elem = editor.getBody().querySelector('.iedib-img');
-        /** @type {{ctx: import("../../src/contextinit").ItemMenuContext, type: string}} */
+        /** @type {{ctx: import("../../src/contextactions").ItemMenuContext, type: string}} */
         const self = {
             ctx: {
                 editor,
@@ -71,7 +65,7 @@ describe('contextactions', () => {
         const selectedElement = editor.getBody().querySelector('.iedib-central');
         /** @type {HTMLElement} */
         const elem = editor.getBody().querySelector('.iedib-capsa-important');
-        /** @type {{ctx: import("../../src/contextinit").ItemMenuContext, iso: string}} */
+        /** @type {{ctx: import("../../src/contextactions").ItemMenuContext, iso: string}} */
         const self = {
             ctx: {
                 editor,

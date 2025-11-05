@@ -36,7 +36,7 @@ function detachNode(el) {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext, type: string}}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext, type: string}}}
  */
 export function addImageEffectAction() {
     const ctx = this.ctx;
@@ -46,11 +46,11 @@ export function addImageEffectAction() {
         return;
     }
     elem.setAttribute("data-snptd", type);
-    addRequires(ctx.editor, ["/sd/images.min.js"]);
+    addRequires(ctx.editor, ctx.path?.widget?.requires ? [ctx.path?.widget?.requires] : undefined);
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}}
  */
 export function removeImageEffectsAction() {
     const ctx = this.ctx;
@@ -66,7 +66,7 @@ export function removeImageEffectsAction() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext, iso: string}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext, iso: string}}
  */
 export function changeBoxLangAction() {
     const iso = this.iso;
@@ -115,7 +115,7 @@ export function changeBoxLangAction() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext, size: string}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext, size: string}}
  */
 export function changeBoxSizeAction() {
     const elem = this.ctx.path?.elem;
@@ -128,7 +128,7 @@ export function changeBoxSizeAction() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext, severity: string}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext, severity: string}}
  */
 export function changeBoxSeverityAction() {
     const severity = this.severity;
@@ -157,7 +157,7 @@ export function changeBoxSeverityAction() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function switchBoxSimpleExampleAction() {
     const target = this.ctx.path?.elem;
@@ -186,7 +186,7 @@ export function switchBoxSimpleExampleAction() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function switchBoxRowsExampleAction() {
     const target = this.ctx.path?.elem;
@@ -214,7 +214,7 @@ export function switchBoxRowsExampleAction() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function imageSwitchToSnippetAction() {
     const target = this.ctx.path?.targetElement;
@@ -230,7 +230,7 @@ export function imageSwitchToSnippetAction() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext, colSpan: number}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext, colSpan: number}}
  */
 export function changeColumnWidth() {
     const colSpan = this.colSpan;
@@ -259,7 +259,7 @@ export function changeColumnWidth() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext, isDependentBehavior: boolean}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext, isDependentBehavior: boolean}}
  */
 export function setAccordionBehavior() {
     const isDependentBehavior = this.isDependentBehavior;
@@ -284,7 +284,7 @@ export function setAccordionBehavior() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function convert2BootstrapTable() {
     const target = this.ctx.path?.elem;
@@ -305,7 +305,7 @@ export function convert2BootstrapTable() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function convertDropdownToList() {
     const target = this.ctx.path?.elem;
@@ -335,7 +335,7 @@ export function convertDropdownToList() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function convert2PrefefinedTable() {
     const target = this.ctx.path?.elem;
@@ -352,7 +352,7 @@ export function convert2PrefefinedTable() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function toggleTableHeader() {
     const target = this.ctx.path?.elem;
@@ -386,7 +386,7 @@ export function toggleTableHeader() {
 }
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function toggleTableFooter() {
     const target = this.ctx.path?.elem;
@@ -421,7 +421,7 @@ export function toggleTableFooter() {
 
 
 /**
- * @this {{ctx: import("../contextinit").ItemMenuContext}}
+ * @this {{ctx: import("../contextactions").ItemMenuContext}}
  */
 export function toggleBootstapTableResponsiveness() {
     const target = this.ctx.path?.elem;

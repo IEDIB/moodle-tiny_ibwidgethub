@@ -78,7 +78,9 @@ parameters:
       - {v: 'none', l: 'Cap'}
       - {v: 'zm', l: 'Imatge amb zoom'}
       - {v: 'lb', l: "Pas d'imatges a pantalla completa"} 
-requires: "/sd/images.min.js | table[data-snptd]"
+requires: 
+  url: /sd/images.min.js
+  query: table.iedib-imggrid[data-snptd]
 stars: 0
 author: Josep Mulet Pol <pep.mulet@gmail.com>
 version: 3.4.0

@@ -335,9 +335,14 @@ export function applyPartials(widget, partials) {
  * @property {string} [description] - Description is used in context menus and context toolbars.
  */
 /**
+ * @typedef {Object} RequiresSpec
+ * @property {string} url - The url of the js dependency to be included along with the widget.
+ * @property {string} [query] - Condition in the form of a css query relative to editor's body. The dependency will be added if the query returns some node.
+ */
+/**
  * @typedef {Object} RawWidget
  * @property {string} [plugin_release]
- * @property {number} id
+ * @property {number} [id]
  * @property {string} key
  * @property {string} name
  * @property {string} category
@@ -359,7 +364,7 @@ export function applyPartials(widget, partials) {
  * @property {string} [autocomplete]
  * @property {string} version
  * @property {string} author
- * @property {string} [requires]
+ * @property {string | RequiresSpec} [requires]
  * @property {boolean} [hidden]
  * @property {number} [stars]
  * @property {Action[]} [contextmenu]
@@ -392,7 +397,7 @@ export class Widget {
      * @returns {number}
      */
      get id() {
-        return this._widget.id;
+        return this._widget.id ?? 0;
     }
     /**
      * @returns {string}
@@ -463,6 +468,21 @@ export class Widget {
      */
     get parameters() {
         return this._widget.parameters ?? [];
+    }
+    /**
+     * @returns {RequiresSpec | null}
+     */
+    get requires() {
+        if (typeof this._widget.requires === 'object' && this._widget.requires.url) {
+            return {
+                url: this._widget.requires.url.trim(),
+                query: this._widget.requires.query?.trim()
+            };
+        } else if (typeof this._widget.requires === 'string') {
+            const [url, query] = this._widget.requires.split('|').map(e => e.trim());
+            return {url, query};
+        }
+        return null;
     }
     /**
      * @returns {Object.<string, any>}
@@ -567,15 +587,22 @@ export class Widget {
         return this._widget.selectors !== undefined && this._widget.insertquery !== undefined;
     }
     /**
+     * Determine if a widget contains bindings
      * @returns {boolean}
      */
     hasBindings() {
         const parameters = this._widget.parameters ?? [];
-        const repeatable = parameters.filter(param => param.type === 'repeatable')
-            .map(rep => (rep.fields || []).some(field => field.bind !== undefined));
-        return parameters.some(param => param.bind !== undefined) ||
-            repeatable.some(rep => rep);
+        return parameters.some(param => {
+            if (param.type === 'repeatable') {
+                const hasFieldBindings = param.fields?.some(f => f.bind !== undefined);
+                return (typeof param.bind === 'object') ||
+                    (hasFieldBindings && typeof param.item_selector === 'string');
+            } else {
+                return param.bind !== undefined;
+            }
+        });
     }
+
     /**
      * Recovers the property value named name of the original definition
      * @param {string} name

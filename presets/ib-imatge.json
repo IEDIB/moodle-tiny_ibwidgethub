@@ -53,7 +53,10 @@
         }
     ],
     "stars": 3,
-    "requires": "/sd/images.min.js | div[data-snptd]",
+    "requires": {
+        "url": "/sd/images.min.js",
+        "query": "div.iedib-figura[data-snptd]"
+    },
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
     "version": "3.4.0"
 }
