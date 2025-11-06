@@ -28,6 +28,7 @@ $string['beautified'] = 'Beautified';
 $string['behavior'] = 'Behavior';
 $string['big'] = 'Large';
 $string['cancel'] = 'Cancel';
+$string['cell'] = 'Cell';
 $string['cfg'] = 'Additional settings';
 $string['choosebackground'] = 'Choose background';
 $string['choosecolor'] = 'Pick color';

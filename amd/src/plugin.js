@@ -34,15 +34,16 @@ import {register as registerOptions} from './options';
 import {getSetup as getCommandSetup} from './commands';
 import * as Configuration from './configuration';
 
+// Base extensions
+import './extension/refractorbs5';
+import './extension/dependencies';
+// Import additional extensions to the plugin
+import './extension/refractor';
+import './extension/hotfixes';
+import './extension/contextmenus';
+
 const documentationUrl = 'https://github.com/IEDIB/moodle-tiny_widgethub';
 const {component, pluginName} = Common;
-
-
-// Import extensions to the plugin
-import './extension/newlinebehavior';
-import './extension/dependencies';
-import './extension/contextmenus';
-import './extension/refractor';
 
 // Setup the plugin.
 // eslint-disable-next-line no-async-promise-executor

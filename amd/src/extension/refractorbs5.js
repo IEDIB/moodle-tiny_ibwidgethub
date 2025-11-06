@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,80 +16,14 @@
 /**
  * Tiny WidgetHub plugin.
  *
- * @module      tiny_ibwidgethub/plugin
- * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
+ * @module      tiny_widgethub/plugin
+ * @copyright   2025 Josep Mulet Pol <pep.mulet@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import {subscribe} from "../extension";
 import {getGlobalConfig} from "../options";
-
-/**
- * @param {HTMLElement} body
- * @param {string} query
- * @param {string} attr
- * @param {boolean} ishash
- * @param {string} prefix
- * @param {(ele: Element) => void} [changesWorker]
- * @returns {number}
- */
-function alphaWalker(body, query, attr, ishash, prefix, changesWorker) {
-    const all = body.querySelectorAll(query);
-    let casos = 0;
-    all.forEach((ele) => {
-        let localChange = 0;
-        let old = ele.getAttribute(attr) || "";
-        if (ishash) {
-            // It starts with # and after that the actual id value
-            if (attr === 'href') {
-                old = '#' + old.split('#')[1];
-            }
-            if (RegExp(/^#\d/).exec(old)) {
-                ele.setAttribute(attr, '#' + prefix + old.substring(1));
-                localChange += 1;
-            }
-        } else if (RegExp(/^\d/).exec(old)) {
-            ele.setAttribute(attr, prefix + old);
-            localChange += 1;
-        }
-        if (localChange && changesWorker) {
-            changesWorker(ele);
-        }
-        casos += localChange;
-    });
-    return casos;
-}
-
-/**
- * @param {Element} ele
- */
-function changesWorker(ele) {
-    const newId = ele.getAttribute("id");
-    const allAs = ele.querySelectorAll('a.accordion-toggle[data-toggle="collapse"],a.accordion-toggle[data-bs-toggle="collapse"]');
-    allAs.forEach((asel) => {
-        asel.setAttribute("data-parent", '#' + newId);
-        asel.setAttribute("data-bs-parent", '#' + newId);
-    });
-}
-
-/**
- * @param {import("../plugin").TinyMCE} editor
- * @returns {boolean}
- */
-export function idFixingRefractor(editor) {
-    const prefix = 'f_';
-    let casos = 0;
-    const body = editor.getBody();
-    try {
-        casos += alphaWalker(body, '.accordion.iedib-accordion', 'id', false, prefix, changesWorker);
-        const casos2 = alphaWalker(body, 'ul.nav.nav-tabs>li>a', 'href', true, prefix);
-        if (casos2 > 0) {
-            casos += casos2 + alphaWalker(body, '.tab-pane.iedib-tabpane', 'id', false, prefix);
-        }
-    } catch (ex) {
-        console.error(ex);
-    }
-    return casos > 0;
-}
+import Common from '../common';
+import * as coreStr from "core/str";
 
 // List of Bootstrap 4 data attribute suffixes (in kebab-case)
 // that are namespaced in Bootstrap 5.
@@ -99,6 +32,9 @@ const bs4DataAttributeSuffixes = [
     'toggle',
     'target',
     'parent',
+    'ride',
+    'slide',
+    'slide-to',
     // Options and configurations
     'placement',
     'trigger',
@@ -108,8 +44,8 @@ const bs4DataAttributeSuffixes = [
     'html',
 ];
 
- // Create a CSS selector string to find elements with any of the BS4 data attributes
- const bs5Selectors = bs4DataAttributeSuffixes.map(suffix => `[data-${suffix}]`).join(',');
+// Create a CSS selector string to find elements with any of the BS4 data attributes
+const bs5Selectors = bs4DataAttributeSuffixes.map(suffix => `[data-${suffix}]`).join(',');
 
 /**
  * @param {import("../plugin").TinyMCE} editor
@@ -154,18 +90,25 @@ export function bs5Refractor(editor) {
 /**
  * @param {import("../plugin").TinyMCE} editor
  */
-export function refractoring(editor) {
-    if (getGlobalConfig(editor, 'oninit.refractor.ids', '1') !== '1') {
-        return;
-    }
-    const changes = idFixingRefractor(editor);
-    if (changes) {
-        editor.notificationManager.open({
-            text: "S'han optimitzat alguns snippets. Per favor, desau els canvis en sortir.",
-            type: 'warning',
-            timeout: 4000
-        });
+export async function refractoring(editor) {
+    try {
+        const refractoringActive = getGlobalConfig(editor, 'oninit.refractor.bs5', '0');
+        let changes = false;
+        if (refractoringActive === '1') {
+            changes = bs5Refractor(editor);
+        }
+        if (changes) {
+            const saverequired = await coreStr.get_string('saverequired', Common.component);
+            editor.notificationManager.open({
+                text: saverequired,
+                type: 'warning',
+                timeout: 4000
+            });
+        }
+    } catch (ex) {
+        // eslint-disable-next-line no-console
+        console.error("Error while applying bs5 refractor:", ex);
     }
 }
 
-subscribe('contentSet', refractoring);
+subscribe('onInit', refractoring);

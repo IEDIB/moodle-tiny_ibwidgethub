@@ -12,7 +12,7 @@ import {
     removeEmptyParagraphs,
     padEmptyParagraphsWith,
     emulateAttoNewlineBehaviour,
-} from '../../src/extension/newlinebehavior';
+} from '../../src/extension/hotfixes';
 
 describe('removeEmptyParagraphs', () => {
     test('retorna string buit si content és undefined o buit', () => {

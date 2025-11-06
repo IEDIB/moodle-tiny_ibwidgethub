@@ -209,7 +209,7 @@ export function restoreEquationpluginButton(editor) {
 /**
  * @param {import("../plugin").TinyMCE} editor
  */
-const listener = (editor) => {
+export const listener = (editor) => {
  // Newline emulation
         const cfgLevel2 = getGlobalConfig(editor, 'emulate.atto.newlinebehaviour', '1');
         if (cfgLevel2 !== '0') {

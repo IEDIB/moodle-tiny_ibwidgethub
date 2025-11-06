@@ -22,14 +22,14 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import Common from '../common';
-import { registerMenuItemProvider } from "../extension";
-import { getUserStorage } from "../service/userstorage_service";
-import { convertInt, findVariableByName, removeStyleMCE, setStyleMCE } from "../util";
-import * as Action from './contextactions';
+import {registerMenuItemProvider} from "../extension";
+import {getUserStorage} from "../service/userstorage_service";
+import {convertInt, findVariableByName, removeStyleMCE, setStyleMCE} from "../util";
+import * as Action from './customcontextactions';
 // eslint-disable-next-line camelcase
-import { get_strings } from "core/str";
+import {get_strings} from "core/str";
 
-const { component } = Common;
+const {component} = Common;
 
 /**
  * @typedef {{type: string, text: string, icon?: string, onAction: (api?: *) => void}} MenuItem
@@ -37,14 +37,12 @@ const { component } = Common;
  */
 
 export const SUPPORTED_LANGS = [
-    { iso: 'ca', title: 'Català' },
-    { iso: 'es', title: 'Castellà' },
-    { iso: 'en', title: 'English' },
-    { iso: 'fr', title: 'Francès' },
-    { iso: 'de', title: 'Alemany' },
+    {iso: 'ca', title: 'Català'},
+    {iso: 'es', title: 'Castellà'},
+    {iso: 'en', title: 'English'},
+    {iso: 'fr', title: 'Francès'},
+    {iso: 'de', title: 'Alemany'},
 ];
-
-
 
 
 /**
@@ -54,7 +52,7 @@ export const SUPPORTED_LANGS = [
 export async function provider(ctx) {
     // Get translations
     const [
-        strAccept, strAdd, strBeautified, strBehavior, strBig, strCancel, strChooseBackground, strChooseColor,
+        strAccept, strAdd, strBeautified, strBehavior, strBig, strCancel, strCell, strChooseBackground, strChooseColor,
         strDependent, strFooter, strFullscreen, strHeader, strImageEffects, strIndependent,
         strMaxWidthpx, strMedium, strMinusOneNoLimit, strRemove, strRemoveBackground, strResponsivity,
         strRow, strSmall, strStartsAt, strStartsNumerationAt, strTableWidth, strToBootstrapTable,
@@ -66,6 +64,7 @@ export async function provider(ctx) {
         'behavior',
         'big',
         'cancel',
+        'cell',
         'choosebackground',
         'choosecolor',
         'dependent',
@@ -92,7 +91,7 @@ export async function provider(ctx) {
         'toonecol',
         'topredefinedtable',
         'towidgetimage',
-    ].map(key => ({ key, component })));
+    ].map(key => ({key, component})));
 
     const AVAILABLE_EFFECTS = [
         {name: 'zoom', title: 'Zoom'},
@@ -111,7 +110,7 @@ export async function provider(ctx) {
      * @param {*} initialValue
      * @param {(api: *) => void} onSubmit
      */
-    const openInputDialog = function (title, label, initialValue, onSubmit) {
+    const openInputDialog = function(title, label, initialValue, onSubmit) {
         ctx.editor?.windowManager.open({
             title,
             body: {
@@ -154,14 +153,14 @@ export async function provider(ctx) {
                     type: 'menuitem',
                     text: e.title,
                     tooltip: e.name,
-                    onAction: Action.addImageEffectAction.bind({ ctx, type: e.name })
+                    onAction: Action.addImageEffectAction.bind({ctx, type: e.name})
                 }));
             } else {
                 return [{
                     type: 'menuitem',
                     icon: 'remove',
                     text: strRemove,
-                    onAction: Action.removeImageEffectsAction.bind({ ctx })
+                    onAction: Action.removeImageEffectsAction.bind({ctx})
                 }];
             }
         }
@@ -190,7 +189,7 @@ export async function provider(ctx) {
             return isImg;
         },
         title: strToWidgetImage,
-        onAction: Action.imageSwitchToSnippetAction.bind({ ctx })
+        onAction: Action.imageSwitchToSnippetAction.bind({ctx})
     };
 
     /**
@@ -206,11 +205,11 @@ export async function provider(ctx) {
                 return '';
             }
             const currentLang = elem.getAttribute('data-lang') ?? '';
-            return SUPPORTED_LANGS.map(({ iso, title }) => ({
+            return SUPPORTED_LANGS.map(({iso, title}) => ({
                 type: 'menuitem',
                 text: title,
                 icon: iso === currentLang ? 'checkmark' : undefined,
-                onAction: Action.changeBoxLangAction.bind({ ctx, iso })
+                onAction: Action.changeBoxLangAction.bind({ctx, iso})
             }));
         }
     };
@@ -233,7 +232,7 @@ export async function provider(ctx) {
                 type: 'menuitem',
                 text: e.l ?? e,
                 icon: elem.classList.contains('iedib-capsa-' + (e.v ?? e)) ? 'checkmark' : undefined,
-                onAction: Action.changeBoxSizeAction.bind({ ctx, size: e.v ?? e })
+                onAction: Action.changeBoxSizeAction.bind({ctx, size: e.v ?? e})
             }));
         }
     };
@@ -256,7 +255,7 @@ export async function provider(ctx) {
                 type: 'menuitem',
                 text: e.l ?? e,
                 icon: elem.classList.contains('iedib-' + (e.v ?? e) + '-border') ? 'checkmark' : undefined,
-                onAction: Action.changeBoxSeverityAction.bind({ ctx, severity: e.v ?? e })
+                onAction: Action.changeBoxSeverityAction.bind({ctx, severity: e.v ?? e})
             }));
         }
     };
@@ -279,7 +278,7 @@ export async function provider(ctx) {
             const menuItems = [{
                 type: 'menuitem',
                 text: strToOneCol,
-                onAction: Action.changeColumnWidth.bind({ ctx, colSpan: 0 })
+                onAction: Action.changeColumnWidth.bind({ctx, colSpan: 0})
             }];
 
             const firstDiv = elem.querySelector('div:first-child');
@@ -297,7 +296,7 @@ export async function provider(ctx) {
                     type: 'menuitem',
                     text: label,
                     icon: isCurrent ? 'checkmark' : undefined,
-                    onAction: Action.changeColumnWidth.bind({ ctx, colSpan: i })
+                    onAction: Action.changeColumnWidth.bind({ctx, colSpan: i})
                 });
             }
             return menuItems;
@@ -311,7 +310,7 @@ export async function provider(ctx) {
         name: 'switchBoxRowsExample',
         condition: 'capsa-exemple-cols',
         title: strToExample2Rows,
-        onAction: Action.switchBoxRowsExampleAction.bind({ ctx })
+        onAction: Action.switchBoxRowsExampleAction.bind({ctx})
     };
 
     /**
@@ -321,7 +320,7 @@ export async function provider(ctx) {
         name: 'switchBoxSimpleExample',
         condition: 'capsa-exemple-rows',
         title: strToExampleSimple,
-        onAction: Action.switchBoxSimpleExampleAction.bind({ ctx })
+        onAction: Action.switchBoxSimpleExampleAction.bind({ctx})
     };
 
     /**
@@ -414,7 +413,7 @@ export async function provider(ctx) {
                 type: 'menuitem',
                 text: opt ? strIndependent : strDependent,
                 icon: isDependentBehavior === opt ? undefined : 'checkmark',
-                onAction: Action.setAccordionBehavior.bind({ ctx, isDependentBehavior: opt })
+                onAction: Action.setAccordionBehavior.bind({ctx, isDependentBehavior: opt})
             }));
         }
     };
@@ -460,7 +459,7 @@ export async function provider(ctx) {
         name: 'convertToBsTableMenu',
         condition: 'taula-predefinida',
         title: strToBootstrapTable,
-        onAction: Action.convert2BootstrapTable.bind({ ctx }),
+        onAction: Action.convert2BootstrapTable.bind({ctx}),
     };
 
     /**
@@ -470,7 +469,7 @@ export async function provider(ctx) {
         name: 'convertToPredefinedTableMenu',
         condition: 'taula-bs',
         title: strToPredefinedTable,
-        onAction: Action.convert2PrefefinedTable.bind({ ctx }),
+        onAction: Action.convert2PrefefinedTable.bind({ctx}),
     };
 
     /**
@@ -491,7 +490,7 @@ export async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: isResponsive ? strRemove : strAdd,
-                onAction: Action.toggleBootstapTableResponsiveness.bind({ ctx })
+                onAction: Action.toggleBootstapTableResponsiveness.bind({ctx})
             }];
         }
     };
@@ -513,7 +512,7 @@ export async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: hasHeader ? strRemove : strAdd,
-                onAction: Action.toggleTableHeader.bind({ ctx })
+                onAction: Action.toggleTableHeader.bind({ctx})
             }];
         }
     };
@@ -535,7 +534,7 @@ export async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: hasFooter ? strRemove : strAdd,
-                onAction: Action.toggleTableFooter.bind({ ctx })
+                onAction: Action.toggleTableFooter.bind({ctx})
             }];
         }
     };
@@ -547,7 +546,7 @@ export async function provider(ctx) {
         name: 'convertDropdownToList',
         condition: 'desplegable2',
         title: strToList,
-        onAction: Action.convertDropdownToList.bind({ ctx }),
+        onAction: Action.convertDropdownToList.bind({ctx}),
     };
 
     /**
@@ -637,11 +636,12 @@ export async function provider(ctx) {
         condition: () => {
             return !!ctx.path?.selectedElement?.closest("table");
         },
-        title: 'Cel·la',
+        title: strCell,
         subMenuItems: () => {
+            /** @type {HTMLElement | undefined | null} */
             const cell = ctx.path?.selectedElement?.closest('td, th');
-            if (!cell || !(cell instanceof HTMLElement)) {
-                return '';
+            if (!cell) {
+                return [];
             }
             const menus = [
                 {
@@ -682,9 +682,10 @@ export async function provider(ctx) {
         },
         title: strRow,
         subMenuItems: () => {
+            /** @type {HTMLElement | undefined | null} */
             const row = ctx.path?.selectedElement?.closest('tr');
-            if (!row || !(row instanceof HTMLElement)) {
-                return '';
+            if (!row) {
+                return [];
             }
             const menus = [
                 {

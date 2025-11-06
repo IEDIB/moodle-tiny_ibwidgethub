@@ -1,4 +1,4 @@
-const actions = require('../../src/extension/contextactions');
+const actions = require('../../src/extension/customcontextactions');
 
 const widget = {
     selectors: 'div.iedib-img',
