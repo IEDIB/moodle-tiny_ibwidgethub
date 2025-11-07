@@ -182,7 +182,6 @@ export function switchBoxSimpleExampleAction() {
          ${resolucio?.innerHTML ?? ''}
         '<br></div></div>`);
     target.replaceWith(newSnpt);
-
 }
 
 /**
@@ -294,12 +293,13 @@ export function convert2BootstrapTable() {
     target.classList.remove("iedib-table");
     target.classList.add("table", "table-striped", "iedib-bstable");
     target.removeAttribute('style');
+    target.removeAttribute('data-mce-style');
     target.removeAttribute('border');
     target.querySelectorAll("td,th").forEach(e => {
         e.removeAttribute('style');
         e.removeAttribute('data-mce-style');
     });
-    target.querySelectorAll("thead > tr > th").forEach(e => {
+    target.querySelectorAll("thead th").forEach(e => {
         e.setAttribute("role", "col");
     });
 }
@@ -313,7 +313,7 @@ export function convertDropdownToList() {
         return;
     }
     // Convert into a list
-    const doc = this.ctx.editor.dom.getDoc();
+    const doc = this.ctx.editor.getDoc();
     const listSubstitute = doc.createElement('UL');
     target.querySelectorAll("a.accordion-toggle").forEach(a => {
           const href = a.getAttribute("href");
@@ -365,7 +365,7 @@ export function toggleTableHeader() {
         head.remove();
     } else {
         // Create a head
-        const doc = this.ctx.editor.dom.getDoc();
+        const doc = this.ctx.editor.getDoc();
         head = doc.createElement('THEAD');
         const tr = doc.createElement('TR');
         const firstTr = target.querySelector("tr");
@@ -399,7 +399,7 @@ export function toggleTableFooter() {
         foot.remove();
     } else {
         // Creates a footer
-        const doc = this.ctx.editor.dom.getDoc();
+        const doc = this.ctx.editor.getDoc();
         foot = doc.createElement("TFOOT");
         const tr2 = doc.createElement("TR");
         const firstTr = target.querySelector("tbody tr");
@@ -434,7 +434,7 @@ export function toggleBootstapTableResponsiveness() {
        target.parentElement.replaceWith(target);
     } else {
         // Add responsiveness
-        const doc = this.ctx.editor.dom.getDoc();
+        const doc = this.ctx.editor.getDoc();
         const div = htmlToElement(doc, `<div class="table-responsive">
             ${target.outerHTML}
             </div>`);

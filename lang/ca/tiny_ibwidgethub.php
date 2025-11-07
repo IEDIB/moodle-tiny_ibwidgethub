@@ -68,6 +68,7 @@ $string['independent'] = 'Independent';
 $string['insert'] = 'Inserir';
 $string['invalidfilter'] = 'Filtre no vàlid. Si us plau, reviseu la configuració';
 $string['key'] = 'Clau';
+$string['list'] = 'Llista';
 $string['maxwidthpx'] = 'Amplada màxima (px)';
 $string['medium'] = 'Mitjana';
 $string['minusonenolimit'] = '-1=(No limita l\'amplada)';

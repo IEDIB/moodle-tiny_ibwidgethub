@@ -68,6 +68,7 @@ $string['independent'] = 'Independiente';
 $string['insert'] = 'Insertar';
 $string['invalidfilter'] = 'Filtro no válido. Por favor, revisa la configuración';
 $string['key'] = 'Clave';
+$string['list'] = 'Lista';
 $string['maxwidthpx'] = 'Anchura máxima (px)';
 $string['medium'] = 'Mediana';
 $string['minusonenolimit'] = '-1=(No limitar anchura)';

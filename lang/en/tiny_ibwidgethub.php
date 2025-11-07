@@ -68,6 +68,7 @@ $string['independent'] = 'Independent';
 $string['insert'] = 'Insert';
 $string['invalidfilter'] = 'Invalid filter. Please check the configuration';
 $string['key'] = 'Key';
+$string['list'] = 'List';
 $string['maxwidthpx'] = 'Maximum width (px)';
 $string['medium'] = 'Medium';
 $string['minusonenolimit'] = '-1=(Do not limit width)';

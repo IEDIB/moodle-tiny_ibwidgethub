@@ -53,7 +53,7 @@ export async function provider(ctx) {
     // Get translations
     const [
         strAccept, strAdd, strBeautified, strBehavior, strBig, strCancel, strCell, strChooseBackground, strChooseColor,
-        strDependent, strFooter, strFullscreen, strHeader, strImageEffects, strIndependent,
+        strDependent, strFooter, strFullscreen, strHeader, strImageEffects, strIndependent, strList,
         strMaxWidthpx, strMedium, strMinusOneNoLimit, strRemove, strRemoveBackground, strResponsivity,
         strRow, strSmall, strStartsAt, strStartsNumerationAt, strTableWidth, strToBootstrapTable,
         strToExample2Rows, strToExampleSimple, strToList, strToOneCol, strToPredefinedTable, strToWidgetImage,
@@ -73,6 +73,7 @@ export async function provider(ctx) {
         'header',
         'imageeffects',
         'independent',
+        'list',
         'maxwidthpx',
         'medium',
         'minusonenolimit',
@@ -334,11 +335,12 @@ export async function provider(ctx) {
             const target = selectedElement?.closest("ol");
             if (ctx.path && target) {
                 ctx.path.targetElement = target;
+                return true;
             }
-            return target !== undefined;
+            return false;
         },
         icon: 'list-num-default',
-        title: 'Llista',
+        title: strList,
         subMenuItems: () => {
             // Determine if the class is there
             const isBeauty = ctx.path?.targetElement?.classList?.contains('iedib-falist');

@@ -1,0 +1,19 @@
+{
+  "name": "moodle-tiny_widgethub-e2e",
+  "version": "1.0.0",
+  "description": "cypress & cucumber e2e tests for tiny_widgethub widget definitions",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress open",
+    "test:headless": "cypress run"
+  },
+  "keywords": [],
+  "author": "Josep Mulet Pol",
+  "license": "ISC",
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^23.2.1",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.7",
+    "cypress": "^15.6.0",
+    "cypress-iframe": "^1.0.1"
+  }
+}

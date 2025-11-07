@@ -56,7 +56,7 @@ describe('custom contextmenus actions', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        editor = Mocks.editorFactory();
+        editor = global.Mocks.editorFactory();
     });
 
     it('imageEffectsNestedMenu should create menu items and execute actions', async() => {
@@ -282,7 +282,7 @@ describe('custom contextmenus actions', () => {
             options.onSubmit(fakeApi);
         });
         
-        const editorMock = Mocks.editorFactory();
+        const editorMock = global.Mocks.editorFactory();
         const getUserStorage = require('../../src/service/userstorage_service').getUserStorage;
         const userStorage = getUserStorage(editorMock);
         editorMock.setContent('<table><tbody><tr><td><span>td content</span></td></tr></tbody></table>');

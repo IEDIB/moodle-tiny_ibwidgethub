@@ -35,10 +35,10 @@ import {getSetup as getCommandSetup} from './commands';
 import * as Configuration from './configuration';
 
 // Base extensions
-import './extension/refractorbs5';
 import './extension/dependencies';
+
 // Import additional extensions to the plugin
-import './extension/refractor';
+import './extension/refractor'; // It includes bs5refractor
 import './extension/hotfixes';
 import './extension/contextmenus';
 
