@@ -327,7 +327,7 @@ export function convertDropdownToList() {
           detachNode(e);
           e.className = '';
           const theLi = doc.createElement('LI');
-          theLi.append(a.innerHTML);
+          theLi.append(a.textContent);
           theLi.append(e);
           listSubstitute.append(theLi);
     });

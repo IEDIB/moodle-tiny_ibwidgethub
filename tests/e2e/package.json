@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "cypress open",
-    "test:headless": "cypress run"
+    "test:headless": "cypress run",
+    "test:feat": "cypress run --spec \"cypress/features/${npm_config_feature}.feature\""
   },
   "keywords": [],
   "author": "Josep Mulet Pol",

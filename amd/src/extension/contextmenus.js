@@ -45,19 +45,7 @@ export const SUPPORTED_LANGS = [
 ];
 
 
-/**
- * @param {import("../contextactions").ItemMenuContext} ctx
- * @returns {Promise<UserDefinedItem[]>}
- **/
-export async function provider(ctx) {
-    // Get translations
-    const [
-        strAccept, strAdd, strBeautified, strBehavior, strBig, strCancel, strCell, strChooseBackground, strChooseColor,
-        strDependent, strFooter, strFullscreen, strHeader, strImageEffects, strIndependent, strList,
-        strMaxWidthpx, strMedium, strMinusOneNoLimit, strRemove, strRemoveBackground, strResponsivity,
-        strRow, strSmall, strStartsAt, strStartsNumerationAt, strTableWidth, strToBootstrapTable,
-        strToExample2Rows, strToExampleSimple, strToList, strToOneCol, strToPredefinedTable, strToWidgetImage,
-    ] = await get_strings([
+const languageStrings = [
         'accept',
         'add',
         'beautified',
@@ -67,12 +55,14 @@ export async function provider(ctx) {
         'cell',
         'choosebackground',
         'choosecolor',
+        'colssize',
         'dependent',
         'footer',
         'fullscreen',
         'header',
         'imageeffects',
         'independent',
+        'language',
         'list',
         'maxwidthpx',
         'medium',
@@ -81,6 +71,7 @@ export async function provider(ctx) {
         'removebackground',
         'responsivity',
         'row',
+        'size',
         'small',
         'startsat',
         'startsnumerationat',
@@ -92,17 +83,29 @@ export async function provider(ctx) {
         'toonecol',
         'topredefinedtable',
         'towidgetimage',
-    ].map(key => ({key, component})));
+        'type'
+];
+
+/**
+ * @param {import("../contextactions").ItemMenuContext} ctx
+ * @returns {Promise<UserDefinedItem[]>}
+ **/
+export async function provider(ctx) {
+    // Get translations
+    /** @type {string[]} */
+    const translations = await get_strings(languageStrings.map(key => ({key, component})));
+    /** @type {Record<string, string>} */
+    const i18n = Object.fromEntries(translations.map((trans, i) => [languageStrings[i], trans]));
 
     const AVAILABLE_EFFECTS = [
         {name: 'zoom', title: 'Zoom'},
-        {name: 'lightbox', title: strFullscreen},
+        {name: 'lightbox', title: i18n.fullscreen},
     ];
 
     const SUPPORTED_SIZES = [
-        {v: 'gran', l: strBig},
-        {v: 'mitjana', l: strMedium},
-        {v: 'petita', l: strSmall},
+        {v: 'gran', l: i18n.big},
+        {v: 'mitjana', l: i18n.medium},
+        {v: 'petita', l: i18n.small},
     ];
 
     /**
@@ -127,7 +130,7 @@ export async function provider(ctx) {
             buttons: [
                 {
                     type: 'submit',
-                    text: strAccept
+                    text: i18n.accept
                 }
             ],
             initialData: {
@@ -143,7 +146,7 @@ export async function provider(ctx) {
     const imageEffectsNestedMenu = {
         name: 'imageEffects',
         condition: 'imatge',
-        title: strImageEffects,
+        title: i18n.imageeffects,
         subMenuItems: () => {
             const elem = ctx.path?.elem;
             if (!elem) {
@@ -160,7 +163,7 @@ export async function provider(ctx) {
                 return [{
                     type: 'menuitem',
                     icon: 'remove',
-                    text: strRemove,
+                    text: i18n.remove,
                     onAction: Action.removeImageEffectsAction.bind({ctx})
                 }];
             }
@@ -189,7 +192,7 @@ export async function provider(ctx) {
             }
             return isImg;
         },
-        title: strToWidgetImage,
+        title: i18n.towidgetimage,
         onAction: Action.imageSwitchToSnippetAction.bind({ctx})
     };
 
@@ -199,7 +202,7 @@ export async function provider(ctx) {
     const changeBoxLanguageNestedMenu = {
         name: 'changeBoxLanguage',
         condition: /capsa-.*|tasca-exercici/,
-        title: 'Idioma',
+        title: i18n.language,
         subMenuItems: () => {
             const elem = ctx.path?.elem;
             if (!elem) {
@@ -221,7 +224,7 @@ export async function provider(ctx) {
     const changeBoxSizeNestedMenu = {
         name: 'changeBoxSize',
         condition: /^capsa-.*|^tasca-exercici$/,
-        title: 'Mida',
+        title: i18n.size,
         subMenuItems: () => {
             const elem = ctx.path?.elem;
             const widget = ctx.path?.widget;
@@ -244,7 +247,7 @@ export async function provider(ctx) {
     const changeBoxSeverityNestedMenu = {
         name: 'changeBoxSeverity',
         condition: 'capsa-generica',
-        title: 'Tipus',
+        title: i18n.type,
         subMenuItems: () => {
             const elem = ctx.path?.elem;
             const widget = ctx.path?.widget;
@@ -268,7 +271,7 @@ export async function provider(ctx) {
     const twoColumnsNestedMenu = {
         name: 'twoColumnsNestedMenu',
         condition: 'two-cols',
-        title: 'Mida columnes',
+        title: i18n.colssize,
         subMenuItems: () => {
             const elem = ctx.path?.elem;
             const widget = ctx.path?.widget;
@@ -278,7 +281,7 @@ export async function provider(ctx) {
             /** @type {*} */
             const menuItems = [{
                 type: 'menuitem',
-                text: strToOneCol,
+                text: i18n.toonecol,
                 onAction: Action.changeColumnWidth.bind({ctx, colSpan: 0})
             }];
 
@@ -310,7 +313,7 @@ export async function provider(ctx) {
     const switchBoxRowsExample = {
         name: 'switchBoxRowsExample',
         condition: 'capsa-exemple-cols',
-        title: strToExample2Rows,
+        title: i18n.toexamplerows,
         onAction: Action.switchBoxRowsExampleAction.bind({ctx})
     };
 
@@ -320,7 +323,7 @@ export async function provider(ctx) {
     const switchBoxSimpleExample = {
         name: 'switchBoxSimpleExample',
         condition: 'capsa-exemple-rows',
-        title: strToExampleSimple,
+        title: i18n.toexamplesimple,
         onAction: Action.switchBoxSimpleExampleAction.bind({ctx})
     };
 
@@ -340,14 +343,14 @@ export async function provider(ctx) {
             return false;
         },
         icon: 'list-num-default',
-        title: strList,
+        title: i18n.list,
         subMenuItems: () => {
             // Determine if the class is there
             const isBeauty = ctx.path?.targetElement?.classList?.contains('iedib-falist');
             return [
                 {
                     type: 'menuitem',
-                    text: strBeautified,
+                    text: i18n.beautified,
                     icon: isBeauty ? 'checkmark' : undefined,
                     onAction: () => {
                         // Toggle class
@@ -368,12 +371,12 @@ export async function provider(ctx) {
                 },
                 {
                     type: 'menuitem',
-                    text: strStartsAt,
+                    text: i18n.startsat,
                     onAction: () => {
                         // Get the start property of the list
                         const startAt1 = ctx.path?.targetElement?.getAttribute("start") ?? "1";
                         // Open input dialog, set the value and retrieve new value
-                        openInputDialog(strStartsNumerationAt + ' ...', '', startAt1,
+                        openInputDialog(i18n.startsnumerationat + ' ...', '', startAt1,
                             (/** @type {*} */ api) => {
                                 // TODO: Opened issue: Closing a tiny dialog -- afects the main bootstap dialog
                                 api.close();
@@ -399,7 +402,7 @@ export async function provider(ctx) {
     const accordionIndependentBehaviorNestedMenu = {
         name: 'accordionIndependentBehavior',
         condition: 'desplegable2',
-        title: strBehavior,
+        title: i18n.behavior,
         subMenuItems: () => {
             const target = ctx.path?.elem;
             if (!target) {
@@ -413,7 +416,7 @@ export async function provider(ctx) {
 
             return [false, true].map(opt => ({
                 type: 'menuitem',
-                text: opt ? strIndependent : strDependent,
+                text: opt ? i18n.independent : i18n.dependent,
                 icon: isDependentBehavior === opt ? undefined : 'checkmark',
                 onAction: Action.setAccordionBehavior.bind({ctx, isDependentBehavior: opt})
             }));
@@ -427,7 +430,7 @@ export async function provider(ctx) {
     const tablesMaxWidthMenu = {
         name: 'tablesMaxWidthMenu',
         condition: 'taula-predefinida,taula-bs',
-        title: strTableWidth,
+        title: i18n.tablewidth,
         onAction: () => {
             const target = ctx.path?.elem;
             if (!target || !(target instanceof HTMLElement)) {
@@ -437,7 +440,7 @@ export async function provider(ctx) {
             const startAt1 = (target.style.getPropertyValue("max-width") || "-1")
                 .replace("px", "").replace("none", "-1");
             // Open input dialog, set the value and retrieve new value
-            openInputDialog(strMaxWidthpx, strMinusOneNoLimit, startAt1,
+            openInputDialog(i18n.maxwidthpx, i18n.minusonenolimit, startAt1,
                 (/** @type {*} */ api) => {
                     const target = ctx.path?.elem;
                     if (!target || !(target instanceof HTMLElement)) {
@@ -460,7 +463,7 @@ export async function provider(ctx) {
     const convertToBsTableMenu = {
         name: 'convertToBsTableMenu',
         condition: 'taula-predefinida',
-        title: strToBootstrapTable,
+        title: i18n.tobootstraptable,
         onAction: Action.convert2BootstrapTable.bind({ctx}),
     };
 
@@ -470,7 +473,7 @@ export async function provider(ctx) {
     const convertToPredefinedTableMenu = {
         name: 'convertToPredefinedTableMenu',
         condition: 'taula-bs',
-        title: strToPredefinedTable,
+        title: i18n.topredefinedtable,
         onAction: Action.convert2PrefefinedTable.bind({ctx}),
     };
 
@@ -480,7 +483,7 @@ export async function provider(ctx) {
     const responsivenessNestedMenu = {
         name: 'responsivenessNestedMenu',
         condition: 'taula-bs',
-        title: strResponsivity,
+        title: i18n.responsivity,
         subMenuItems: () => {
             const target = ctx.path?.elem;
             if (!target) {
@@ -491,7 +494,7 @@ export async function provider(ctx) {
 
             return [{
                 type: 'menuitem',
-                text: isResponsive ? strRemove : strAdd,
+                text: isResponsive ? i18n.remove : i18n.add,
                 onAction: Action.toggleBootstapTableResponsiveness.bind({ctx})
             }];
         }
@@ -503,7 +506,7 @@ export async function provider(ctx) {
     const tablesHeaderNestedMenu = {
         name: 'tablesHeaderNestedMenu',
         condition: 'taula-predefinida,taula-bs',
-        title: strHeader,
+        title: i18n.header,
         subMenuItems: () => {
             const target = ctx.path?.elem;
             if (!target) {
@@ -513,7 +516,7 @@ export async function provider(ctx) {
 
             return [{
                 type: 'menuitem',
-                text: hasHeader ? strRemove : strAdd,
+                text: hasHeader ? i18n.remove : i18n.add,
                 onAction: Action.toggleTableHeader.bind({ctx})
             }];
         }
@@ -525,7 +528,7 @@ export async function provider(ctx) {
     const tablesFooterNestedMenu = {
         name: 'tablesFooterNestedMenu',
         condition: 'taula-predefinida,taula-bs',
-        title: strFooter,
+        title: i18n.footer,
         subMenuItems: () => {
             const target = ctx.path?.elem;
             if (!target) {
@@ -535,7 +538,7 @@ export async function provider(ctx) {
 
             return [{
                 type: 'menuitem',
-                text: hasFooter ? strRemove : strAdd,
+                text: hasFooter ? i18n.remove : i18n.add,
                 onAction: Action.toggleTableFooter.bind({ctx})
             }];
         }
@@ -547,7 +550,7 @@ export async function provider(ctx) {
     const convertDropdownToList = {
         name: 'convertDropdownToList',
         condition: 'desplegable2',
-        title: strToList,
+        title: i18n.tolist,
         onAction: Action.convertDropdownToList.bind({ctx}),
     };
 
@@ -566,7 +569,7 @@ export async function provider(ctx) {
         let handleClick;
 
         editor.windowManager.open({
-            title: strChooseColor,
+            title: i18n.choosecolor,
             body: {
                 type: 'panel',
                 items: [
@@ -588,11 +591,11 @@ export async function provider(ctx) {
             buttons: [
                 {
                     type: 'cancel',
-                    text: strCancel
+                    text: i18n.cancel
                 },
                 {
                     type: 'submit',
-                    text: strAccept,
+                    text: i18n.accept,
                     primary: true
                 }
             ],
@@ -638,7 +641,7 @@ export async function provider(ctx) {
         condition: () => {
             return !!ctx.path?.selectedElement?.closest("table");
         },
-        title: strCell,
+        title: i18n.cell,
         subMenuItems: () => {
             /** @type {HTMLElement | undefined | null} */
             const cell = ctx.path?.selectedElement?.closest('td, th');
@@ -648,7 +651,7 @@ export async function provider(ctx) {
             const menus = [
                 {
                     type: 'menuitem',
-                    text: strChooseBackground,
+                    text: i18n.choosebackground,
                     onAction: () => {
                         colorPicker(ctx.editor,
                             (/** @type {string} */ color) => {
@@ -662,7 +665,7 @@ export async function provider(ctx) {
             if (cell.style.backgroundColor) {
                 menus.push({
                     type: 'menuitem',
-                    text: strRemoveBackground,
+                    text: i18n.removebackground,
                     onAction: () => {
                         removeStyleMCE(cell, 'background-color');
                     }
@@ -682,7 +685,7 @@ export async function provider(ctx) {
         condition: () => {
             return !!ctx.path?.selectedElement?.closest("table");
         },
-        title: strRow,
+        title: i18n.row,
         subMenuItems: () => {
             /** @type {HTMLElement | undefined | null} */
             const row = ctx.path?.selectedElement?.closest('tr');
@@ -692,7 +695,7 @@ export async function provider(ctx) {
             const menus = [
                 {
                     type: 'menuitem',
-                    text: strChooseBackground,
+                    text: i18n.choosebackground,
                     onAction: () => {
                         colorPicker(ctx.editor,
                             (/** @type {string} */ color) => {
@@ -705,7 +708,7 @@ export async function provider(ctx) {
             if (row.style.backgroundColor) {
                 menus.push({
                     type: 'menuitem',
-                    text: strRemoveBackground,
+                    text: i18n.removebackground,
                     onAction: () => {
                         removeStyleMCE(row, 'background-color');
                     }

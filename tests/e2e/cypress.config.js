@@ -5,6 +5,8 @@ const {createEsbuildPlugin} = require("@badeball/cypress-cucumber-preprocessor/e
 
 module.exports = defineConfig({
   e2e: {
+    viewportWidth: 1920,
+    viewportHeight: 1080,
     specPattern: "**/*.feature",
     baseUrl: "http://localhost:4545/", // Adjust to your Moodle URL
     setupNodeEvents(on, config) {
