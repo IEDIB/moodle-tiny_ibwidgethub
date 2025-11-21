@@ -17,6 +17,7 @@ template: |
   </div>
   <!--end youtube-->
   <p><br></p>
+selectors: div.iedib-video-container
 parameters:
   - name: youtubeId
     value: Z3HSw-K-ZgI
@@ -39,6 +40,8 @@ parameters:
     title: Acaba la reproducció al segon
     min: 0
     tip: Manteniu a 0 si voleu que arribi al final del vídeo
+contextmenu:
+  - actions: cut printable
 scope: ^page-mod-(book|page|assign|quizz)-
 stars: 3
 author: Josep Mulet Pol <pep.mulet@gmail.com>
