@@ -52,5 +52,6 @@
     },
     "stars": 3,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2025.05.15"
+    "version": "2025.05.16",
+    "icon": "fa-solid fa-square-check"
 }

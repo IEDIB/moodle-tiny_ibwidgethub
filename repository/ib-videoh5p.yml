@@ -24,4 +24,5 @@ parameters:
     title: Títol descriptiu.
 nou: true
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.2.0
+version: 3.2.1
+icon: fa-solid fa-file-video

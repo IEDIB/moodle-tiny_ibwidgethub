@@ -19,387 +19,6 @@ $introduccio-lateral-color: rgb(121, 121, 121);
 $solucio-fons-color: rgb(219, 242, 248);
 $solucio-border-color: rgb(13, 38, 68);
 
-/********************************** WidgetHub plugin styles */
-.tiny_widgethub-container {
-  position: relative;
-  div.tiny_widgethub-top {
-    position: relative;
-    vertical-align: middle;
-    margin-top: 5px;
-    display: flex;
-  }
-}
-
-.tiny_widgethub-preview {
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  width: 100%;
-  height: 150px;
-  border: 1px solid gray;
-  border-radius: 4px;
-  box-shadow: 3px 3px gray;
-  overflow: hidden;
-  background: white;
-  z-index: 1000;
-}
-
-.tiny_widgethub-recent {
-  flex-basis: 100%;
-}
-
-.tiny_widgethub-preview > * {
-  margin: auto;
-  transform: scale(70%);
-  transform-origin: 50% 0;
-}
-
-#list-categories {
-  font-size: 0.8rem;
-  background: whitesmoke;
-}
-
-.tiny_widgethub-previewpanel {
-  border: 1px solid gray;
-  width: 98%;
-  height: 300px;
-  margin: 5px;
-  padding: 10px;
-  overflow: auto;
-}
-
-.tiny_widgethub-ymlcontrol {
-    width: 100%;
-    height: 300px;
-    overflow: auto;
-}
-
-.tiny_widgethub-ymlcontrol .cm-editor {
-    height: 300px;
-}
-
-.tiny_widgethub-dropdownsub {
-  position: relative;
-}
-
-.tiny_widgethub-dropdownsub > .tiny_widgethub-dropdown {
-  top: 0;
-  left: 100%;
-  margin-top: -6px;
-  margin-left: -1px;
-  -webkit-border-radius: 0 6px 6px 6px;
-  -moz-border-radius: 0 6px 6px;
-  border-radius: 0 6px 6px 6px;
-}
-
-.tiny_widgethub-dropdownsub:hover > .tiny_widgethub-dropdown {
-  display: block;
-}
-
-.tiny_widgethub-dropdownsub > a:after {
-  display: block;
-  content: " ";
-  float: right;
-  width: 0;
-  height: 0;
-  border-color: transparent;
-  border-style: solid;
-  border-width: 5px 0 5px 5px;
-  border-left-color: #ccc;
-  margin-top: 5px;
-  margin-right: -10px;
-}
-
-.tiny_widgethub-dropdownsub:hover > a:after {
-  border-left-color: #fff;
-}
-
-.tiny_widgethub-dropdownsub.pull-left {
-  float: none;
-}
-
-.tiny_widgethub-dropdownsub.pull-left > .tiny_widgethub-dropdown {
-  left: -100%;
-  margin-left: 10px;
-  -webkit-border-radius: 6px 0 6px 6px;
-  -moz-border-radius: 6px 0 6px 6px;
-  border-radius: 6px 0 6px 6px;
-}
-
-#tiny_widgethub-popup a, #tiny_widgethub-popup span {
-  font-size: 90%;
-}
-
-div.tiny_widgethub-growl {
-  font-size: 90%;
-  position: fixed;
-  width: 300px;
-  height: 100px;
-  bottom: 10px;
-  right: 10px;
-  z-index: 19999;
-  box-shadow: 3px 3px gray;
-  overflow: hidden;
-}
-
-/** Other plugin styles **/
-.tiny_widgethub-emptylist {
-  margin: 45px;
-}
-
-.tiny_widgethub-categorycontainer {
-  position: relative;
-  max-height: 450px; 
-  overflow: hidden auto;
-  overscroll-behavior-y: contain;
-}
-
-.tiny_widgethub-category {
-  margin:2px auto;
-  width: 99%;
-  display:table;
-}
-
-.tiny_widgethub-category button {
-  height: 40px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.tiny_widgethub-disabled > button {
-  opacity: 60%;
-}
-
-.tiny_widgethub-lateral {
-  display: table-cell;
-  position: relative;
-  width: 20px;
-  max-width: 20px;
-  height: 100px;
-  color: white;
-  vertical-align: bottom;
-  font-size: 80%;
-  font-weight: bold;
-  text-transform: uppercase;
-  overflow: hidden;
-}
-
-.tiny_widgethub-title {
-  padding-left: 5px;
-  -webkit-transform: rotate(-90deg);
-  -moz-transform: rotate(-90deg);
-  -ms-transform: rotate(-90deg);
-  -o-transform: rotate(-90deg);
-  transform: rotate(-90deg);
-  font-size: 12px;
-  white-space: nowrap;
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
-}
-
-.tiny_widgethub-instructionstext {
-  font-size: 90%;
-  line-height: 1.25em;
-}
-
-h4.tiny_widgethub-headertext {
-  margin-top: 10px;
-}
-
-.tiny_widgethub-uds {
-  background-color: #e7f2f9;
-}
-
-.tiny_widgethub-uds:nth-child(odd) {
-  background-color: whitesmoke;
-}
-
-.tiny_widgethub-pattern {
-  display: inline-block;
-  height: 24px;
-  vertical-align: sub;
-  position: relative;
-  background-color: #e5e5f7;
-  opacity: 0.8;
-  background-image: repeating-linear-gradient(45deg, #565656 25%, transparent 25%, transparent 75%, #565656 75%, #565656), repeating-linear-gradient(45deg, #565656 25%, #e5e5f7 25%, #e5e5f7 75%, #565656 75%, #565656);
-  background-position: 0 0, 8px 8px;
-  background-size: 16px 16px;
-}
-
-.tiny_widgethub-pattern > input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.tiny_widgethub-blink {
-  position: absolute;
-  right: 80px;
-  top: 20px;
-  animation: tiny_widgethub-blinker 1s infinite;
-}
-
-@keyframes tiny_widgethub-blinker {
-  from {
-    opacity: 1.0;
-  }
-  50% {
-    opacity: 0.25;
-  }
-  to {
-    opacity: 1.0;
-  }
-}
-
-.tiny_widgethub-loader {
-    position: absolute;
-    z-index: 100;
-    top: 50%;
-    left: 50%;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: #999;
-    box-shadow: 32px 0 #999, -32px 0 #999;
-    animation: tiny_widgethub-flash 0.5s ease-out infinite alternate;
-}
-@keyframes tiny_widgethub-flash {
-    0% {
-      background-color: #FFF2;
-      box-shadow: 32px 0 #FFF2, -32px 0 #999;
-    }
-    50% {
-      background-color: #999;
-      box-shadow: 32px 0 #FFF2, -32px 0 #FFF2;
-    }
-    100% {
-      background-color: #FFF2;
-      box-shadow: 32px 0 #999, -32px 0 #FFF2;
-    }
-}
-
-/** Custom bootstrap buttons **/
-.tiny_widgethub-btn {
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  display: inline-block;
-  font-weight: 400;
-  color: #1d2125;
-  text-align: center;
-  vertical-align: middle;
-  user-select: none;
-  background-color: transparent;
-  border: 1px solid transparent;
-  padding: .375rem .75rem;
-  font-size: .9375rem;
-  line-height: 1.5;
-  border-radius: .5rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.tiny_widgethub-btn:hover {
-  color: #1d2125;
-  text-decoration: none;
-}
-
-.tiny_widgethub-btn-group {
-  position: relative;
-  display: inline-flex;
-  vertical-align: middle;
-  flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
-}
-
-.tiny_widgethub-btn-group > .tiny_widgethub-btn:not(:last-child) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.tiny_widgethub-btn-group > .tiny_widgethub-btn:not(:first-child) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.tiny_widgethub-btn:not(:disabled):not(.disabled) {
-  cursor: pointer;
-}
-
-.tiny_widgethub-btn-group > .tiny_widgethub-btn {
-  position: relative;
-  flex: 1 1 auto;
-}
-
-.tiny_widgethub-btn-primary {
-  color: #fff;
-  background-color: #0f6cbf;
-  border-color: #0f6cbf;
-}
-.tiny_widgethub-btn-primary:hover {
-  color: #fff;
-  background-color: #0c589c;
-  border-color: #0b5190;
-}
-
-.tiny_widgethub-btn-outline-primary {
-  color: #0f6cbf;
-  border-color: #0f6cbf;
-}
-
-.tiny_widgethub-btn-outline-primary:hover {
-  color: #fff;
-  background-color: #0f6cbf;
-}
-
-.tiny_widgethub-btn-sm,
-.tiny_widgethub-btn-group-sm > .tiny_widgethub-btn {
-  padding: .25rem .5rem;
-  font-size: .8203125rem;
-  line-height: 1.5;
-  border-radius: .2rem;
-}
-
-.tiny_widgethub-btn-secondary {
-  color: #1d2125;
-  background-color: #ced4da;
-  border-color: #ced4da;
-}
-
-.tiny_widgethub-btn-secondary:hover {
-  color: #1d2125;
-  background-color: #b8c1ca;
-  border-color: #b1bbc4;
-}
-
-/********************************* Icons definitions */
-/** Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.**/
-.twh-icon {
-  background-repeat: no-repeat;
-  background-position: center;
-  height: 12px;
-  width: 12px;
-  vertical-align: top;
-  display: inline-block;
-  pointer-events: none;
-}
-.twh-icon svg {
-  pointer-events: none;
-}
-.tiny_widgethub-btn-primary .twh-icon path {
-  fill: #fff;
-}
-.tiny_widgethub-btn-secondary .twh-icon path {
-  fill: #474747;
-}
-.tiny_widgethub-btn-outline-primary .twh-icon path {
-  fill: #0f6cbf;
-}
-.tiny_widgethub-btn-outline-primary:hover .twh-icon path {
-  fill: #fff;
-}
-
 
 /********************************** Specific Widget definitions styles */
 /** Compatibility bs < 4 **/
@@ -460,7 +79,8 @@ a.accordion-toggle[aria-expanded="true"]:before {
 }
 
 /* Problem with li active */
-.nav-tabs>li>a.active, .nav-tabs>li.active>a:not([class]) {
+.nav-tabs>li>a.active,
+.nav-tabs>li.active>a:not([class]) {
   color: #555;
   cursor: default;
   background-color: #fff;
@@ -472,7 +92,8 @@ a.accordion-toggle[aria-expanded="true"]:before {
   border-color: #eee #eee #ddd;
 }
 
-.nav>li>a:focus, .nav>li>a:hover {
+.nav>li>a:focus,
+.nav>li>a:hover {
   text-decoration: none;
   background-color: #eee;
 }
@@ -500,7 +121,8 @@ a.accordion-toggle[aria-expanded="true"]:before {
 }
 
 /* Fix row-fluid Moodle override */
-.iedib-figura .row-fluid, .iedib-tabpane.row-fluid {
+.iedib-figura .row-fluid,
+.iedib-tabpane.row-fluid {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -516,7 +138,18 @@ a.accordion-toggle[aria-expanded="true"]:before {
   margin-left: 0;
 }
 
-.span1, .span2, .span3, .span4, .span5, .span6, .span7, .span8, .span9, .span10, .span11, .span12 {
+.span1,
+.span2,
+.span3,
+.span4,
+.span5,
+.span6,
+.span7,
+.span8,
+.span9,
+.span10,
+.span11,
+.span12 {
   position: relative;
   width: 100%;
   min-height: 1px;
@@ -629,13 +262,15 @@ a.accordion-toggle[aria-expanded="true"]:before {
   margin-left: 4px;
   margin-top: 10px;
 }
-.iedib-capsa.alert {
-  padding: initial!important;
-  margin-bottom: initial!important;
-  padding-right: 1.90625rem!important;
-} 
 
-.iedib-capsa-gran, .iedib-capsa-mitjana {
+.iedib-capsa.alert {
+  padding: initial !important;
+  margin-bottom: initial !important;
+  padding-right: 1.90625rem !important;
+}
+
+.iedib-capsa-gran,
+.iedib-capsa-mitjana {
   width: 98%;
 }
 
@@ -644,7 +279,8 @@ a.accordion-toggle[aria-expanded="true"]:before {
   margin: 5px auto;
 }
 
-.iedib-introduccio-border, .iedib-ampliacio-border {
+.iedib-introduccio-border,
+.iedib-ampliacio-border {
   box-shadow: 1px 1px 1px 1px #ccc;
   -webkit-box-shadow: 1px 1px 1px 1px #ccc;
 }
@@ -674,7 +310,7 @@ a.accordion-toggle[aria-expanded="true"]:before {
   background-color: #d4e0f9;
 }
 
-div.iedib-tasca > h4:first-of-type {
+div.iedib-tasca>h4:first-of-type {
   font-size: 130%;
 }
 
@@ -824,7 +460,7 @@ div.iedib-tasca > h4:first-of-type {
 }
 
 .iedib-exemple-border {
-  border: 1px solid $exemple-fons-color; 
+  border: 1px solid $exemple-fons-color;
   border-radius: 3px;
   box-shadow: 1px 1px 1px 1px #ccc;
   -webkit-box-shadow: 1px 1px 1px 1px #ccc;
@@ -889,14 +525,15 @@ div.iedib-tasca > h4:first-of-type {
   padding-left: 5px;
 }
 
-.iedib-resolucio-rows, .iedib-formulacio-rows {
+.iedib-resolucio-rows,
+.iedib-formulacio-rows {
   padding: 10px;
 }
 
 
 /* etiquetes en línia */
 .iedib-ret {
-  position: relative;  
+  position: relative;
 }
 
 .iedib-ret-trl {
@@ -969,7 +606,8 @@ div.iedib-tasca > h4:first-of-type {
 
 
 /** Snippet tasca / exercici proposat **/
-.iedib-capsa>.iedib-tasca.iedib-central, .iedib-capsa>.iedib-proposat.iedib-central {
+.iedib-capsa>.iedib-tasca.iedib-central,
+.iedib-capsa>.iedib-proposat.iedib-central {
   padding: 10px;
   background-color: white;
   text-align: left;
@@ -1049,7 +687,7 @@ h4.iedib-subsub {
 
 @media(max-width: 1200px) {
   h4.iedib-subsub {
-     font-size: calc(0.950625rem + 0.6075vw);
+    font-size: calc(0.950625rem + 0.6075vw);
   }
 }
 
@@ -1136,7 +774,7 @@ h4.iedib-subsub::before {
   z-index: 1;
 }
 
-.iedib-fragment > h4:first-of-type {
+.iedib-fragment>h4:first-of-type {
   margin-bottom: 20px;
   font-size: 125%;
 }
@@ -1149,7 +787,8 @@ h4.iedib-subsub::before {
   opacity: 0.8;
 }
 
-.iedib-fragment:before, .iedib-fragment:after {
+.iedib-fragment:before,
+.iedib-fragment:after {
   content: "";
   height: 98%;
   position: absolute;
@@ -1254,7 +893,7 @@ h4.iedib-subsub::before {
 .iedib-img-footer {
   display: block;
   font-size: 0.875rem;
-}  
+}
 
 .iedib-caption-counter {
   /** 
@@ -1294,17 +933,19 @@ h4.iedib-subsub::before {
 table.iedib-table {
   margin: auto;
 }
+
 table.iedib-table th {
   background-color: aliceblue;
   padding: 2px 5px;
 }
+
 table.iedib-table td {
   vertical-align: top;
   padding: 2px 5px;
 }
 
 /*** Taula - capsalera examen ***/
-div.iedib-capsalera-examen > table {
+div.iedib-capsalera-examen>table {
   min-width: 550px;
 }
 
@@ -1375,7 +1016,8 @@ div.hljs-language {
   -moz-user-select: none;
   -webkit-user-select: none;
 }
-div.hljs-language > span {
+
+div.hljs-language>span {
   background: #358ccb;
   border-radius: 4px;
   color: white;
@@ -1483,16 +1125,27 @@ ol.iedib-falist>li::before {
     margin: 5px auto;
   }
 
-  .span1, .span2, .span3, .span4, .span5, .span6, .span7, .span8, .span9, .span10, .span11, .span12 {
+  .span1,
+  .span2,
+  .span3,
+  .span4,
+  .span5,
+  .span6,
+  .span7,
+  .span8,
+  .span9,
+  .span10,
+  .span11,
+  .span12 {
     padding-right: 15px;
     padding-left: 15px;
     min-width: 100%
   }
 
   .tiny_widgethub-preview {
-    display: none!important;
+    display: none !important;
   }
-  
+
   div.iedib-capsalera-examen {
     font-size: 0.7rem;
   }
@@ -1580,7 +1233,7 @@ i.fad.fa-stopwatch::before {
   font-size: 12px;
 }
 
-.iedib-time > span {
+.iedib-time>span {
   font-weight: bold;
   font-style: normal;
 }
@@ -1646,26 +1299,28 @@ table.iedib-bstable {
   overflow: auto;
   padding: 1rem;
 }
+
 .ib-card .card-header {
   padding: .75rem 1rem;
   background-color: whitesmoke;
   border-radius: 18px;
   border-bottom: 1px solid rgba(0, 0, 0, .125);
   transform: translate(0, -12px) scale(0.97);
-  position: relative!important;
+  position: relative !important;
 }
 
 .ib-video-group {
-    background-color: #5f6971;
-    background-image: url(https://ibsuite.es/iedib/img/ib_video_group.svg);
-    background-size: cover;
-    background-repeat: no-repeat;
-    color: #fff;
-    padding: 1rem;
-    border-top: 10px solid #fff3;
-    margin: 0;
+  background-color: #5f6971;
+  background-image: url(https://ibsuite.es/iedib/img/ib_video_group.svg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #fff;
+  padding: 1rem;
+  border-top: 10px solid #fff3;
+  margin: 0;
 }
-.ib-video-group > h4 {
+
+.ib-video-group>h4 {
   color: white;
 }
 
@@ -1719,7 +1374,7 @@ table.iedib-bstable {
 
   /* Accesibilitat als links impressos*/
   a.iedib-plink:after {
-    content: " <"attr(href) "> " !important;
+    content: " <" attr(href) "> " !important;
     font-style: italic !important;
     font-size: 0.9em !important;
   }
@@ -1730,12 +1385,12 @@ table.iedib-bstable {
   }
 
   .iedib-video-container>iframe::after {
-    content: " <"attr(src) "> " !important;
+    content: " <" attr(src) "> " !important;
     display: block;
   }
 
   div.accordion-inner .iedib-capsa {
-     break-inside: auto; 
+    break-inside: auto;
   }
 
   .ib-card,

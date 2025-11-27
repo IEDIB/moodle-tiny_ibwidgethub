@@ -58,5 +58,6 @@
         "query": "div.iedib-figura[data-snptd]"
     },
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "3.4.0"
+    "version": "3.4.1",
+    "icon": "fa-solid fa-image"
 }

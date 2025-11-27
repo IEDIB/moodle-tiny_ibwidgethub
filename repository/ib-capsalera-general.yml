@@ -16,4 +16,5 @@ parameters:
     when: "!SELECT_MODE"
 scope: ^page-mod-(page|quizz|assign)-mod$
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.16
+version: 2025.05.17
+icon: fa-solid fa-heading

@@ -110,5 +110,6 @@
         }
     ],
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "1.2.0"
+    "version": "1.2.1",
+    "icon": "fa-solid fa-box-open"
 }

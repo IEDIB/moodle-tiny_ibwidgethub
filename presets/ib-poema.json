@@ -18,5 +18,6 @@
     "scope": "^page-mod-book-edit$",
     "stars": 0,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2023.01.07"
+    "version": "2023.01.08",
+    "icon": "fa-solid fa-feather-pointed"
 }

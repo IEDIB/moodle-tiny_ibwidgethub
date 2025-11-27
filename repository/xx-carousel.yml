@@ -63,4 +63,5 @@ parameters:
     bind: attr('src', '.carousel-item:nth-of-type(3) img')
   - __ID__
 author: Josep Mulet <pep.mulet@gmail.com>
-version: 1.0.0
+version: 1.0.2
+icon: fa-solid fa-panorama

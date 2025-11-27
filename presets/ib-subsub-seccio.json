@@ -16,5 +16,6 @@
     ],
     "stars": 3,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2024.11.02"
+    "version": "2024.11.03",
+    "icon": "fa-solid fa-section"
 }

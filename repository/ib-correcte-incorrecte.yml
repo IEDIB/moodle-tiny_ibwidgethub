@@ -13,4 +13,5 @@ template: |
   <p><br></p>
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2021.03.30
+version: 2021.03.31
+icon: fa-solid fa-check-double

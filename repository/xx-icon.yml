@@ -42,4 +42,5 @@ parameters:
     value: 2
     bind: classRegex('fa-(.*)x')
 author: Mossaab Mohamed Ali <mosab@mussaab.com>
-version: 1.0.0
+version: 1.0.1
+icon: fa-solid fa-icons

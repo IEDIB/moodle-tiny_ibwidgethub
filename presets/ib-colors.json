@@ -23,5 +23,6 @@
     ],
     "author": "Josep Mulet <pep.mulet@gmail.com>",
     "nou": true,
-    "version": "1.0.0"
+    "version": "1.0.1",
+    "icon": "fa-solid fa-palette"
 }

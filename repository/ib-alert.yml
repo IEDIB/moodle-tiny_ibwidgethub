@@ -56,4 +56,5 @@ contextmenu:
   - actions: printable
 nou: true
 author: Josep Mulet <pep.mulet@gmail.com>
-version: 1.4.1
+version: 1.4.2
+icon: fa-solid fa-circle-exclamation

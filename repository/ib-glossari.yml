@@ -49,4 +49,5 @@ I18n:
     de: Glossar
 stars: 1
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2023.01.07
+version: 2023.01.08
+icon: fa-solid fa-book-open

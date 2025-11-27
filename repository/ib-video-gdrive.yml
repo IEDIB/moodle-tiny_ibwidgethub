@@ -34,4 +34,5 @@ parameters:
 stars: 1
 scope: ^page-mod-(book|page|assign|quizz)-
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.0.0
+version: 3.0.1
+icon: fa-brands fa-google-drive

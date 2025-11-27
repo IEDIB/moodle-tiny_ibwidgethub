@@ -83,4 +83,5 @@ requires:
   query: table.iedib-imggrid[data-snptd]
 stars: 0
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.4.0
+version: 3.4.1
+icon: fa-solid fa-border-all

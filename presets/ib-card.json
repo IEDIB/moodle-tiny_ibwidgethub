@@ -156,5 +156,6 @@
     ],
     "author": "Josep Mulet <pep.mulet@gmail.com>",
     "nou": true,
-    "version": "1.1.0"
+    "version": "1.1.1",
+    "icon": "fa-solid fa-id-card"
 }

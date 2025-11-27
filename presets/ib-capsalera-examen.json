@@ -28,5 +28,6 @@
     "scope": "^page-mod-(page|book)",
     "stars": 1,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2025.05.06"
+    "version": "2025.05.07",
+    "icon": "fa-solid fa-file-signature"
 }

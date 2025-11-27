@@ -45,4 +45,5 @@ contextmenu:
 scope: ^page-mod-(book|page|assign|quizz)-
 stars: 3
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.1.0
+version: 3.1.1
+icon: fa-brands fa-youtube

@@ -11,4 +11,5 @@ parameters:
     type: textarea
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.07
+version: 2025.05.08
+icon: fa-brands fa-html5
