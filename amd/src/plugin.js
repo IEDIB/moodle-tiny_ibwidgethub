@@ -26,12 +26,12 @@
  * @typedef {*} TinyMCE
  **/
 
-import {getTinyMCE} from 'editor_tiny/loader';
-import {getPluginMetadata} from 'editor_tiny/utils';
+import { getTinyMCE } from 'editor_tiny/loader';
+import { getPluginMetadata } from 'editor_tiny/utils';
 
 import Common from './common';
-import {register as registerOptions} from './options';
-import {getSetup as getCommandSetup} from './commands';
+import { register as registerOptions } from './options';
+import { getSetup as getCommandSetup } from './commands';
 import * as Configuration from './configuration';
 
 // Base extensions
@@ -42,12 +42,11 @@ import './extension/refractor'; // It includes bs5refractor
 import './extension/hotfixes';
 import './extension/contextmenus';
 
-const documentationUrl = 'https://github.com/IEDIB/moodle-tiny_widgethub';
-const {component, pluginName} = Common;
+const { component, pluginName, documentationUrl } = Common;
 
 // Setup the plugin.
 // eslint-disable-next-line no-async-promise-executor
-export default new Promise(async(resolve) => {
+export default new Promise(async (resolve) => {
     const [
         tinyMCE,
         pluginMetadata,
@@ -61,7 +60,7 @@ export default new Promise(async(resolve) => {
     tinyMCE.overrideDefaults({
         ...tinyMCE.defaultOptions,
         remove_trailing_brs: false, // For compatibility with atto. Should remove empty <p></p> before processing
-        allow_script_urls: true, // Allow href="javascript:void(0)" used in popover
+        allow_script_urls: true,    // Allow href="javascript:void(0)" used in popover
     });
 
     tinyMCE.PluginManager.add(pluginName,
