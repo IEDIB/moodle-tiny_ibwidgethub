@@ -22,14 +22,14 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import Common from '../common';
-import {registerMenuItemProvider} from "../extension";
-import {getUserStorage} from "../service/userstorage_service";
-import {convertInt, findVariableByName, removeStyleMCE, setStyleMCE} from "../util";
+import { registerMenuItemProvider } from "../extension";
+import { getUserStorage } from "../service/userstorage_service";
+import { convertInt, findVariableByName, removeStyleMCE, setStyleMCE } from "../util";
 import * as Action from './customcontextactions';
 // eslint-disable-next-line camelcase
-import {get_strings} from "core/str";
+import { get_strings } from "core/str";
 
-const {component} = Common;
+const { component } = Common;
 
 /**
  * @typedef {{type: string, text: string, icon?: string, onAction: (api?: *) => void}} MenuItem
@@ -37,53 +37,60 @@ const {component} = Common;
  */
 
 export const SUPPORTED_LANGS = [
-    {iso: 'ca', title: 'Català'},
-    {iso: 'es', title: 'Castellà'},
-    {iso: 'en', title: 'English'},
-    {iso: 'fr', title: 'Francès'},
-    {iso: 'de', title: 'Alemany'},
+    { iso: 'ca', title: 'Català' },
+    { iso: 'es', title: 'Castellà' },
+    { iso: 'en', title: 'English' },
+    { iso: 'fr', title: 'Francès' },
+    { iso: 'de', title: 'Alemany' },
 ];
 
 
 const languageStrings = [
-        'accept',
-        'add',
-        'beautified',
-        'behavior',
-        'big',
-        'cancel',
-        'cell',
-        'choosebackground',
-        'choosecolor',
-        'colssize',
-        'dependent',
-        'footer',
-        'fullscreen',
-        'header',
-        'imageeffects',
-        'independent',
-        'language',
-        'list',
-        'maxwidthpx',
-        'medium',
-        'minusonenolimit',
-        'remove',
-        'removebackground',
-        'responsivity',
-        'row',
-        'size',
-        'small',
-        'startsat',
-        'startsnumerationat',
-        'tablewidth',
-        'tobootstraptable',
-        'toexamplerows',
-        'toexamplesimple',
-        'tolist',
-        'toonecol',
-        'topredefinedtable',
-        'towidgetimage',
-        'type'
+    'accept',
+    'add',
+    'beautified',
+    'behavior',
+    'big',
+    'cancel',
+    'cell',
+    'choosebackground',
+    'choosecolor',
+    'colssize',
+    'dependent',
+    'footer',
+    'fullscreen',
+    'header',
+    'imageeffects',
+    'independent',
+    'language',
+    'list',
+    'maxwidthpx',
+    'medium',
+    'minusonenolimit',
+    'remove',
+    'removebackground',
+    'responsivity',
+    'row',
+    'size',
+    'small',
+    'startsat',
+    'startsnumerationat',
+    'tablewidth',
+    'tobootstraptable',
+    'toexamplerows',
+    'toexamplesimple',
+    'tolist',
+    'toonecol',
+    'topredefinedtable',
+    'towidgetimage',
+    'type',
+    'printable',
+    'no',
+    'yes',
+    'onlylink',
+    'printnone',
+    'printall',
+    'printonlylink'
 ];
 
 /**
@@ -93,19 +100,19 @@ const languageStrings = [
 export async function provider(ctx) {
     // Get translations
     /** @type {string[]} */
-    const translations = await get_strings(languageStrings.map(key => ({key, component})));
+    const translations = await get_strings(languageStrings.map(key => ({ key, component })));
     /** @type {Record<string, string>} */
     const i18n = Object.fromEntries(translations.map((trans, i) => [languageStrings[i], trans]));
 
     const AVAILABLE_EFFECTS = [
-        {name: 'zoom', title: 'Zoom'},
-        {name: 'lightbox', title: i18n.fullscreen},
+        { name: 'zoom', title: 'Zoom' },
+        { name: 'lightbox', title: i18n.fullscreen },
     ];
 
     const SUPPORTED_SIZES = [
-        {v: 'gran', l: i18n.big},
-        {v: 'mitjana', l: i18n.medium},
-        {v: 'petita', l: i18n.small},
+        { v: 'gran', l: i18n.big },
+        { v: 'mitjana', l: i18n.medium },
+        { v: 'petita', l: i18n.small },
     ];
 
     /**
@@ -114,7 +121,7 @@ export async function provider(ctx) {
      * @param {*} initialValue
      * @param {(api: *) => void} onSubmit
      */
-    const openInputDialog = function(title, label, initialValue, onSubmit) {
+    const openInputDialog = function (title, label, initialValue, onSubmit) {
         ctx.editor?.windowManager.open({
             title,
             body: {
@@ -157,14 +164,14 @@ export async function provider(ctx) {
                     type: 'menuitem',
                     text: e.title,
                     tooltip: e.name,
-                    onAction: Action.addImageEffectAction.bind({ctx, type: e.name})
+                    onAction: Action.addImageEffectAction.bind({ ctx, type: e.name })
                 }));
             } else {
                 return [{
                     type: 'menuitem',
                     icon: 'remove',
                     text: i18n.remove,
-                    onAction: Action.removeImageEffectsAction.bind({ctx})
+                    onAction: Action.removeImageEffectsAction.bind({ ctx })
                 }];
             }
         }
@@ -193,7 +200,65 @@ export async function provider(ctx) {
             return isImg;
         },
         title: i18n.towidgetimage,
-        onAction: Action.imageSwitchToSnippetAction.bind({ctx})
+        onAction: Action.imageSwitchToSnippetAction.bind({ ctx })
+    };
+
+    /**
+     * @type {UserDefinedItem}
+     */
+    const h5pPlaceholderPrintBehaviorNestedMenu = {
+        name: 'h5pPlaceholderPrintBehaviorNestedMenu',
+        condition: '!DIV_H5P_PLACEHOLDER',
+        title: i18n.printable,
+        subMenuItems: () => {
+            const elem = ctx.path?.elem;
+            const isPrintDisabled = elem?.classList?.contains('d-print-none') ?? false;
+            const bodyId = document.body.id || '';
+            const isPrintLinkSupported = (bodyId.startsWith('page-mod-page-') || bodyId.startsWith('page-mod-book-'));
+            const isPrintLinkDisabled = isPrintLinkSupported && elem?.classList.contains('disable-print-iframe-link');
+            let currentState = 'all';
+            if (isPrintDisabled) {
+                currentState = 'none';
+            } else if (isPrintLinkSupported && !isPrintLinkDisabled) {
+                currentState = 'link';
+            }
+            /** @type {any[]} */
+            const items = [
+                {
+                    type: 'togglemenuitem',
+                    text: i18n.no,
+                    tooltip: i18n.printnone,
+                    onAction: Action.printAction.bind({ ctx, type: 'none' }),
+                    onSetup: (/** @type {*} */ api) => {
+                        api.setActive(currentState === 'none');
+                        return () => { };
+                    }
+                },
+                {
+                    type: 'togglemenuitem',
+                    text: i18n.yes,
+                    tooltip: i18n.printall,
+                    onAction: Action.printAction.bind({ ctx, type: isPrintLinkSupported ? 'all' : 'link' }),
+                    onSetup: (/** @type {*} */ api) => {
+                        api.setActive(currentState === 'all');
+                        return () => { };
+                    }
+                },
+            ];
+            if (isPrintLinkSupported) {
+                items.splice(1, 0, {
+                    type: 'togglemenuitem',
+                    text: i18n.onlylink,
+                    tooltip: i18n.printonlylink,
+                    onAction: Action.printAction.bind({ ctx, type: 'link' }),
+                    onSetup: (/** @type {*} */ api) => {
+                        api.setActive(currentState === 'link');
+                        return () => { };
+                    }
+                });
+            }
+            return items;
+        }
     };
 
     /**
@@ -209,11 +274,11 @@ export async function provider(ctx) {
                 return '';
             }
             const currentLang = elem.getAttribute('data-lang') ?? '';
-            return SUPPORTED_LANGS.map(({iso, title}) => ({
+            return SUPPORTED_LANGS.map(({ iso, title }) => ({
                 type: 'menuitem',
                 text: title,
                 icon: iso === currentLang ? 'checkmark' : undefined,
-                onAction: Action.changeBoxLangAction.bind({ctx, iso})
+                onAction: Action.changeBoxLangAction.bind({ ctx, iso })
             }));
         }
     };
@@ -236,7 +301,7 @@ export async function provider(ctx) {
                 type: 'menuitem',
                 text: e.l ?? e,
                 icon: elem.classList.contains('iedib-capsa-' + (e.v ?? e)) ? 'checkmark' : undefined,
-                onAction: Action.changeBoxSizeAction.bind({ctx, size: e.v ?? e})
+                onAction: Action.changeBoxSizeAction.bind({ ctx, size: e.v ?? e })
             }));
         }
     };
@@ -259,7 +324,7 @@ export async function provider(ctx) {
                 type: 'menuitem',
                 text: e.l ?? e,
                 icon: elem.classList.contains('iedib-' + (e.v ?? e) + '-border') ? 'checkmark' : undefined,
-                onAction: Action.changeBoxSeverityAction.bind({ctx, severity: e.v ?? e})
+                onAction: Action.changeBoxSeverityAction.bind({ ctx, severity: e.v ?? e })
             }));
         }
     };
@@ -282,7 +347,7 @@ export async function provider(ctx) {
             const menuItems = [{
                 type: 'menuitem',
                 text: i18n.toonecol,
-                onAction: Action.changeColumnWidth.bind({ctx, colSpan: 0})
+                onAction: Action.changeColumnWidth.bind({ ctx, colSpan: 0 })
             }];
 
             const firstDiv = elem.querySelector('div:first-child');
@@ -300,7 +365,7 @@ export async function provider(ctx) {
                     type: 'menuitem',
                     text: label,
                     icon: isCurrent ? 'checkmark' : undefined,
-                    onAction: Action.changeColumnWidth.bind({ctx, colSpan: i})
+                    onAction: Action.changeColumnWidth.bind({ ctx, colSpan: i })
                 });
             }
             return menuItems;
@@ -314,7 +379,7 @@ export async function provider(ctx) {
         name: 'switchBoxRowsExample',
         condition: 'capsa-exemple-cols',
         title: i18n.toexamplerows,
-        onAction: Action.switchBoxRowsExampleAction.bind({ctx})
+        onAction: Action.switchBoxRowsExampleAction.bind({ ctx })
     };
 
     /**
@@ -324,7 +389,7 @@ export async function provider(ctx) {
         name: 'switchBoxSimpleExample',
         condition: 'capsa-exemple-rows',
         title: i18n.toexamplesimple,
-        onAction: Action.switchBoxSimpleExampleAction.bind({ctx})
+        onAction: Action.switchBoxSimpleExampleAction.bind({ ctx })
     };
 
     /**
@@ -418,7 +483,7 @@ export async function provider(ctx) {
                 type: 'menuitem',
                 text: opt ? i18n.independent : i18n.dependent,
                 icon: isDependentBehavior === opt ? undefined : 'checkmark',
-                onAction: Action.setAccordionBehavior.bind({ctx, isDependentBehavior: opt})
+                onAction: Action.setAccordionBehavior.bind({ ctx, isDependentBehavior: opt })
             }));
         }
     };
@@ -464,7 +529,7 @@ export async function provider(ctx) {
         name: 'convertToBsTableMenu',
         condition: 'taula-predefinida',
         title: i18n.tobootstraptable,
-        onAction: Action.convert2BootstrapTable.bind({ctx}),
+        onAction: Action.convert2BootstrapTable.bind({ ctx }),
     };
 
     /**
@@ -474,7 +539,7 @@ export async function provider(ctx) {
         name: 'convertToPredefinedTableMenu',
         condition: 'taula-bs',
         title: i18n.topredefinedtable,
-        onAction: Action.convert2PrefefinedTable.bind({ctx}),
+        onAction: Action.convert2PrefefinedTable.bind({ ctx }),
     };
 
     /**
@@ -495,7 +560,7 @@ export async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: isResponsive ? i18n.remove : i18n.add,
-                onAction: Action.toggleBootstapTableResponsiveness.bind({ctx})
+                onAction: Action.toggleBootstapTableResponsiveness.bind({ ctx })
             }];
         }
     };
@@ -517,7 +582,7 @@ export async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: hasHeader ? i18n.remove : i18n.add,
-                onAction: Action.toggleTableHeader.bind({ctx})
+                onAction: Action.toggleTableHeader.bind({ ctx })
             }];
         }
     };
@@ -539,7 +604,7 @@ export async function provider(ctx) {
             return [{
                 type: 'menuitem',
                 text: hasFooter ? i18n.remove : i18n.add,
-                onAction: Action.toggleTableFooter.bind({ctx})
+                onAction: Action.toggleTableFooter.bind({ ctx })
             }];
         }
     };
@@ -551,7 +616,7 @@ export async function provider(ctx) {
         name: 'convertDropdownToList',
         condition: 'desplegable2',
         title: i18n.tolist,
-        onAction: Action.convertDropdownToList.bind({ctx}),
+        onAction: Action.convertDropdownToList.bind({ ctx }),
     };
 
     /**
@@ -722,6 +787,9 @@ export async function provider(ctx) {
         // Image actions
         imageEffectsNestedMenu,
         imageSwitchToSnippet,
+
+        // H5P placeholder actions
+        h5pPlaceholderPrintBehaviorNestedMenu,
 
         // Box actions
         changeBoxLanguageNestedMenu,

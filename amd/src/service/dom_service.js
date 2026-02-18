@@ -216,17 +216,20 @@ export class DomSrv {
         // If no widget is found and selectedElement has a parent OL or IMG,
         // force detection with a fake widget.
         if (!res.widget) {
-            const parent = res.selectedElement.closest('ol,img');
+            const parent = res.selectedElement.closest('ol,img,div.h5p-placeholder');
             /** @type {string | undefined} */
             let tag = res.selectedElement.tagName;
-            const isTag = tag === 'OL' || tag === 'IMG';
+            const isTag = tag === 'OL' || tag === 'IMG' || tag === 'DIV';
             if (isTag || parent) {
                 if (!isTag) {
                     tag = parent?.tagName;
                 }
+                if (tag === 'DIV') {
+                    tag = 'DIV_H5P_PLACEHOLDER';
+                }
                 const rawWidget = {
                     key: `!${tag}`,
-                    name: '!image',
+                    name: '!media',
                     category: '!media',
                     isfilter: false,
                     template: '',

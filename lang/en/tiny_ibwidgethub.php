@@ -82,6 +82,7 @@ $string['moveup'] = 'Move up';
 $string['name'] = 'Name';
 $string['no'] = 'No';
 $string['nochanges'] = 'The filter has applied no changes';
+$string['onlylink'] = 'Only link';
 $string['paste'] = 'Paste';
 $string['pluginname'] = 'WidgetHub @IEDIB';
 $string['preview'] = 'Preview';

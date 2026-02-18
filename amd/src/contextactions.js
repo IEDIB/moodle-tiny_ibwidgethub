@@ -252,19 +252,27 @@ export const predefinedActionsFactory = function (editor, domSrv, widgetCutClipb
          * @param {string} [arg]
          */
         printable: (path, arg) => {
-            const el = path?.elem;
-            if (!el) {
+            const target = path?.elem;
+            if (!target) {
                 return;
             }
+            const iframes = target.querySelectorAll('iframe,div.h5p-placeholder');
             if (arg === 'none') {
-                el.classList.add('d-print-none');
-            } else {
-                el.classList.remove('d-print-none');
-                const iframes = el.querySelectorAll('iframe');
+                target.classList.add('d-print-none');
                 iframes.forEach(el => {
                     el.classList.remove('disable-print-iframe-link');
+                    el.parentElement?.classList.remove('disable-print-iframe-link');
+                });
+            } else {
+                target.classList.remove('d-print-none');
+                iframes.forEach(el => {
+                    el.classList.remove('disable-print-iframe-link');
+                    el.parentElement?.classList.remove('disable-print-iframe-link');
                     if (arg === 'all') {
                         el.classList.add('disable-print-iframe-link');
+                        if (el.tagName === 'IFRAME') {
+                            el.parentElement?.classList.add('disable-print-iframe-link');
+                        }
                     }
                 });
             }
@@ -544,15 +552,19 @@ export class ContextActionsManager {
         // Only one instance allowed. At root level.
         this.editor.ui.registry.addNestedMenuItem(`${componentName}_printable_item`, {
             icon: 'print',
-            tooltip: this.i18n.printable,
+            text: this.i18n.printable,
             getSubmenuItems: () => {
                 const elem = this.ctx.path?.elem;
                 const isPrintDisabled = elem?.classList?.contains('d-print-none') ?? false;
                 const bodyId = document.body.id || '';
-                const isPrintLinkSupported = bodyId.startsWith('page-mod-page-') || bodyId.startsWith('page-mod-book-');
-                const isPrintLinkDisabled = isPrintLinkSupported && !!elem?.querySelector('iframe.disable-print-iframe-link');
-                let currentState = isPrintDisabled ? 'none' : 'all';
-                if (isPrintLinkSupported && !isPrintLinkDisabled) {
+                const isPrintLinkSupported = (bodyId.startsWith('page-mod-page-') || bodyId.startsWith('page-mod-book-')) &&
+                    !!elem?.querySelector('iframe,div.h5p-placeholder');
+                const isPrintLinkDisabled = isPrintLinkSupported &&
+                    !!elem?.querySelector('iframe.disable-print-iframe-link,div.h5p-placeholder.disable-print-iframe-link');
+                let currentState = 'all';
+                if (isPrintDisabled) {
+                    currentState = 'none';
+                } else if (isPrintLinkSupported && !isPrintLinkDisabled) {
                     currentState = 'link';
                 }
                 /** @type {any[]} */
@@ -571,7 +583,7 @@ export class ContextActionsManager {
                         type: 'togglemenuitem',
                         text: this.i18n.yes,
                         tooltip: this.i18n.printall,
-                        onAction: this.genericAction('printable', 'all'),
+                        onAction: this.genericAction('printable', isPrintLinkSupported ? 'all' : 'link'),
                         onSetup: (/** @type {*} */ api) => {
                             api.setActive(currentState === 'all');
                             return () => { };

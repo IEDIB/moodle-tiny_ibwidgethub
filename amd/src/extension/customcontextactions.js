@@ -21,18 +21,18 @@
  * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-import {htmlToElement, setStyleMCE} from '../util';
-import {addRequires, cleanUnusedRequires} from './dependencies';
+import { htmlToElement, setStyleMCE } from '../util';
+import { addRequires, cleanUnusedRequires } from './dependencies';
 
 /**
  * @param {Node} el
  * @returns
  */
 function detachNode(el) {
-  if (el && el.parentNode) {
-    el.parentNode.removeChild(el);
-  }
-  return el;
+    if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+    }
+    return el;
 }
 
 /**
@@ -316,20 +316,20 @@ export function convertDropdownToList() {
     const doc = this.ctx.editor.getDoc();
     const listSubstitute = doc.createElement('UL');
     target.querySelectorAll("a.accordion-toggle").forEach(a => {
-          const href = a.getAttribute("href");
-          if (!href) {
+        const href = a.getAttribute("href");
+        if (!href) {
             return;
-          }
-          const e = target.querySelector(href);
-          if (!e) {
+        }
+        const e = target.querySelector(href);
+        if (!e) {
             return;
-          }
-          detachNode(e);
-          e.className = '';
-          const theLi = doc.createElement('LI');
-          theLi.append(a.textContent);
-          theLi.append(e);
-          listSubstitute.append(theLi);
+        }
+        detachNode(e);
+        e.className = '';
+        const theLi = doc.createElement('LI');
+        theLi.append(a.textContent);
+        theLi.append(e);
+        listSubstitute.append(theLi);
     });
     target.replaceWith(listSubstitute);
 }
@@ -406,7 +406,7 @@ export function toggleTableFooter() {
         if (firstTr) {
             firstTr.querySelectorAll("td").forEach(e => {
                 const newTd = htmlToElement(doc, "<td>Resum</td>");
-                const st =e.getAttribute("style");
+                const st = e.getAttribute("style");
                 newTd.setAttribute("style", st ? st : "");
                 newTd.setAttribute("data-mce-style", st ? st : "");
                 tr2.append(newTd);
@@ -431,7 +431,7 @@ export function toggleBootstapTableResponsiveness() {
 
     if (target.parentElement?.classList?.contains("table-responsive")) {
         // Delete responsiveness
-       target.parentElement.replaceWith(target);
+        target.parentElement.replaceWith(target);
     } else {
         // Add responsiveness
         const doc = this.ctx.editor.getDoc();
@@ -442,3 +442,23 @@ export function toggleBootstapTableResponsiveness() {
     }
 }
 
+/**
+ * @this {{ctx: import("../contextactions").ItemMenuContext, type: 'none'|'all'|'link'}}
+ */
+export function printAction() {
+    const target = this.ctx.path?.elem;
+    if (!target) {
+        return;
+    }
+    if (this.type === 'none') {
+        target.classList.add('d-print-none');
+        target.classList.remove('disable-print-iframe-link');
+    } else {
+        target.classList.remove('d-print-none');
+        if (this.type === 'all') {
+            target.classList.add('disable-print-iframe-link');
+        } else {
+            target.classList.remove('disable-print-iframe-link');
+        }
+    }
+}
