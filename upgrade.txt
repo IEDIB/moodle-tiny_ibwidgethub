@@ -44,3 +44,6 @@ Issue #38 Error on contextmenu remove or insert: unrecognized expression:
 == 1.4.0 ==
 - Fix contextInit camelCase problem. Always use lowercase filenames
 - Issue: Cannot change starts from in beatified lists.
+
+== 1.4.1 ==
+ - Integrate print rules.

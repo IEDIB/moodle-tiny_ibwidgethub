@@ -613,3 +613,37 @@ h4.tiny_widgethub-headertext {
         flex: 0 0 98%;
     }
 }
+
+/** Print behavior **/
+@media print {
+    .h5p-placeholder a.autolink {
+        display: none;
+    }
+
+    #page-mod-page-view,
+    #page-mod-book-view {
+        .iedib-video-container:not(:has(iframe.disable-print-iframe-link)) {
+            width: 100% !important;
+            max-width: none !important;
+        }
+
+        .iedib-videoWrapper:not(:has(iframe.disable-print-iframe-link)) {
+            padding: 0;
+            height: auto;
+            text-align: center;
+        }
+    }
+}
+
+#page-mod-book-print {
+    .iedib-videoWrapper:not(:has(iframe.disable-print-iframe-link)) {
+        padding: 0;
+        height: auto;
+        text-align: center;
+    }
+
+    .iedib-video-container:not(:has(iframe.disable-print-iframe-link)) {
+        width: 100% !important;
+        max-width: none !important;
+    }
+}

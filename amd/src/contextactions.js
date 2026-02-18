@@ -16,15 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-import {getWidgetDict} from './options';
-import {getDomSrv} from './service/dom_service';
-import {getWidgetPropertiesCtrl} from './controller/widgetproperties_ctrl';
-import {getMenuItemProviders, getListeners} from './extension';
-import {get_strings} from 'core/str';
+import { getWidgetDict } from './options';
+import { getDomSrv } from './service/dom_service';
+import { getWidgetPropertiesCtrl } from './controller/widgetproperties_ctrl';
+import { getMenuItemProviders, getListeners } from './extension';
+import { get_strings } from 'core/str';
 import Common from './common';
-import {prefixItemsWith} from './util';
+import { prefixItemsWith } from './util';
 
-const {component, componentName} = Common;
+const { component, componentName } = Common;
 
 /**
  * Tiny WidgetHub plugin.
@@ -99,7 +99,7 @@ export function matchesCondition(condition, value) {
  * @param {{widget: import('./options').Widget | undefined, html: string | undefined}} widgetCutClipboard
  * @const widgetCutClipboard
  */
-export const predefinedActionsFactory = function(editor, domSrv, widgetCutClipboard) {
+export const predefinedActionsFactory = function (editor, domSrv, widgetCutClipboard) {
     /** @type {Record<string, Function>} */
     const factory = {
         /**
@@ -249,13 +249,25 @@ export const predefinedActionsFactory = function(editor, domSrv, widgetCutClipbo
         /**
          * Toggles a snippet as printable or not
          * @param {PathResult} path
+         * @param {string} [arg]
          */
-        printable: (path) => {
+        printable: (path, arg) => {
             const el = path?.elem;
             if (!el) {
                 return;
             }
-            el.classList.toggle('d-print-none');
+            if (arg === 'none') {
+                el.classList.add('d-print-none');
+            } else {
+                el.classList.remove('d-print-none');
+                const iframes = el.querySelectorAll('iframe');
+                iframes.forEach(el => {
+                    el.classList.remove('disable-print-iframe-link');
+                    if (arg === 'all') {
+                        el.classList.add('disable-print-iframe-link');
+                    }
+                });
+            }
         },
         /**
          * Removes the widget from DOM and stores HTML in the clipboard
@@ -313,7 +325,8 @@ export const predefinedActionsFactory = function(editor, domSrv, widgetCutClipbo
  * @typedef {{
  *   properties: string, unwrap: string, moveup: string, movedown: string,
  *   moveafter: string, movebefore: string, insert: string, remove: string,
- *   printable: string, cut: string, paste: string
+ *   printable: string, cut: string, paste: string,
+ *   yes: string, no: string, onlylink: string, printall: string, printnone: string, printonlylink: string
  * }} I18n
  */
 
@@ -377,9 +390,10 @@ export class ContextActionsManager {
     async loadStrings() {
         const keys = [
             'properties', 'unwrap', 'moveup', 'movedown', 'moveafter',
-            'movebefore', 'insert', 'remove', 'printable', 'cut', 'paste'
+            'movebefore', 'insert', 'remove', 'printable', 'cut', 'paste',
+            'yes', 'no', 'onlylink', 'printall', 'printnone', 'printonlylink',
         ];
-        const values = await this.translateSrv.get_strings(keys.map(key => ({key, component})));
+        const values = await this.translateSrv.get_strings(keys.map(key => ({ key, component })));
         // @ts-ignore
         return Object.fromEntries(keys.map((k, i) => [k, values[i]]));
     }
@@ -435,9 +449,10 @@ export class ContextActionsManager {
     /**
      * Defines a generic action
      * @param {string} name
+     * @param {any} [arg]
      * @returns {(path?: PathResult) => void}
      */
-    genericAction(name) {
+    genericAction(name, arg) {
         const action = this.predefinedActions?.[name];
         /**
          * @param {PathResult} [path]
@@ -453,7 +468,7 @@ export class ContextActionsManager {
                 }
             }
             if (action) {
-                action(path);
+                action(path, arg);
                 // Call any subscriber
                 getListeners('ctxAction').forEach(listener => listener(this.editor, path?.widget));
             } else {
@@ -527,17 +542,55 @@ export class ContextActionsManager {
             onAction: this.genericAction('cut')
         });
         // Only one instance allowed. At root level.
-        this.editor.ui.registry.addToggleMenuItem(`${componentName}_printable_item`, {
+        this.editor.ui.registry.addNestedMenuItem(`${componentName}_printable_item`, {
             icon: 'print',
-            text: this.i18n.printable,
-            onAction: this.genericAction('printable'),
-            onSetup: (/** @type {*} */ api) => {
-                let toggleState = true;
-                if (this.ctx.path?.elem?.classList?.contains('d-print-none')) {
-                    toggleState = false;
+            tooltip: this.i18n.printable,
+            getSubmenuItems: () => {
+                const elem = this.ctx.path?.elem;
+                const isPrintDisabled = elem?.classList?.contains('d-print-none') ?? false;
+                const bodyId = document.body.id || '';
+                const isPrintLinkSupported = bodyId.startsWith('page-mod-page-') || bodyId.startsWith('page-mod-book-');
+                const isPrintLinkDisabled = isPrintLinkSupported && !!elem?.querySelector('iframe.disable-print-iframe-link');
+                let currentState = isPrintDisabled ? 'none' : 'all';
+                if (isPrintLinkSupported && !isPrintLinkDisabled) {
+                    currentState = 'link';
                 }
-                api.setActive(toggleState);
-                return () => ({});
+                /** @type {any[]} */
+                const items = [
+                    {
+                        type: 'togglemenuitem',
+                        text: this.i18n.no,
+                        tooltip: this.i18n.printnone,
+                        onAction: this.genericAction('printable', 'none'),
+                        onSetup: (/** @type {*} */ api) => {
+                            api.setActive(currentState === 'none');
+                            return () => { };
+                        }
+                    },
+                    {
+                        type: 'togglemenuitem',
+                        text: this.i18n.yes,
+                        tooltip: this.i18n.printall,
+                        onAction: this.genericAction('printable', 'all'),
+                        onSetup: (/** @type {*} */ api) => {
+                            api.setActive(currentState === 'all');
+                            return () => { };
+                        }
+                    },
+                ];
+                if (isPrintLinkSupported) {
+                    items.splice(1, 0, {
+                        type: 'togglemenuitem',
+                        text: this.i18n.onlylink,
+                        tooltip: this.i18n.printonlylink,
+                        onAction: this.genericAction('printable', 'link'),
+                        onSetup: (/** @type {*} */ api) => {
+                            api.setActive(currentState === 'link');
+                            return () => { };
+                        }
+                    });
+                }
+                return items;
             }
         });
     }
@@ -580,14 +633,14 @@ export class ContextActionsManager {
             return menuItems;
         }
         if (path.widget.hasBindings()) {
-            this.ctx.actionPaths.modal.push({...path});
+            this.ctx.actionPaths.modal.push({ ...path });
             menuItems.push('modal');
         }
         // Unwrap action always to the end
         if (path.widget.unwrap) {
             menuItems.push('unwrap');
             this.ctx.actionPaths.unwrap = this.ctx.actionPaths.unwrap || [];
-            this.ctx.actionPaths.unwrap.push({...path});
+            this.ctx.actionPaths.unwrap.push({ ...path });
         }
         // Now look for contextmenu property in widget definition
         /** @type {import('./options').Action[] | undefined} */
@@ -636,7 +689,7 @@ export class ContextActionsManager {
             newActionsToAdd.filter(e => e !== '|').forEach((/** @type {string} */ e) => {
                 path.targetElement = targetElem;
                 this.ctx.actionPaths[e] = this.ctx.actionPaths[e] || [];
-                this.ctx.actionPaths[e].push({...path, text: cm.description});
+                this.ctx.actionPaths[e].push({ ...path, text: cm.description });
             });
         });
         return menuItems;
@@ -678,7 +731,7 @@ export class ContextActionsManager {
             if (parentElem) {
                 const p = this.domSrv.findWidgetOnEventPath(this.widgetList, parentElem);
                 if (p && p.widget?.key === widget.prop('bubbles')) {
-                    parentPath = {...p};
+                    parentPath = { ...p };
                 }
             }
         }
@@ -742,7 +795,7 @@ export class ContextActionsManager {
             }
             this.editor.ui.registry.addContextToolbar(`${componentName}_ctb_${widget.key}`, {
                 /** @param {HTMLElement} node */
-                predicate: function(node) {
+                predicate: function (node) {
                     const path = this.domSrv.findWidgetOnEventPath(this.widgetList, node);
                     // Only activate if the first widget found in path is the current one
                     return path.widget?.key === widget.key;
@@ -757,9 +810,9 @@ export class ContextActionsManager {
 
 
 // Share widgetCutClipboard among serveral editors
- /**
-  * @type {{widget: import('./options').Widget | undefined, html: string | undefined}}
-  */
+/**
+ * @type {{widget: import('./options').Widget | undefined, html: string | undefined}}
+ */
 const widgetCutClipboard = {
     widget: undefined,
     html: undefined
@@ -772,11 +825,11 @@ const contextMenuManagerInstances = new Map();
  * @returns {ContextActionsManager}
  */
 export function getContextMenuManager(editor) {
-   let instance = contextMenuManagerInstances.get(editor);
-   if (!instance) {
-      // @ts-ignore
-      instance = new ContextActionsManager(editor, getDomSrv(), {get_strings}, widgetCutClipboard);
-      contextMenuManagerInstances.set(editor, instance);
-   }
-   return instance;
+    let instance = contextMenuManagerInstances.get(editor);
+    if (!instance) {
+        // @ts-ignore
+        instance = new ContextActionsManager(editor, getDomSrv(), { get_strings }, widgetCutClipboard);
+        contextMenuManagerInstances.set(editor, instance);
+    }
+    return instance;
 }

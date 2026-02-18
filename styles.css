@@ -528,6 +528,33 @@ h4.tiny_widgethub-headertext {
     flex: 0 0 98%;
   }
 }
+/** Print behavior **/
+@media print {
+  .h5p-placeholder a.autolink {
+    display: none;
+  }
+  #page-mod-page-view .iedib-video-container:not(:has(iframe.disable-print-iframe-link)),
+  #page-mod-book-view .iedib-video-container:not(:has(iframe.disable-print-iframe-link)) {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  #page-mod-page-view .iedib-videoWrapper:not(:has(iframe.disable-print-iframe-link)),
+  #page-mod-book-view .iedib-videoWrapper:not(:has(iframe.disable-print-iframe-link)) {
+    padding: 0;
+    height: auto;
+    text-align: center;
+  }
+}
+#page-mod-book-print .iedib-videoWrapper:not(:has(iframe.disable-print-iframe-link)) {
+  padding: 0;
+  height: auto;
+  text-align: center;
+}
+#page-mod-book-print .iedib-video-container:not(:has(iframe.disable-print-iframe-link)) {
+  width: 100% !important;
+  max-width: none !important;
+}
+
 /** Variables **/
 /********************************** Specific Widget definitions styles */
 /** Compatibility bs < 4 **/
