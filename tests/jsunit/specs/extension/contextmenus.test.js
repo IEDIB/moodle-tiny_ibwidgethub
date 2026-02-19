@@ -2,7 +2,7 @@ jest.mock('../../src/service/userstorage_service', () => {
     const getFromLocal = jest.fn().mockReturnValue('#FFFFFF');
     const setToLocal = jest.fn();
     return ({
-    __esModule: true,
+        __esModule: true,
         getUserStorage: () => ({
             getFromLocal,
             setToLocal
@@ -10,38 +10,39 @@ jest.mock('../../src/service/userstorage_service', () => {
     })
 });
 
-import {provider} from '../../src/extension/contextmenus';
+import { provider } from '../../src/extension/contextmenus';
 import Common from '../../src/common';
 import { htmlToElement, toRgba } from '../../src/util';
 
 const actionKeys = [
-            // Image actions
-            'imageEffectsNestedMenu',
-            'imageSwitchToSnippet',
+    // Image actions
+    'imageEffectsNestedMenu',
+    'imageSwitchToSnippet',
+    'h5pPlaceholderPrintBehaviorNestedMenu',
 
-            // Box actions
-            'changeBoxLanguageNestedMenu',
-            'changeBoxSizeNestedMenu',
-            'changeBoxSeverityNestedMenu',
-            'switchBoxRowsExample',
-            'switchBoxSimpleExample',
+    // Box actions
+    'changeBoxLanguageNestedMenu',
+    'changeBoxSizeNestedMenu',
+    'changeBoxSeverityNestedMenu',
+    'switchBoxRowsExample',
+    'switchBoxSimpleExample',
 
-            // Others
-            'accordionIndependentBehaviorNestedMenu',
-            'numberedListNestedMenu',
-            'twoColumnsNestedMenu',
-            'convertDropdownToList',
+    // Others
+    'accordionIndependentBehaviorNestedMenu',
+    'numberedListNestedMenu',
+    'twoColumnsNestedMenu',
+    'convertDropdownToList',
 
-            // Tables
-            'tablesMaxWidthMenu',
-            'convertToBsTableMenu',
-            'convertToPredefinedTableMenu',
-            'responsivenessNestedMenu',
-            'tablesHeaderNestedMenu',
-            'tablesFooterNestedMenu',
-            'tablesCellColorNestedMenu',
-            'tablesRowColorNestedMenu',
-        ];
+    // Tables
+    'tablesMaxWidthMenu',
+    'convertToBsTableMenu',
+    'convertToPredefinedTableMenu',
+    'responsivenessNestedMenu',
+    'tablesHeaderNestedMenu',
+    'tablesFooterNestedMenu',
+    'tablesCellColorNestedMenu',
+    'tablesRowColorNestedMenu',
+];
 /**
  * @param {any[]} lst 
  * @returns {Record<string, any>}
@@ -59,9 +60,9 @@ describe('custom contextmenus actions', () => {
         editor = global.Mocks.editorFactory();
     });
 
-    it('imageEffectsNestedMenu should create menu items and execute actions', async() => {
+    it('imageEffectsNestedMenu should create menu items and execute actions', async () => {
         /** @type {*} */
-        const ctx = {editor, path: {selectedElement: editor.getBody()}, actionPaths: {}};
+        const ctx = { editor, path: { selectedElement: editor.getBody() }, actionPaths: {} };
         let lst = await provider(ctx);
         let menu = convertToDict(lst).imageEffectsNestedMenu;
         expect(typeof menu).toBe('object');
@@ -83,7 +84,7 @@ describe('custom contextmenus actions', () => {
         // Should show add effects
         editor.setContent('<div class="iedib-figure"></div>');
         ctx.path.elem = editor.getBody().querySelector('.iedib-figure');
-        ctx.path.widget = {requires: {url: 'https://test.com/figure.min.js', query: 'div.iedib-figure[data-snptd]'}};
+        ctx.path.widget = { requires: { url: 'https://test.com/figure.min.js', query: 'div.iedib-figure[data-snptd]' } };
         lst = await provider(ctx);
         menu = convertToDict(lst).imageEffectsNestedMenu;
         subitems = menu.subMenuItems();
@@ -97,16 +98,16 @@ describe('custom contextmenus actions', () => {
         expect(editor.getBody().querySelectorAll(`div.${Common.jsAreaClassname} > script`).length).toBe(1);
     });
 
-        it('imageSwitchToSnippet should only trigger for <img> elements', async () => {
+    it('imageSwitchToSnippet should only trigger for <img> elements', async () => {
         /** @type {*} */
-        const ctx = {editor, path: {selectedElement: editor.getBody()}, actionPaths: {}};
+        const ctx = { editor, path: { selectedElement: editor.getBody() }, actionPaths: {} };
         let lst = await provider(ctx);
         const menu = convertToDict(lst).imageSwitchToSnippet;
         expect(typeof menu.condition).toBe('function');
         editor.setContent('<img src="a.png">');
         const img = editor.getBody().querySelector('img');
         ctx.path.selectedElement = img;
-        ctx.path.widget = {key: 'imatge'}; // should skip
+        ctx.path.widget = { key: 'imatge' }; // should skip
         expect(menu.condition()).toBe(false);
         ctx.path.widget.key = 'not-img';
         expect(menu.condition()).toBe(true);
@@ -115,7 +116,7 @@ describe('custom contextmenus actions', () => {
 
     it('changeBoxLanguageNestedMenu should show supported languages and mark current', async () => {
         /** @type {*} */
-        const ctx = {editor, path: {elem: document.createElement('div')}, actionPaths: {}};
+        const ctx = { editor, path: { elem: document.createElement('div') }, actionPaths: {} };
         ctx.path.elem.setAttribute('data-lang', 'es');
         let lst = await provider(ctx);
         const menu = convertToDict(lst).changeBoxLanguageNestedMenu;
@@ -129,7 +130,7 @@ describe('custom contextmenus actions', () => {
         const div = document.createElement('div');
         div.classList.add('iedib-capsa-mitjana');
         /** @type {*} */
-        const ctx = {editor, path: {elem: div, widget: {parameters: []}}, actionPaths: {}};
+        const ctx = { editor, path: { elem: div, widget: { parameters: [] } }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).changeBoxSizeNestedMenu;
         /** @type {any[]} */
@@ -142,7 +143,7 @@ describe('custom contextmenus actions', () => {
         const div = document.createElement('div');
         div.classList.add('iedib-info-border');
         /** @type {*} */
-        const ctx = {editor, path: {elem: div, widget: {parameters: [{name: 'severity', options: [{v: 'info', l: 'Info'}]}]}}, actionPaths: {}};
+        const ctx = { editor, path: { elem: div, widget: { parameters: [{ name: 'severity', options: [{ v: 'info', l: 'Info' }] }] } }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).changeBoxSeverityNestedMenu;
         const subitems = menu.subMenuItems();
@@ -155,7 +156,7 @@ describe('custom contextmenus actions', () => {
         editor.setContent(html);
         const elem = editor.getBody().querySelector('.two-cols');
         /** @type {*} */
-        const ctx = {editor, path: {elem, widget: {}}, actionPaths: {}};
+        const ctx = { editor, path: { elem, widget: {} }, actionPaths: {} };
         /** @type {*} */
         const lst = await provider(ctx);
         const menu = convertToDict(lst).twoColumnsNestedMenu;
@@ -168,7 +169,7 @@ describe('custom contextmenus actions', () => {
         const div = document.createElement('div');
         div.style.maxWidth = '200px';
         /** @type {*} */
-        const ctx = {editor, path: {elem: div}, actionPaths: {}};
+        const ctx = { editor, path: { elem: div }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).tablesMaxWidthMenu;
         expect(typeof menu.onAction).toBe('function');
@@ -181,7 +182,7 @@ describe('custom contextmenus actions', () => {
     it('tablesHeaderNestedMenu should toggle header rows', async () => {
         const table = document.createElement('table');
         /** @type {*} */
-        const ctx = {editor, path: {elem: table}, actionPaths: {}};
+        const ctx = { editor, path: { elem: table }, actionPaths: {} };
         let lst = await provider(ctx);
         let menu = convertToDict(lst).tablesHeaderNestedMenu;
         let subitems = menu.subMenuItems();
@@ -196,7 +197,7 @@ describe('custom contextmenus actions', () => {
     it('tablesFooterNestedMenu should toggle footer rows', async () => {
         const table = document.createElement('table');
         /** @type {*} */
-        const ctx = {editor, path: {elem: table}, actionPaths: {}};
+        const ctx = { editor, path: { elem: table }, actionPaths: {} };
         let lst = await provider(ctx);
         let menu = convertToDict(lst).tablesFooterNestedMenu;
         let subitems = menu.subMenuItems();
@@ -211,7 +212,7 @@ describe('custom contextmenus actions', () => {
     it('tablesCellColorNestedMenu should offer removeBackground when style is present', async () => {
         const td = document.createElement('td');
         td.style.backgroundColor = 'red';
-        const ctx = {editor, path: {selectedElement: td}, actionPaths: {}};
+        const ctx = { editor, path: { selectedElement: td }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).tablesCellColorNestedMenu;
         const subitems = menu.subMenuItems();
@@ -222,7 +223,7 @@ describe('custom contextmenus actions', () => {
     it('tablesRowColorNestedMenu should mirror cell behavior at row level', async () => {
         const tr = document.createElement('tr');
         tr.style.backgroundColor = 'blue';
-        const ctx = {editor, path: {selectedElement: tr}, actionPaths: {}};
+        const ctx = { editor, path: { selectedElement: tr }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).tablesRowColorNestedMenu;
         const subitems = menu.subMenuItems();
@@ -235,7 +236,7 @@ describe('custom contextmenus actions', () => {
         const ol = document.createElement('ol');
         const li = document.createElement('li');
         ol.appendChild(li);
-        const ctx = {editor, path: {selectedElement: li}, actionPaths: {}};
+        const ctx = { editor, path: { selectedElement: li }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).numberedListNestedMenu;
         expect(menu.condition()).toBe(true);
@@ -258,7 +259,7 @@ describe('custom contextmenus actions', () => {
         body.classList.add('accordion-body');
         div.appendChild(body);
         /** @type {any} */
-        const ctx = {editor, path: {elem: div}, actionPaths: {}};
+        const ctx = { editor, path: { elem: div }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).accordionIndependentBehaviorNestedMenu;
         const subitems = menu.subMenuItems();
@@ -268,7 +269,7 @@ describe('custom contextmenus actions', () => {
     });
 
     it('colorPicker should open dialog, update element style, and store color', async () => {
-        
+
         // Mock windowManager.open so we can capture its options and trigger onSubmit manually
         const selectedColor = '#ABCDEF';
         const openMock = jest.fn((options) => {
@@ -281,7 +282,7 @@ describe('custom contextmenus actions', () => {
             document.body.appendChild(input);
             options.onSubmit(fakeApi);
         });
-        
+
         const editorMock = global.Mocks.editorFactory();
         const getUserStorage = require('../../src/service/userstorage_service').getUserStorage;
         const userStorage = getUserStorage(editorMock);
@@ -290,7 +291,7 @@ describe('custom contextmenus actions', () => {
         editorMock.windowManager.open = openMock;
 
         // Inject mocks into context
-        const ctx = {editor: editorMock, path: {selectedElement: td}, actionPaths: {}};
+        const ctx = { editor: editorMock, path: { selectedElement: td }, actionPaths: {} };
 
         // Generate menus
         const lst = await provider(ctx);
@@ -319,7 +320,7 @@ describe('custom contextmenus actions', () => {
 
     it('changeBoxLanguageNestedMenu should return empty when no elem', async () => {
         /** @type {any} */
-        const ctx = {editor, path: {}, actionPaths: {}};
+        const ctx = { editor, path: {}, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).changeBoxLanguageNestedMenu;
         expect(menu.subMenuItems()).toBe('');
@@ -327,14 +328,14 @@ describe('custom contextmenus actions', () => {
 
     it('changeBoxSizeNestedMenu returns empty when widget missing', async () => {
         /** @type {any} */
-        const ctx = {editor, path: {elem: null, widget: null}, actionPaths: {}};
+        const ctx = { editor, path: { elem: null, widget: null }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).changeBoxSizeNestedMenu;
         expect(menu.subMenuItems()).toBe('');
     });
 
     it('tablesRowColorNestedMenu returns empty when not in table', async () => {
-        const ctx = {editor, path: {selectedElement: document.createElement('div')}, actionPaths: {}};
+        const ctx = { editor, path: { selectedElement: document.createElement('div') }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).tablesRowColorNestedMenu;
         expect(menu.subMenuItems()).toStrictEqual([]);
@@ -346,7 +347,7 @@ describe('custom contextmenus actions', () => {
         div.classList.add('table-responsive');
         div.appendChild(table);
         /** @type {any} */
-        const ctx = {editor, path: {elem: table}, actionPaths: {}};
+        const ctx = { editor, path: { elem: table }, actionPaths: {} };
         const lst = await provider(ctx);
         const menu = convertToDict(lst).responsivenessNestedMenu;
         const subitems = menu.subMenuItems();
@@ -355,7 +356,7 @@ describe('custom contextmenus actions', () => {
 
     it('convertToBsTableMenu and convertToPredefinedTableMenu call onAction', async () => {
         /** @type {any} */
-        const ctx = {editor, path: {elem: document.createElement('table')}, actionPaths: {}};
+        const ctx = { editor, path: { elem: document.createElement('table') }, actionPaths: {} };
         const lst = await provider(ctx);
         const toBs = convertToDict(lst).convertToBsTableMenu;
         const toPre = convertToDict(lst).convertToPredefinedTableMenu;
@@ -365,7 +366,7 @@ describe('custom contextmenus actions', () => {
 
     it('switchBoxRowsExample and switchBoxSimpleExample trigger their onAction', async () => {
         /** @type {any} */
-        const ctx = {editor, path: {}, actionPaths: {}};
+        const ctx = { editor, path: {}, actionPaths: {} };
         const lst = await provider(ctx);
         const row = convertToDict(lst).switchBoxRowsExample;
         const simple = convertToDict(lst).switchBoxSimpleExample;

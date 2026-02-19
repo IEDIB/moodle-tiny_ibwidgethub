@@ -215,33 +215,49 @@ export class DomSrv {
         }
         // If no widget is found and selectedElement has a parent OL or IMG,
         // force detection with a fake widget.
-        if (!res.widget) {
-            const parent = res.selectedElement.closest('ol,img,div.h5p-placeholder');
-            /** @type {string | undefined} */
-            let tag = res.selectedElement.tagName;
-            const isTag = tag === 'OL' || tag === 'IMG' || tag === 'DIV';
-            if (isTag || parent) {
-                if (!isTag) {
-                    tag = parent?.tagName;
-                }
-                if (tag === 'DIV') {
-                    tag = 'DIV_H5P_PLACEHOLDER';
-                }
-                const rawWidget = {
-                    key: `!${tag}`,
-                    name: '!media',
-                    category: '!media',
-                    isfilter: false,
-                    template: '',
-                    isselectcapable: false,
-                    hasbindings: false,
-                    hidden: false,
-                    author: '',
-                    version: ''
-                };
-                res.widget = new Widget(rawWidget);
-                res.targetElement = isTag ? res.selectedElement : parent;
+        // If no widget is found and selectedElement has a parent OL or IMG,
+        // force detection with a fake widget.
+        if (!res.widget && res.selectedElement) {
+            const el = res.selectedElement;
+
+            const isValidElement =
+                el.tagName === 'OL' ||
+                el.tagName === 'IMG' ||
+                (el.tagName === 'DIV' && el.classList.contains('h5p-placeholder'));
+
+            let target = null;
+
+            if (isValidElement) {
+                target = el;
+            } else {
+                target = el.closest('ol, img, div.h5p-placeholder');
             }
+
+            if (!target) {
+                return res;
+            }
+
+            let tag = target.tagName;
+
+            if (tag === 'DIV' && target.classList.contains('h5p-placeholder')) {
+                tag = 'DIV_H5P_PLACEHOLDER';
+            }
+
+            const rawWidget = {
+                key: `!${tag}`,
+                name: '!media',
+                category: '!media',
+                isfilter: false,
+                template: '',
+                isselectcapable: false,
+                hasbindings: false,
+                hidden: false,
+                author: '',
+                version: ''
+            };
+
+            res.widget = new Widget(rawWidget);
+            res.targetElement = target;
         }
         return res;
     }

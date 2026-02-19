@@ -446,7 +446,7 @@ export function toggleBootstapTableResponsiveness() {
  * @this {{ctx: import("../contextactions").ItemMenuContext, type: 'none'|'all'|'link'}}
  */
 export function printAction() {
-    const target = this.ctx.path?.elem;
+    const target = this.ctx.path?.targetElement;
     if (!target) {
         return;
     }

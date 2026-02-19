@@ -807,7 +807,7 @@ export class ContextActionsManager {
             }
             this.editor.ui.registry.addContextToolbar(`${componentName}_ctb_${widget.key}`, {
                 /** @param {HTMLElement} node */
-                predicate: function (node) {
+                predicate: (node) => {
                     const path = this.domSrv.findWidgetOnEventPath(this.widgetList, node);
                     // Only activate if the first widget found in path is the current one
                     return path.widget?.key === widget.key;

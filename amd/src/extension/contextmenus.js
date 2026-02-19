@@ -211,11 +211,14 @@ export async function provider(ctx) {
         condition: '!DIV_H5P_PLACEHOLDER',
         title: i18n.printable,
         subMenuItems: () => {
-            const elem = ctx.path?.elem;
-            const isPrintDisabled = elem?.classList?.contains('d-print-none') ?? false;
+            const targetElem = ctx.path?.targetElement;
+            if (!targetElem) {
+                return [];
+            }
+            const isPrintDisabled = targetElem.classList.contains('d-print-none');
             const bodyId = document.body.id || '';
             const isPrintLinkSupported = (bodyId.startsWith('page-mod-page-') || bodyId.startsWith('page-mod-book-'));
-            const isPrintLinkDisabled = isPrintLinkSupported && elem?.classList.contains('disable-print-iframe-link');
+            const isPrintLinkDisabled = isPrintLinkSupported && targetElem.classList.contains('disable-print-iframe-link');
             let currentState = 'all';
             if (isPrintDisabled) {
                 currentState = 'none';
@@ -420,7 +423,7 @@ export async function provider(ctx) {
                     onAction: () => {
                         // Toggle class
                         const target = ctx.path?.targetElement;
-                        if (!target || !(target instanceof HTMLElement)) {
+                        if (!target) {
                             return;
                         }
                         target.classList.toggle('iedib-falist');
@@ -428,8 +431,10 @@ export async function provider(ctx) {
                         const startAt = target.getAttribute("start") || "1";
                         if (target.classList.contains('iedib-falist')) {
                             const beginAt = parseInt(startAt);
+                            // @ts-ignore
                             setStyleMCE(target, "counter-reset", "iedibfalist-counter " + (beginAt - 1));
                         } else {
+                            // @ts-ignore
                             removeStyleMCE(target, "counter-reset");
                         }
                     }
@@ -446,13 +451,14 @@ export async function provider(ctx) {
                                 // TODO: Opened issue: Closing a tiny dialog -- afects the main bootstap dialog
                                 api.close();
                                 const target = ctx.path?.targetElement;
-                                if (!target || !(target instanceof HTMLElement)) {
+                                if (!target) {
                                     return;
                                 }
                                 // Change the number at which start
                                 const startAt2 = api.getData().value ?? "1";
                                 const beginAt3 = convertInt(startAt2, 1);
                                 target.setAttribute("start", beginAt3 + '');
+                                // @ts-ignore
                                 setStyleMCE(target, "counter-reset", "iedibfalist-counter " + (beginAt3 - 1));
                             });
                     },
