@@ -1341,9 +1341,9 @@ table.iedib-bstable {
 
   div[role="main"] {
     background-color: white;
-    max-width: 90%;
-    font-size: 110%;
-    margin: auto;
+    max-width: 100%;
+    max-width: none;
+    font-size: 11pt;
   }
 
   #page-content {
@@ -1352,6 +1352,18 @@ table.iedib-bstable {
 
   .accordion-body.collapse {
     display: block !important;
+    height: auto !important;
+    visibility: visible !important;
+  }
+
+  .accordion-body.collapsing {
+    display: block !important;
+    height: auto !important;
+    transition: none !important;
+  }
+
+  div.accordion-inner .iedib-capsa {
+    break-inside: auto;
   }
 
   .iedib-tabmenu>ul>li>a {
@@ -1364,33 +1376,29 @@ table.iedib-bstable {
 
   .tab-content>.tab-pane.iedib-tabpane {
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+    break-inside: avoid;
   }
 
   .tab-content>.tab-pane.iedib-tabpane::after {
     content: '\002014\002014\002014';
     display: block;
     text-align: center;
+    color: #7777;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    clear: both;
   }
 
   /* Accesibilitat als links impressos*/
-  a.iedib-plink:after {
-    content: " <" attr(href) "> " !important;
+  a.iedib-plink[href^="http"]:after {
+    content: " (" attr(href) ") " !important;
     font-style: italic !important;
     font-size: 0.9em !important;
-  }
-
-  /* videos h5p */
-  .iedib-video-container>iframe {
-    display: none;
-  }
-
-  .iedib-video-container>iframe::after {
-    content: " <" attr(src) "> " !important;
-    display: block;
-  }
-
-  div.accordion-inner .iedib-capsa {
-    break-inside: auto;
   }
 
   .ib-card,
@@ -1411,5 +1419,54 @@ table.iedib-bstable {
   .ib-card-front {
     display: block !important;
     position: relative !important;
+  }
+}
+
+
+
+/** Display accordions and tabs on book print preview **/
+#page-mod-book-print {
+  .accordion-body.collapse {
+    display: block !important;
+    height: auto !important;
+    visibility: visible !important;
+  }
+
+  .accordion-body.collapsing {
+    display: block !important;
+    height: auto !important;
+    transition: none !important;
+  }
+
+  div.accordion-inner .iedib-capsa {
+    break-inside: auto;
+  }
+
+  .iedib-tabmenu>ul>li>a {
+    color: #222;
+  }
+
+  .iedib-tabmenu {
+    display: flex;
+  }
+
+  .tab-content>.tab-pane.iedib-tabpane {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+    break-inside: avoid;
+  }
+
+  .tab-content>.tab-pane.iedib-tabpane::after {
+    content: '\002014\002014\002014';
+    display: block;
+    text-align: center;
+    color: #7777;
+    font-size: 1.5rem;
+    margin-top: 10px;
+    clear: both;
   }
 }

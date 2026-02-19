@@ -99,6 +99,7 @@ $string['responsivity'] = 'Resposivitat';
 $string['rmfilter'] = 'Esborrar el filtre de cerca';
 $string['row'] = 'Fila';
 $string['savechanges'] = 'Desar els canvis';
+$string['saverequired'] = 'S\'han fet canvis que cal desar';
 $string['selectmode'] = 'Mode de selecció';
 $string['settings'] = 'Component de WidgetHub';
 $string['sharecss'] = 'Compartir el CSS del lloc dins de l\'iframe de l\'editor';

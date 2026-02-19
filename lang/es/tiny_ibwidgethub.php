@@ -99,6 +99,7 @@ $string['responsivity'] = 'Responsividad';
 $string['rmfilter'] = 'Borrar el filtro de búsqueda';
 $string['row'] = 'Fila';
 $string['savechanges'] = 'Guardar los cambios';
+$string['saverequired'] = 'Se han hecho cambios que deben guardarse';
 $string['selectmode'] = 'Modo de selección';
 $string['settings'] = 'Componente de WidgetHub';
 $string['sharecss'] = 'Compartir el CSS del sitio dentro del iframe del editor';

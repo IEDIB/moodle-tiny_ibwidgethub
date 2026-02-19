@@ -99,6 +99,7 @@ $string['responsivity'] = 'Responsivity';
 $string['rmfilter'] = 'Clear search filter';
 $string['row'] = 'Row';
 $string['savechanges'] = 'Save changes';
+$string['saverequired'] = 'There have been some changes that need to be saved';
 $string['selectmode'] = 'Selection mode';
 $string['settings'] = 'WidgetHub component';
 $string['sharecss'] = 'Share the site CSS within the editor\'s iframe';
