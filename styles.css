@@ -1855,13 +1855,17 @@ table.iedib-bstable {
     max-width: none;
     font-size: 11pt;
   }
+  body,
   #page-content {
-    background-color: white;
+    background-color: white !important;
   }
   .accordion-body.collapse {
     display: block !important;
     height: auto !important;
     visibility: visible !important;
+  }
+  a.accordion-toggle {
+    text-decoration: none;
   }
   .accordion-body.collapsing {
     display: block !important;
@@ -1917,6 +1921,18 @@ table.iedib-bstable {
     display: block !important;
     position: relative !important;
   }
+  /* Clear other stuff from CTRL+P print */
+  section#region-main > div.activity-navigation,
+  footer#page-footer,
+  div.activity-information:has([data-region=completion-info]) {
+    display: none !important;
+  }
+  div.disable-print-iframe-link > p.iedib-embed-print-only {
+    display: none !important;
+  }
+  .iedib-pulsating {
+    display: none;
+  }
 }
 /** Display accordions and tabs on book print preview **/
 #page-mod-book-print .accordion-body.collapse {
@@ -1928,6 +1944,9 @@ table.iedib-bstable {
   display: block !important;
   height: auto !important;
   transition: none !important;
+}
+#page-mod-book-print a.accordion-toggle {
+  text-decoration: none;
 }
 #page-mod-book-print div.accordion-inner .iedib-capsa {
   break-inside: auto;
@@ -1955,4 +1974,7 @@ table.iedib-bstable {
   font-size: 1.5rem;
   margin-top: 10px;
   clear: both;
+}
+#page-mod-book-print .iedib-pulsating {
+  display: none;
 }
