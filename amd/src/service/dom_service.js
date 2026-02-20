@@ -220,17 +220,18 @@ export class DomSrv {
         if (!res.widget && res.selectedElement) {
             const el = res.selectedElement;
 
+            const isValidClass = el.classList.contains('h5p-placeholder');
             const isValidElement =
                 el.tagName === 'OL' ||
                 el.tagName === 'IMG' ||
-                (el.tagName === 'DIV' && el.classList.contains('h5p-placeholder'));
+                (el.tagName === 'DIV' && isValidClass);
 
             let target = null;
 
             if (isValidElement) {
                 target = el;
             } else {
-                target = el.closest('ol, img, div.h5p-placeholder');
+                target = el.closest('ol, img, div.h5p-placeholder, div.mediaplugin_videojs');
             }
 
             if (!target) {

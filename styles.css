@@ -530,9 +530,6 @@ h4.tiny_widgethub-headertext {
 }
 /** Print behavior **/
 @media print {
-  .disable-print-iframe-link iframe {
-    display: block;
-  }
   .h5p-placeholder a.autolink {
     display: none;
   }
@@ -547,6 +544,40 @@ h4.tiny_widgethub-headertext {
     height: auto;
     text-align: center;
   }
+  #page-mod-page-view div.disable-print-iframe-link > p.iedib-embed-print-only,
+  #page-mod-book-view div.disable-print-iframe-link > p.iedib-embed-print-only {
+    display: none !important;
+  }
+  #page-mod-page-view div.disable-print-iframe-link > iframe,
+  #page-mod-book-view div.disable-print-iframe-link > iframe {
+    display: block !important;
+  }
+  /* Clear other stuff from CTRL+P print */
+  section#region-main > div.activity-navigation,
+  footer#page-footer,
+  div.activity-information:has([data-region=completion-info]) {
+    display: none !important;
+  }
+  /* Hide the entire media plugin container */
+  .mediaplugin.mediaplugin_videojs {
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .mediaplugin.mediaplugin_videojs:has(audio)::after {
+    content: "🎵 Audio";
+    display: block;
+    width: 100px;
+  }
+  .mediaplugin.mediaplugin_videojs:has(iframe)::after {
+    content: "🎬 Video";
+    display: block;
+    width: 100px;
+  }
+  .iedib-pulsating {
+    display: none;
+  }
 }
 #page-mod-book-print .d-print-none {
   display: none !important;
@@ -559,6 +590,31 @@ h4.tiny_widgethub-headertext {
 #page-mod-book-print .iedib-video-container:not(:has(iframe.disable-print-iframe-link)) {
   width: 100% !important;
   max-width: none !important;
+}
+#page-mod-book-print div.disable-print-iframe-link > p.iedib-embed-print-only {
+  display: none !important;
+}
+#page-mod-book-print div.disable-print-iframe-link > iframe {
+  display: block !important;
+}
+#page-mod-book-print {
+  /* Hide the entire media plugin container */
+}
+#page-mod-book-print .mediaplugin.mediaplugin_videojs {
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+#page-mod-book-print .mediaplugin.mediaplugin_videojs:has(audio)::after {
+  content: "🎵 Audio";
+  display: block;
+  width: 100px;
+}
+#page-mod-book-print .mediaplugin.mediaplugin_videojs:has(iframe)::after {
+  content: "🎬 Video";
+  display: block;
+  width: 100px;
 }
 
 /** Variables **/
@@ -1852,7 +1908,8 @@ table.iedib-bstable {
   div[role=main] {
     background-color: white;
     max-width: 100%;
-    max-width: none;
+    max-width: 90%;
+    margin: auto;
     font-size: 11pt;
   }
   body,
@@ -1920,18 +1977,6 @@ table.iedib-bstable {
   .ib-card-front {
     display: block !important;
     position: relative !important;
-  }
-  /* Clear other stuff from CTRL+P print */
-  section#region-main > div.activity-navigation,
-  footer#page-footer,
-  div.activity-information:has([data-region=completion-info]) {
-    display: none !important;
-  }
-  div.disable-print-iframe-link > p.iedib-embed-print-only {
-    display: none !important;
-  }
-  .iedib-pulsating {
-    display: none;
   }
 }
 /** Display accordions and tabs on book print preview **/

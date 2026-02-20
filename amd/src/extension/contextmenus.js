@@ -208,7 +208,7 @@ export async function provider(ctx) {
      */
     const h5pPlaceholderPrintBehaviorNestedMenu = {
         name: 'h5pPlaceholderPrintBehaviorNestedMenu',
-        condition: '!DIV_H5P_PLACEHOLDER',
+        condition: /DIV_H5P_PLACEHOLDER|IFRAME/,
         title: i18n.printable,
         subMenuItems: () => {
             const targetElem = ctx.path?.targetElement;
@@ -217,7 +217,8 @@ export async function provider(ctx) {
             }
             const isPrintDisabled = targetElem.classList.contains('d-print-none');
             const bodyId = document.body.id || '';
-            const isPrintLinkSupported = (bodyId.startsWith('page-mod-page-') || bodyId.startsWith('page-mod-book-'));
+            const isPrintLinkSupported = (bodyId.startsWith('page-mod-page-') || bodyId.startsWith('page-mod-book-')) &&
+                !targetElem.classList.contains('mediaplugin_videojs');
             const isPrintLinkDisabled = isPrintLinkSupported && targetElem.classList.contains('disable-print-iframe-link');
             let currentState = 'all';
             if (isPrintDisabled) {

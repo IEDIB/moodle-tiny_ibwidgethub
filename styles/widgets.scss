@@ -1342,7 +1342,8 @@ table.iedib-bstable {
   div[role="main"] {
     background-color: white;
     max-width: 100%;
-    max-width: none;
+    max-width: 90%;
+    margin: auto;
     font-size: 11pt;
   }
 
@@ -1399,6 +1400,11 @@ table.iedib-bstable {
     clear: both;
   }
 
+  a[data-toggle="tab"],
+  a[data-bs-toggle="tab"] {
+    text-decoration: none;
+  }
+
   /* Accesibilitat als links impressos*/
   a.iedib-plink[href^="http"]:after {
     content: " (" attr(href) ") " !important;
@@ -1425,24 +1431,7 @@ table.iedib-bstable {
     display: block !important;
     position: relative !important;
   }
-
-  /* Clear other stuff from CTRL+P print */
-  section#region-main>div.activity-navigation,
-  footer#page-footer,
-  div.activity-information:has([data-region="completion-info"]) {
-    display: none !important;
-  }
-
-  div.disable-print-iframe-link>p.iedib-embed-print-only {
-    display: none !important;
-  }
-
-  .iedib-pulsating {
-    display: none;
-  }
 }
-
-
 
 /** Display accordions and tabs on book print preview **/
 #page-mod-book-print {
@@ -1492,6 +1481,11 @@ table.iedib-bstable {
     font-size: 1.5rem;
     margin-top: 10px;
     clear: both;
+  }
+
+  a[data-toggle="tab"],
+  a[data-bs-toggle="tab"] {
+    text-decoration: none;
   }
 
   .iedib-pulsating {
