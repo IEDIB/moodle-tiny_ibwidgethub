@@ -19,6 +19,7 @@
   border-radius: 4px;
   box-shadow: 3px 3px gray;
   overflow: hidden;
+  overflow: clip;
   background: white;
   z-index: 1000;
   pointer-events: none;
@@ -130,11 +131,9 @@ div.tiny_widgethub-growl {
   border-radius: 10px;
   border: 1px solid lightgray;
   display: block;
-  overflow: hidden;
 }
 .tiny_widgethub-category button {
   height: 40px;
-  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -433,6 +432,7 @@ h4.tiny_widgethub-headertext {
 }
 .tiny_widgethub-view-grid .tiny_widgethub-btn-group > button:not([data-insert=true]):not([data-auto]) .twh-label {
   overflow: hidden;
+  overflow: clip;
   line-height: 1.2;
   max-height: 2.4em;
   width: 100%;
@@ -513,6 +513,12 @@ h4.tiny_widgethub-headertext {
 .tiny_widgethub-view-grid .tiny_widgethub-btn-group:hover > button[data-insert=true] {
   opacity: 1;
   transition: opacity 0.2s ease-in-out;
+}
+
+/* contexmenus avoid scroll */
+.tox-menu.tox-collection[role=menu] {
+  max-height: 600px !important;
+  overflow: hidden !important;
 }
 
 /* Responsive adjustments */
@@ -1956,6 +1962,10 @@ table.iedib-bstable {
     margin-top: 10px;
     clear: both;
   }
+  a[data-toggle=tab],
+  a[data-bs-toggle=tab] {
+    text-decoration: none;
+  }
   /* Accesibilitat als links impressos*/
   a.iedib-plink[href^=http]:after {
     content: " (" attr(href) ") " !important;
@@ -2019,6 +2029,10 @@ table.iedib-bstable {
   font-size: 1.5rem;
   margin-top: 10px;
   clear: both;
+}
+#page-mod-book-print a[data-toggle=tab],
+#page-mod-book-print a[data-bs-toggle=tab] {
+  text-decoration: none;
 }
 #page-mod-book-print .iedib-pulsating {
   display: none;

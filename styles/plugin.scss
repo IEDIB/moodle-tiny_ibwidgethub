@@ -44,6 +44,7 @@ $btn-border-radius: .5rem;
     border-radius: $border-radius-sm;
     box-shadow: 3px 3px $gray;
     overflow: hidden;
+    overflow: clip;
     background: $white;
     z-index: 1000;
     pointer-events: none;
@@ -166,11 +167,9 @@ div.tiny_widgethub-growl {
     border-radius: $border-radius-lg;
     border: 1px solid $lightgray;
     display: block;
-    overflow: hidden;
 
     button {
         height: 40px;
-        overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
     }
@@ -503,6 +502,7 @@ h4.tiny_widgethub-headertext {
 
             .twh-label {
                 overflow: hidden;
+                overflow: clip;
                 line-height: 1.2;
                 max-height: 2.4em;
                 width: 100%;
@@ -597,6 +597,12 @@ h4.tiny_widgethub-headertext {
             }
         }
     }
+}
+
+/* contexmenus avoid scroll */
+.tox-menu.tox-collection[role="menu"] {
+    max-height: 600px !important;
+    overflow: hidden !important;
 }
 
 /* Responsive adjustments */

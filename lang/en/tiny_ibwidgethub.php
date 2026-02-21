@@ -111,6 +111,7 @@ $string['tablewidth'] = 'Table width';
 $string['tobootstraptable'] = 'To bootstrap table';
 $string['toexamplerows'] = 'To example with 2 rows';
 $string['toexamplesimple'] = 'To example simple';
+$string['toggleview'] = 'Toggle view';
 $string['tolist'] = 'To a list';
 $string['toonecol'] = 'To one column';
 $string['topredefinedtable'] = 'To predefined table';

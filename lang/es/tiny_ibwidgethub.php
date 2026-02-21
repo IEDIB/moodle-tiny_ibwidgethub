@@ -111,6 +111,7 @@ $string['tablewidth'] = 'Anchura tabla';
 $string['tobootstraptable'] = 'Convertir a table bootstrap';
 $string['toexamplerows'] = 'Convertir a ejemplo 2 filas';
 $string['toexamplesimple'] = 'Convertir a ejemplo simple';
+$string['toggleview'] = 'Cambiar vista';
 $string['tolist'] = 'Convertir a lista';
 $string['toonecol'] = 'A una columna';
 $string['topredefinedtable'] = 'Convertir a table predefinida';
