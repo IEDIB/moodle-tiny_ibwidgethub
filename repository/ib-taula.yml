@@ -9,7 +9,7 @@ template: |
   <!--ini taula predef-->
   <table class="iedib-table"
   style="table-layout:{{amplades}};border-collapse: collapse; border-spacing: 0px;width:{{ampladaTPC}}%">
-  {{#capsaleres}}<thead><tr>{{#each}}[j=columnes]<th style="border: {{gruix}}px solid {{vorera}};background:
+  {{#capsaleres}}<thead><tr>{{#each}}[j=columnes]<th scope="col" style="border: {{gruix}}px solid {{vorera}};background:
   {{fonsCapsalera}};">Títol{{j}}</th>{{/each}}</tr></thead>{{/capsaleres}}
   <tbody>{{#each}}[files]<tr>{{#each}}[columnes]
   <td style="border: {{gruix}}px solid {{vorera}};"> </td>{{/each}}</tr>{{/each}}</tbody></table>

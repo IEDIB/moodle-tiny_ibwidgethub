@@ -599,12 +599,6 @@ h4.tiny_widgethub-headertext {
     }
 }
 
-/* contexmenus avoid scroll */
-.tox-menu.tox-collection[role="menu"] {
-    max-height: 600px !important;
-    overflow: hidden !important;
-}
-
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .tiny_widgethub-view-grid .tiny_widgethub-btn-group {

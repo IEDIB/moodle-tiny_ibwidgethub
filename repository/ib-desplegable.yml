@@ -13,9 +13,10 @@ template: >
   <div id="{{ID}}" class="accordion iedib-accordion">
   {{#each}}[nombre]<div class="accordion-group">
   <div class="accordion-heading"><a class="accordion-toggle" href="#collapse_{{ID}}_{{i}}"
+  id="heading_{{ID}}_{{i}}" role="button" aria-expanded="false" aria-controls="collapse_{{ID}}_{{i}}"
   data-toggle="collapse" data-bs-toggle="collapse" {{#independents}}data-parent="#{{ID}}" data-bs-parent="#{{ID}}"{{/independents}}><span class="icon
   icon-plus-sign"></span> <span>&nbsp;</span><span>Desplegable{{i}}&nbsp;</span></a></div>
-  <div id="collapse_{{ID}}_{{i}}" class="accordion-body collapse" {{^independents}}data-parent="#{{ID}}" data-bs-parent="#{{ID}}"{{/independents}}>
+  <div id="collapse_{{ID}}_{{i}}" class="accordion-body collapse" role="region" aria-labelledby="heading_{{ID}}_{{i}}" {{^independents}}data-parent="#{{ID}}" data-bs-parent="#{{ID}}"{{/independents}}>
   <div class="accordion-inner">
   <p>Més informació sobre l'apartat {{i}}...</p>
   </div>

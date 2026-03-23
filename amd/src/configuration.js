@@ -21,9 +21,9 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import Common from './common';
-import {addMenubarItem} from 'editor_tiny/utils';
+import { addMenubarItem } from 'editor_tiny/utils';
 
-const {component} = Common;
+const { component } = Common;
 
 /**
  * @typedef {Object} Menu
@@ -81,7 +81,7 @@ const configureToolbar = (toolbar) => {
  * @returns {string}
  */
 const configureContextMenu = (contextmenu) => {
-    return contextmenu + ' ' + component;
+    return `${contextmenu} ${component}_cm`;
 };
 
 /**
