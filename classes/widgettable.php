@@ -104,13 +104,13 @@ class widgettable extends \admin_setting {
 
         foreach ($listwidgetconfig as $item) {
             $row = new \html_table_row();
-            $keytd = new \html_table_cell($item->key);
-            $nametd = new \html_table_cell($item->name);
+            $keytd = new \html_table_cell(s($item->key));
+            $nametd = new \html_table_cell(s($item->name));
             $newlinktext = \html_writer::tag('i', '', ['class' => 'fa fa-pencil'])
                 . ' ' . get_string('edit', $tinycategory);
             $editlink = \html_writer::link($item->url, $newlinktext);
             $edittd = new \html_table_cell($editlink);
-            $edittd->attributes = ['title' => 'Internal id=' . $item->id, 'class' => ''];
+            $edittd->attributes = ['title' => 'Internal id=' . s($item->id), 'class' => ''];
             $row->cells = [
                 $keytd,
                 $nametd,

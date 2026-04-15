@@ -262,10 +262,12 @@ const applyAutoFilters = (editor) => {
         // Apply it also on save
         const pageForm = document.querySelector('form.mform');
         if (pageForm && pageForm.querySelector('div[data-fieldtype="editor"]')) {
-            pageForm.addEventListener('submit', () => {
+            const submitHandler = () => {
                 widgetsFound.forEach(w => applyWidgetFilter(w.template ?? '', true));
                 return true;
-            });
+            };
+            pageForm.addEventListener('submit', submitHandler);
+            editor.on('remove', () => pageForm.removeEventListener('submit', submitHandler));
         }
     }
 };

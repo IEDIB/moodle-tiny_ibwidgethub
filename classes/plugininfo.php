@@ -277,7 +277,7 @@ class plugininfo extends plugin implements
         }
         $indexid = array_search('partials', array_combine(array_keys($widgetindex), array_column($widgetindex, 'key')));
         $partials = (object)[];
-        if ($indexid) {
+        if ($indexid !== false) {
             $definition = $conf->{'def_' . $indexid};
             if (!empty($definition)) {
                 $partials = json_decode($definition, false);
@@ -389,8 +389,8 @@ class plugininfo extends plugin implements
                 // Condition to override existing definition.
                 // Author has changed or version is less than previous.
                 if (
-                    isset($old) && (isset($preset['author']) && $old->author != $preset['author'])
-                    || (isset($preset['version']) && strcmp($old->version, $preset['version']) >= 0)
+                    (isset($old) && isset($preset['author']) && $old->author != $preset['author'])
+                    || (isset($old) && isset($preset['version']) && strcmp($old->version, $preset['version']) >= 0)
                 ) {
                     $mustupdate = false;
                 }

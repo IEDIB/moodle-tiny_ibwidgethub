@@ -47,3 +47,5 @@ Issue #38 Error on contextmenu remove or insert: unrecognized expression:
 
 == 1.4.1 ==
  - Integrate print rules.
+ - Fix some issues on widget definitions.
+ - Minor bugs and improvements.

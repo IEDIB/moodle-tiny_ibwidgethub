@@ -203,7 +203,7 @@ export class WidgetParamsCtrl {
          const ctxFiltered = removeRndFromCtx(ctxFromDialogue, this.widget.parameters);
          recentList.unshift({key: this.widget.key, p: ctxFiltered});
          if (recentList.length > 4) {
-            recentList.splice(5, recentList.length - 4);
+            recentList.splice(4, recentList.length - 4);
          }
 
          this.storage.setToSession("recent", JSON.stringify(recentList), true);
