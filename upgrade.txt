@@ -49,3 +49,6 @@ Issue #38 Error on contextmenu remove or insert: unrecognized expression:
  - Integrate print rules.
  - Fix some issues on widget definitions.
  - Minor bugs and improvements.
+
+== 1.4.2 ==
+ - Add delete button to widget settings.
