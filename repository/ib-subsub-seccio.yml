@@ -1,5 +1,6 @@
 key: subsub-seccio
 name: Secció de pàgina
+category: misc
 instructions: > 
   Creau una secció dins d'una pàgina o un llibre moodle.
   El títol ha d'acabar sense punt final.
@@ -17,4 +18,5 @@ parameters:
     when: "!SELECT_MODE"
 stars: 3
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2024.11.02
+version: 3.0.1
+icon: fa-solid fa-section

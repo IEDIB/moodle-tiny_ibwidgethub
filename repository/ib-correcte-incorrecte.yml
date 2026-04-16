@@ -1,5 +1,6 @@
 key: correcte-incorrecte
 name: Correcte-Incorrecte
+category: misc
 instructions: > 
   Amb aquest snippet podeu mostrar dos procediments; un correcte i l'altre incorrecte.
 template: |
@@ -13,4 +14,5 @@ template: |
   <p><br></p>
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2021.03.30
+version: 2.3.1
+icon: fa-solid fa-check-double

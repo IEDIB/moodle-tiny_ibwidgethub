@@ -1,6 +1,7 @@
 key: ib-card-group
 name: Conjunt de targetes
 category: bootstrap
+icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M88 96c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0zM280 224l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40zm192 0l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40zm0 192l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40zM280 288c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0zM88 416l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40z"/></svg>
 instructions: |
   Emprau la targeta juntament amb grup de targetes per mostrar aplicacions pràctiques
   d'una situació d'aprenentatge.
@@ -13,7 +14,7 @@ template: >
       <div class="col-auto ib-card m-1<%=flip ? ' ib-card-flip' : ''%>" style="width:<%=width%>px;">
       <div class="ib-card-inner" style="height:<%=height%>px">
         <div class="ib-card-front <%=bgFront%>" data-face="front">
-          <% if(hasImg){ %><img src="https://picsum.photos/300/100?random={{i}}" class="card-img-top" alt="Imatge targeta"><% } %>
+          <% if(hasImg){ %><img src="https://picsum.photos/300/100?random=<%=i%>" class="card-img-top" alt="Imatge targeta"><% } %>
           <% if(header){ %><div class="card-header">Capçalera de targeta <%=i%></div><% } %>
           <div class="card-body" style="height: calc(<%=height%>px - 100px);">
             <h5 class="card-title">Títol targeta <%=i%></h5>
@@ -96,4 +97,4 @@ contextmenu:
   - actions: printable
 author: Josep Mulet <pep.mulet@gmail.com>
 nou: true
-version: 1.2.0
+version: 1.2.2

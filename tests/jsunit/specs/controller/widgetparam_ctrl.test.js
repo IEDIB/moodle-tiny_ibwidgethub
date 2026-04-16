@@ -1,9 +1,13 @@
  
 /**
- * @jest-environment jsdom
+ *
+ * Tiny WidgetHub plugin.
+ *
+ * @module      tiny_widgethub/plugin
+ * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import jQuery from 'jquery';
-require('../module.mocks')(jest);
 
 const{WidgetParamsCtrl, getWidgetParamsFactory} = require("../../src/controller/widgetparams_ctrl");
  
@@ -66,7 +70,7 @@ describe("WidgetParamsCtrl", () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
-        mockEditor = require('../editor.mock')();
+        mockEditor = global.Mocks.editorFactory();
 
         docSpy = jest.spyOn(document, 'createElement');
         widgetParamsCtrl = new WidgetParamsCtrl(mockEditor, mockUserStorage, mockTemplateSrv, mockFileSrv, mockFormCtrl, mockApplyWidgetFilter, widget);

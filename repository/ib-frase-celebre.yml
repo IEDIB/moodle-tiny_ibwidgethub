@@ -1,5 +1,6 @@
 key: frase-celebre
 name: Frase cèlebre
+category: misc
 instructions: |
   Emprau aquest snippet per citar una frase celebre (curta) d'un autor. 
   Per textos més llargs emprau l'snippet <em>Fragment de text</em>.
@@ -29,4 +30,5 @@ stars: 1
 contextmenu:
   - actions: printable
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 1.2.0
+version: 1.2.2
+icon: fa-solid fa-quote-right

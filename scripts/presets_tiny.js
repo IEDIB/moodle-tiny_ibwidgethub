@@ -14,7 +14,7 @@
  *
  **/
 
-const {applyPartials} = require("./util");
+const { applyPartials } = require("./util");
 
 const fs = require("fs");
 const path = require("path");
@@ -159,19 +159,19 @@ function checkMustache(parsed) {
     let nerr = 0;
     const str = parsed.template;
 
-     // The context for the template.
-     /** @type {Record<string, *>} */
-     const ctx = {};
-     // Find all {{#var}} {{/var}} occurences in the template
-     const regex0 = /{{#var}}(.*){{\/var}}/gm;
-     let m0;
-     while ((m0 = regex0.exec(str)) !== null) {
+    // The context for the template.
+    /** @type {Record<string, *>} */
+    const ctx = {};
+    // Find all {{#var}} {{/var}} occurences in the template
+    const regex0 = /{{#var}}(.*){{\/var}}/gm;
+    let m0;
+    while ((m0 = regex0.exec(str)) !== null) {
         if (m0.index === regex0.lastIndex) {
             regex0.lastIndex++;
         }
         const varName = m0[1].split('=')[0];
         ctx[varName] = m0[1];
-     }
+    }
 
     // All fields {{}} must have an associated parameter.
     const regex = /\{{2,3}([^}]*)\}{2,3}/gm;
@@ -223,7 +223,7 @@ function findErrors(parsed) {
 
     // All parameters must have a default value.
     (parsed.parameters || []).forEach((/** @type {*} */ p) => {
-        if (p.value === null || p.value === undefined) {
+        if ((p.value === null || p.value === undefined) && p.type !== 'repeatable') {
             console.error(`The parameter ${JSON.stringify(p)} requires a default value in widget ${parsed.key}`, parsed);
             console.error(":-( Parameter value missing! Fix this issue and run the script again.");
             process.exit(1);
@@ -335,7 +335,7 @@ if (partials) {
         .filter((w) => w.key !== "partials" && !isFilter(w))
         .forEach((w) => {
             applyPartials(w, partials);
-    });
+        });
 }
 
 
@@ -362,7 +362,7 @@ Object.entries(widgets).forEach(([f, parsed]) => {
         // Save-it
         const filename = f.replace(".yaml", ".json").replace(".yml", ".json");
         if (!testMode && (filename.startsWith("ib-") || filename.startsWith("partials"))) {
-            fs.writeFileSync(path.join(targetDirectory, filename), output, {encoding: "utf-8"});
+            fs.writeFileSync(path.join(targetDirectory, filename), output, { encoding: "utf-8" });
             console.log(` [Saved] ${filename}`);
         }
     } else {

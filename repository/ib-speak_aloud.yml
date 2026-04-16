@@ -55,4 +55,5 @@ parameters:
 requires: "/sd/speak.min.js"
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.16
+version: 2.1.0
+icon: fa-solid fa-volume-high

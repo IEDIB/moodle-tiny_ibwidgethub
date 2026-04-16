@@ -35,5 +35,6 @@
     },
     "stars": 0,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2025.05.15"
+    "version": "2.1.0",
+    "icon": "fa-solid fa-list"
 }

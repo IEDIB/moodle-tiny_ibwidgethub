@@ -1,6 +1,6 @@
 key: mosaab-icon
 name: Icona
-category: Misc
+category: misc
 instructions: >-
   Sempre que sigui possible, és preferible que empreu emojis.
   Visitau <a href="https://mosaab1.github.io/fontawesome/"
@@ -27,7 +27,6 @@ parameters:
       - spin
       - spin-reverse
       - spin-pulse
-    bind:
   - name: iconColor
     title: Color de la icona
     type: color
@@ -42,4 +41,5 @@ parameters:
     value: 2
     bind: classRegex('fa-(.*)x')
 author: Mossaab Mohamed Ali <mosab@mussaab.com>
-version: 1.0.0
+version: 1.1.0
+icon: fa-solid fa-icons

@@ -1,6 +1,7 @@
 {
     "key": "codi-programacio",
     "name": "Codi de programació",
+    "category": "misc",
     "instructions": "Utilitzeu aquest snippet per incloure un bloc de codi de programació.\n",
     "template": "<p><br></p> <pre class=\"iedib-code{{#notranslate}} notranslate{{/notranslate}}{{#franges_de_fons}} iedib-code-stripped{{/franges_de_fons}}{{#dlang}} display-lang{{/dlang}}\"> <code class=\"{{#forcelang}}language-{{forcelang}}{{/forcelang}}{{^syntax}} nohighlight{{/syntax}}{{#syntax}}{{^lnum}} nohljsln{{/lnum}}{{/syntax}}\"> {{codi}} </code> </pre> <p><br></p>\n",
     "selectors": "pre.iedib-code",
@@ -70,8 +71,8 @@
             "hint": "Deixau en blanc perquè es detecti automàticament.",
             "title": "Estableix llenguatge",
             "bind": {
-                "get": "function(e) {\n  var cls = e.find('code').attr('class');\n  var lc = cls?.split(/\\s+/).find(cn => cn.startsWith('language-')) || '';\n  if (lc) {\n    lc = lc.substring('language-'.length);\n  }\n  return lc;\n}\n",
-                "set": "function(e, v) {\n  var ce = e.find('code');\n  var lc = ce.attr('class')\n    ?.split(/\\s+/).find(cn => cn.startsWith('language-'));\n  ce.removeClass(lc)\n  if (v) {\n    ce.addClass('language-'+v);\n  }\n}\n"
+                "getValue": "function(elem) {\n  var codeElem = elem.querySelector('code');\n  if (!codeElem) {\n    return '';\n  }\n  var cls = codeElem.getAttribute('class');\n  var lc = cls?.split(/\\s+/).find(cn => cn.startsWith('language-')) || '';\n  if (lc) {\n    lc = lc.substring('language-'.length);\n  }\n  return lc;\n}\n",
+                "setValue": "function(elem, v) {\n  var codeElem = elem.querySelector('code');\n  if (!codeElem) {\n    return;\n  }\n  var cls = codeElem.getAttribute('class');\n  var lc = cls?.split(/\\s+/).find(cn => cn.startsWith('language-'));\n  codeElem.classList.remove(lc)\n  if (v) {\n    codeElem.classList.add('language-'+v);\n  }\n}\n"
             }
         },
         {
@@ -89,8 +90,12 @@
             "when": "syntax"
         }
     ],
-    "requires": "/sd/programacio.min.js | syntax",
+    "requires": {
+        "url": "/sd/programacio.min.js",
+        "query": "pre.iedib-code > code:not(.nohighlight)"
+    },
     "stars": 2,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2025.05.29"
+    "version": "3.2.1",
+    "icon": "fa-solid fa-code"
 }

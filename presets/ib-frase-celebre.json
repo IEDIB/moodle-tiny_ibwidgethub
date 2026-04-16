@@ -1,6 +1,7 @@
 {
     "key": "frase-celebre",
     "name": "Frase cèlebre",
+    "category": "misc",
     "instructions": "Emprau aquest snippet per citar una frase celebre (curta) d'un autor. \nPer textos més llargs emprau l'snippet <em>Fragment de text</em>.\n",
     "template": "<p><br></p>  <div class=\"iedib-quote {{#notranslate}}notranslate{{/notranslate}}\"> <!--begin: frase celebre--> <div class=\"iedib-iq\"> <p>No entiendes realmente algo a menos que seas capaz de explicárselo a tu abuela.</p> </div> <cite>{{author}}</cite> <!--end: frase celebre--> </div> <p><br></p>\n",
     "insertquery": "div.iedib-iq",
@@ -26,5 +27,6 @@
         }
     ],
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "1.2.0"
+    "version": "1.2.2",
+    "icon": "fa-solid fa-quote-right"
 }

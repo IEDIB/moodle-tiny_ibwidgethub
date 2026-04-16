@@ -1,3 +1,4 @@
+
 /* eslint-disable no-console */
 // This file is part of Moodle - http://moodle.org/
 //
@@ -17,25 +18,24 @@
 /**
  * Tiny WidgetHub plugin.
  *
- * @module      tiny_ibwidgethub/plugin
+ * @module      tiny_widgethub/plugin
  * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {getButtonImage} from 'editor_tiny/utils';
+import { getButtonImage } from 'editor_tiny/utils';
 import * as coreStr from 'core/str';
 import Common from './common';
 import * as cfg from 'core/config';
-import {initContextActions} from './contextinit';
-import {getAdditionalCss, getGlobalConfig, getWidgetDict, isPluginVisible, Shared, getEditorOptions} from './options';
-import jQuery from "jquery";
-import {getWidgetPickCtrl} from './controller/widgetpicker_ctrl';
-import {getListeners} from './extension';
-import {getUserStorage} from './service/userstorage_service';
-import {applyWidgetFilterFactory, findVariableByName, searchComp} from './util';
-import { avoidScrollNonEditableZones, emulateAttoNewlineBehaviour, restoreEquationpluginButton } from './extension/newlinebehavior';
+import { getContextMenuManager } from './contextactions';
+import { getAdditionalCss, getGlobalConfig, getWidgetDict, isPluginVisible, Shared, getEditorOptions, isShareCss } from './options';
+import { getWidgetPickCtrl } from './controller/widgetpicker_ctrl';
+import { getListeners } from './extension';
+import { getUserStorage } from './service/userstorage_service';
+import { applyWidgetFilterFactory, findVariableByName, loadScriptAsync, removeRndFromCtx, searchComp } from './util';
+import { enableIframeBubble } from './extension/iframebubble';
 
-export const getSetup = async() => {
+export const getSetup = async () => {
     // Get some translations
     const [widgetNameTitle, buttonImage] = await Promise.all([
         coreStr.get_string('settings', Common.component),
@@ -49,23 +49,8 @@ export const getSetup = async() => {
             // No capabilities required.
             return;
         }
-        // Click problem fix
-        const cfgLevel1 = getGlobalConfig(editor, 'avoid.scroll.noneditablezones', '1');
-        if (cfgLevel1 !== '0') {
-            avoidScrollNonEditableZones(editor, cfgLevel1);
-        }
 
-        // Newline emulation
-        const cfgLevel2 = getGlobalConfig(editor, 'emulate.atto.newlinebehaviour', '1');
-        if (cfgLevel2 !== '0') {
-            emulateAttoNewlineBehaviour(editor);
-        }
-
-        // Restore equation plugin button
-        const cfgLevel3 = getGlobalConfig(editor, 'restore.equationplugin.button', '1');
-        if (cfgLevel3 !== '0') {
-            restoreEquationpluginButton(editor);
-        }
+        getListeners('setup').forEach(listener => listener(editor));
 
         // Check if there is a config option to disable the plugin for the current page.
         const page = Shared.currentScope;
@@ -75,7 +60,7 @@ export const getSetup = async() => {
             .filter(Boolean);
 
         if (disableList.includes(page)) {
-            console.warn("WidgetHub plugin is disabled on this page.");
+            console.warn(`${Common.component} plugin is disabled on this page.`);
             return;
         }
 
@@ -84,7 +69,7 @@ export const getSetup = async() => {
             try {
                 const regex = new RegExp(regexPattern);
                 if (regex.test(page)) {
-                    console.warn("WidgetHub plugin is disabled on this page.");
+                    console.warn(`${Common.component} plugin is disabled on this page.`);
                     return;
                 }
             } catch (/** @type {any} */ ex) {
@@ -92,64 +77,82 @@ export const getSetup = async() => {
             }
         }
 
-        // In case that CodePro is not installed in production, then resort to this mechanism
-        // to control the HTML filtering behaviour of TinyMCE.
-        editor.on('PreInit', () => {
-            const schema = editor.parser?.schema;
-            if (!schema) {
-                return;
-            }
-            // Apply HTML filtering options to the editor parser instance.
-            const customElements = getGlobalConfig(editor, "tiny.custom_elements", "").trim();
-            if (customElements) {
-                schema.addCustomElements(customElements);
-            }
-
-            const validElements = getGlobalConfig(editor, "tiny.valid_elements", "").trim();
-            if (validElements) {
-                schema.addValidElements(validElements);
-            }
-
-            const validChildren = getGlobalConfig(editor, "tiny.valid_children", "").trim();
-            if (validChildren) {
-                schema.addValidChildren(validChildren);
-            }
-        });
-
         // Register the Icon.
         editor.ui.registry.addIcon(Common.icon, buttonImage.html);
 
+        const storage = getUserStorage(editor);
+        const widgetsDict = getWidgetDict(editor);
+
+        /**
+         * This helper function makes adjustments to the context required for the widget.
+         * @param {import('./options').Widget} widget
+         * @param {string} behavior - none / default / lastused
+         * @param {boolean} includeRepeatable - should repeatable fields be populated?
+         * @returns {Record<string, *>}
+         */
+        const contextMerger = (widget, behavior, includeRepeatable) => {
+            /** @type {Record<string, *>} */
+            let ctx = widget.defaultsWithRepeatable(includeRepeatable) || {};
+            // Should it load recently used values?
+            if (behavior === 'lastused') {
+                const ctxStored = storage.getRecentUsed().find(e => e.key === widget.key)?.p || {};
+                ctx = { ...ctx, ...removeRndFromCtx(ctxStored, widget.parameters) };
+            }
+            return ctx;
+        };
+
+        // Register the Toolbar Button or SplitButton - including recently used widgets
         const defaultAction = () => {
             const widgetPickCtrl = getWidgetPickCtrl(editor);
             widgetPickCtrl.handleAction();
         };
-
-        const storage = getUserStorage(editor);
-        const widgetsDict = getWidgetDict(editor);
-        // Register the Toolbar SplitButton - including recently used widgets
-        editor.ui.registry.addSplitButton(Common.component, {
+        const toolbarButtonSpec = {
             icon: Common.icon,
             tooltip: widgetNameTitle,
-            columns: 1,
-            fetch: (/** @type ((items: *[]) => void) */callback) => {
-                const items = storage.getRecentUsed().map(e => ({
-                    type: 'choiceitem',
-                    text: widgetsDict[e.key]?.name,
-                    value: e.key
-                })).filter(item => item.text !== undefined);
+            onAction: defaultAction
+        };
+        const splitButtonBehavior = getGlobalConfig(editor, 'insert.splitbutton.behavior', 'lastused');
+        if (splitButtonBehavior === 'none') {
+            editor.ui.registry.addButton(Common.component, toolbarButtonSpec);
+        } else {
+            /**
+             *
+             * @param {((items: *[]) => void) } callback
+             */
+            const splitbuttonFetch = (callback) => {
+                const isSelectMode = editor.selection.getContent().trim().length > 0;
+                const items = storage.getRecentUsed()
+                    .filter(e => {
+                        const widget = widgetsDict[e.key];
+                        return widget?.name && (!isSelectMode || widget.isSelectCapable());
+                    })
+                    .map(e => ({
+                        type: 'choiceitem',
+                        text: widgetsDict[e.key]?.name,
+                        value: e.key
+                    }));
                 callback(items);
-            },
-            onAction: defaultAction,
-            onItemAction: (/** @type {*} */ api, /** @type {string} */ key) => {
+            };
+            /**
+             * @param {*} api
+             * @param {string} key
+             */
+            const splitbuttonAction = (api, key) => {
                 const widgetPickCtrl = getWidgetPickCtrl(editor);
-                /** @type {Record<string, *>} */
-                let ctx = widgetsDict[key]?.defaults || {};
-                // Si hi ha preferències desades, empra-les
-                const ctxStored = storage.getRecentUsed().filter(e => e.key === key)[0]?.p || {};
-                ctx = {...ctx, ...ctxStored};
-                widgetPickCtrl.handlePickModalAction(widgetsDict[key], true, ctx);
-            }
-        });
+                const widget = widgetsDict[key];
+                if (!widget) {
+                    return;
+                }
+                const ctx = contextMerger(widget, splitButtonBehavior, true);
+                widgetPickCtrl.handlePickModalAction(widget, true, ctx);
+            };
+            editor.ui.registry.addSplitButton(Common.component, {
+                ...toolbarButtonSpec,
+                columns: 1,
+                fetch: splitbuttonFetch,
+                onItemAction: splitbuttonAction
+            });
+        }
 
         // Add the Menu Item.
         // This allows it to be added to a standard menu, or a context menu.
@@ -160,69 +163,83 @@ export const getSetup = async() => {
         });
 
         const getMatchedWidgets = (/** @type {string} */ pattern) => {
-            return Object.values(widgetsDict).filter((w) => searchComp(w.name, pattern));
+            return Object.values(widgetsDict).filter((w) => !w.isFilter() && searchComp(w.name, pattern));
         };
 
         // Add an Autocompleter @<search widget name>.
-        const autoCompleteTrigger = getGlobalConfig(editor, 'autocomplete.trigger', '@');
-        if (autoCompleteTrigger) {
+        const autoCompleteBehavior = getGlobalConfig(editor, 'insert.autocomplete.behavior', 'lastused');
+        const autoCompleteTrigger = getGlobalConfig(editor, 'insert.autocomplete.symbol', '@');
+        if (autoCompleteBehavior !== 'none' && autoCompleteTrigger) {
+            /**
+             * @param {string} pattern
+             * @returns {Promise<{type: string, value: string, text: string}[]>}
+             */
+            const autocompleterFetch = (pattern) => {
+                /** @type {{type: string, value: string, text: string}[]} */
+                const results = [];
+                getMatchedWidgets(pattern).forEach((/** @type {import('./options').Widget} */ w) => {
+                    const varname = w.prop('autocomplete')?.trim();
+                    const param = findVariableByName(varname, w.parameters);
+                    if (!param?.options) {
+                        results.push({
+                            type: 'autocompleteitem',
+                            value: w.key,
+                            text: w.name
+                        });
+                    } else {
+                        param.options.forEach(opt => {
+                            let value = opt;
+                            let label = opt;
+                            if (typeof opt === 'object') {
+                                value = opt.v;
+                                label = opt.l;
+                            }
+                            results.push({
+                                type: 'autocompleteitem',
+                                value: `${w.key}|${varname}:${value}`,
+                                text: w.name + " " + label
+                            });
+                        });
+                    }
+                });
+                return Promise.resolve(results);
+            };
+            /**
+             * @param {*} api
+             * @param {Range} rng
+             * @param {string} value
+             */
+            const autocompleterAction = (api, rng, value) => {
+                api.hide();
+                rng = rng || api.getRange();
+                const pair = value.split('|');
+                const key = pair[0].trim();
+                const widget = widgetsDict[key];
+                if (!widget) {
+                    return;
+                }
+                const ctx = contextMerger(widget, autoCompleteBehavior, true);
+                if (pair.length === 2) {
+                    const [varname, varvalue] = pair[1].split(":");
+                    ctx[varname] = varvalue;
+                }
+                editor.selection.setRng(rng);
+                editor.insertContent('');
+                const widgetPickCtrl = getWidgetPickCtrl(editor);
+                widgetPickCtrl.handlePickModalAction(widget, true, ctx);
+            };
+
             editor.ui.registry.addAutocompleter(Common.component + '_autocompleter', {
                 trigger: autoCompleteTrigger,
                 columns: 1,
                 minChars: 3,
-                fetch: (/** @type {string}*/ pattern) => {
-                        /** @type {{type: string, value: string, text: string}[]} */
-                        const results = [];
-                        getMatchedWidgets(pattern).forEach((/** @type {import('./options').Widget} */ w) => {
-                            const varname = w.prop('autocomplete')?.trim();
-                            const param = findVariableByName(varname, w.parameters);
-                            if (!param?.options) {
-                                results.push({
-                                    type: 'autocompleteitem',
-                                    value: w.key,
-                                    text: w.name
-                                });
-                            } else {
-                                param.options.forEach(opt => {
-                                    let value = opt;
-                                    let label = opt;
-                                    if (typeof opt === 'object') {
-                                        value = opt.v;
-                                        label = opt.l;
-                                    }
-                                    results.push({
-                                        type: 'autocompleteitem',
-                                        value: `${w.key}|${varname}:${value}`,
-                                        text: w.name + " " + label
-                                    });
-                                });
-                            }
-                        });
-                        return Promise.resolve(results);
-                },
-                onAction: (/** @type {*}*/ api, /** @type {Range}*/ rng, /** @type {string}*/ value) => {
-                    api.hide();
-                    const pair = value.split('|');
-                    const key = pair[0].trim();
-                    /** @type {Record<string, *>} */
-                    let ctx = widgetsDict[key]?.defaults || {};
-                    // Si hi ha preferències desades, empra-les
-                    const ctxStored = storage.getRecentUsed().filter(e => e.key === key)[0]?.p || {};
-                    ctx = {...ctx, ...ctxStored};
-                    if (pair.length === 2) {
-                        const [varname, value] = pair[1].split(":");
-                        ctx[varname] = value;
-                    }
-                    editor.selection.setRng(rng);
-                    editor.insertContent('');
-                    const widgetPickCtrl = getWidgetPickCtrl(editor);
-                    widgetPickCtrl.handlePickModalAction(widgetsDict[key], true, ctx);
-                }
+                fetch: autocompleterFetch,
+                onAction: autocompleterAction
             });
         }
 
         // Initialize context menus, styles and scripts into editor's iframe
-        initializer(editor);
+        initializeEditor(editor);
     };
 };
 
@@ -230,7 +247,7 @@ export const getSetup = async() => {
  * If the user has selected automatic apply of filters on startup, apply them!
  * @param {import('./plugin').TinyMCE} editor
  */
-const autoFilter = (editor) => {
+const applyAutoFilters = (editor) => {
     const storage = getUserStorage(editor);
     const requiresFilter = storage.getFromLocal("startup.filters", "").split(",");
 
@@ -245,10 +262,12 @@ const autoFilter = (editor) => {
         // Apply it also on save
         const pageForm = document.querySelector('form.mform');
         if (pageForm && pageForm.querySelector('div[data-fieldtype="editor"]')) {
-            pageForm.addEventListener('submit', () => {
+            const submitHandler = () => {
                 widgetsFound.forEach(w => applyWidgetFilter(w.template ?? '', true));
                 return true;
-            });
+            };
+            pageForm.addEventListener('submit', submitHandler);
+            editor.on('remove', () => pageForm.removeEventListener('submit', submitHandler));
         }
     }
 };
@@ -257,80 +276,113 @@ const autoFilter = (editor) => {
  * Inject styles and scripts into editor's iframe
  * @param {import('./plugin').TinyMCE} editor
  */
-function initializer(editor) {
+function initializeEditor(editor) {
     editor.once('SetContent', () => {
         // Run all subscribers
-        autoFilter(editor);
+        applyAutoFilters(editor);
         getListeners('contentSet').forEach(listener => listener(editor));
     });
     // Add the bootstrap, CSS, etc... into the editor's iframe
-    editor.on('init', () => {
+    editor.on('init', async () => {
         // On init editor.dom is ready
         // Inject css all generated by Moodle into the editor's iframe
         // http://localhost:4141/theme/styles.php/boost/1721728984_1/all
-        // TODO: Missing themesubrevision
-        const subversion = 1;
-        // @ts-ignore
-        const allCss = `${cfg.wwwroot}/theme/styles.php/${cfg.theme}/${cfg.themerev}_${subversion}/all`;
-        editor.dom.loadCSS(allCss);
 
-        // Inject styles and Javascript into the editor's iframe
-        // editor.dom.loadCSS(`${baseUrl}/libs/fontawesome/css/font-awesome.min.css`);
-        // Discover the jQuery version
-        // @ts-ignore
-        const jQueryVersion = jQuery.fn.jquery ?? '3.6.1';
-        const scriptJQ = editor.dom.create("script", {src: `https://code.jquery.com/jquery-${jQueryVersion}.min.js`});
-        const head = editor.getDoc().querySelector("head");
-        scriptJQ.onload = () => {
-            // Cannot load BS until JQ is fully loaded on editor's iframe
+        if (isShareCss(editor)) {
+            // TODO: Missing themesubrevision
+            const subversion = 1;
             // @ts-ignore
-            const bsVersion = jQuery.fn.tooltip?.Constructor?.VERSION ?? '4.6.2';
-            const scriptBS = editor.dom.create("script",
-                {src: `https://cdn.jsdelivr.net/npm/bootstrap@${bsVersion}/dist/js/bootstrap.bundle.min.js`});
-            head.appendChild(scriptBS);
+            const allCss = `${cfg.wwwroot}/theme/styles.php/${cfg.theme}/${cfg.themerev}_${subversion}/all`;
+            editor.dom.loadCSS(allCss);
+        }
 
-            // Activate popover and tooltips
-            scriptBS.onload = () => {
-                if (!editor.dom.get('init_bs_comp')) {
-                    const scriptInitBS = editor.dom.create("script");
-                    scriptInitBS.id = 'init_bs_comp';
-                    scriptInitBS.innerHTML = `
+        // Inject css from site Admin
+        let adminCss = (getAdditionalCss(editor) ?? '').trim();
+        if (adminCss) {
+            // Commented URLs are interpreted as loadCss
+            const regex = /\/\*{2}\s+(http(s?):\/\/.*)\s+\*{2}\//gm;
+            adminCss = adminCss.replace(regex, (_, $1) => {
+                editor.dom.loadCSS($1);
+                return '';
+            });
+            if (adminCss.trim()) {
+                // Manually create the style tag in the correct position
+                // It must go after the shared css
+                const style = editor.dom.create('style', { type: 'text/css', id: "twhAdminStyles" });
+                style.textContent = adminCss;
+                const doc = editor.getDoc();
+                doc?.head?.appendChild(style);
+            }
+        }
+
+        if (parseInt(getGlobalConfig(editor, 'enable.contextmenu.level', '1')) > 0) {
+            // Initialize context toolbars and menus
+            await getContextMenuManager(editor).init();
+        }
+
+        // Detect jQuery and Boostrap versions.
+        // @ts-ignore
+        const defaultBsVersion = window.M?.cfg?.version?.startsWith('5.') ? '5.3.8' : '4.6.2';
+        const bsVersion = getGlobalConfig(editor, 'tiny.iframe.jsbootstrap.version', defaultBsVersion);
+        const defaultJqVersion = bsVersion.startsWith("5.") ? 'none' : '3.6.1';
+        let jqVersion = getGlobalConfig(editor, 'tiny.iframe.jquery.version', defaultJqVersion);
+        if (jqVersion === 'none' && bsVersion.startsWith('4.')) {
+            jqVersion = '3.6.1';
+        }
+        const requiresJquery = jqVersion !== 'none';
+        const head = editor.getDoc().querySelector("head");
+
+
+        try {
+            // Load jQuery if required
+            if (requiresJquery) {
+                await loadScriptAsync(editor, `https://code.jquery.com/jquery-${jqVersion}.min.js`);
+            }
+
+            // Load Bootstrap if required (bundle already includes Popper)
+            if (bsVersion !== 'none') {
+                await loadScriptAsync(
+                    editor,
+                    `https://cdn.jsdelivr.net/npm/bootstrap@${bsVersion}/dist/js/bootstrap.bundle.min.js`
+                );
+            }
+
+            // Initialize Bootstrap components depending on version
+            if (bsVersion.startsWith('5.')) {
+                // Bootstrap 5 – no jQuery, use vanilla JS API
+                const initScript = editor.dom.create('script');
+                initScript.id = 'init_bs_comp';
+                initScript.innerHTML = `
+                    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+                        new bootstrap.Popover(el, { trigger: 'hover' });
+                    });
+                `;
+                head.appendChild(initScript);
+            } else if (requiresJquery && bsVersion.startsWith('4.')) {
+                // Bootstrap 4 – jQuery-based initialization
+                const initScript = editor.dom.create('script');
+                initScript.id = 'init_bs_comp';
+                initScript.innerHTML = `
                     $(document).ready(function() {
-                        $('body').tooltip({
-                            selector: '[data-toggle="tooltip"],[data-bs-toggle="tooltip"]',
-                            trigger: 'hover'
-                        });
                         $('body').popover({
-                            selector: '[data-toggle="popover"],[data-bs-toggle="popover"]',
+                            selector: '[data-toggle="popover"]',
                             trigger: 'hover'
                         });
-                    });`;
-                    head.appendChild(scriptInitBS);
-                }
-            };
-            // Run all subscribers
-            getListeners('onInit').forEach(listener => listener(editor));
-
-            // Inject css from site Admin
-            let adminCss = (getAdditionalCss(editor) ?? '').trim();
-            if (adminCss) {
-                // Commented URLs are interpreted as loadCss
-                const regex = /\/\*{2}\s+(http(s?):\/\/.*)\s+\*{2}\//gm;
-                adminCss = adminCss.replace(regex, (_, $1) => {
-                    editor.dom.loadCSS($1);
-                    return '';
-                });
-                if (adminCss.trim()) {
-                    editor.dom.addStyle(adminCss);
-                }
+                    });
+                `;
+                head.appendChild(initScript);
             }
+        } catch (ex) {
+            console.error("Error loading scripts into editor's iframe: ", ex);
+        }
 
-            if (parseInt(getGlobalConfig(editor, 'enable.contextmenu.level', '1')) > 0) {
-                // Initialize context toolbars and menus
-                initContextActions(editor);
-            }
-        };
+        //  If feature is active, treat iframes so they can be selected as widgets
+        if (getGlobalConfig(editor, 'tiny.contextmenu.iframes', '1') === '1') {
+            enableIframeBubble(editor);
+        }
 
-        head.appendChild(scriptJQ);
+        // Run all subscribers
+        getListeners('onInit').forEach(listener => listener(editor));
     });
 }
+

@@ -20,10 +20,12 @@
 /**
  * Tiny WidgetHub plugin.
  *
- * @module      tiny_ibwidgethub/plugin
+ * @module      tiny_widgethub/plugin
  * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+import Common from './common';
+const { component } = Common;
 
 /**
  * @param {string} [prefix]
@@ -62,7 +64,7 @@ export function evalInContext(ctx, expr, keepFns) {
 }
 
 /**
- * @param {string} s - string to the hashed
+ * @param {string} s - string to be hashed
  * @returns {number}
  */
 export function hashCode(s) {
@@ -85,23 +87,11 @@ export function hashCode(s) {
  * @returns {boolean} Whether str1 contains needle or not
  */
 export function searchComp(str1, needle) {
-    str1 = (str1 || '').trim().toLowerCase();
-    needle = (needle || '').trim().toLowerCase();
-    str1 = str1.replace(/[àáâãäå]/, "a")
-        .replace(/[èéêë]/, "e")
-        .replace(/[ìíîï]/, "i")
-        .replace(/[òóôö]/, "o")
-        .replace(/[ùúüû]/, "u")
-        .replace(/ç/, "c")
-        .replace(/·/, "");
-    needle = needle.replace(/[àáâãäå]/, "a")
-        .replace(/[èéêë]/, "e")
-        .replace(/[ìíîï]/, "i")
-        .replace(/[òóôö]/, "o")
-        .replace(/[ùúüû]/, "u")
-        .replace(/ç/, "c")
-        .replace(/·/, "");
-    return str1.indexOf(needle) >= 0;
+    /** @param {string} str */
+    const normalize = (str) => {
+        return (str || '').trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
+    return normalize(str1).includes(normalize(needle));
 }
 
 /** Default transformers */
@@ -245,8 +235,8 @@ export function applyWidgetFilterFactory(editor, coreStr) {
      */
     return async (widgetTemplate, silent, mergevars) => {
         const translations = await coreStr.get_strings([
-            { key: 'filterres', component: 'tiny_ibwidgethub' },
-            { key: 'nochanges', component: 'tiny_ibwidgethub' }
+            { key: 'filterres', component },
+            { key: 'nochanges', component }
         ]);
         // Es tracta d'un filtre, no d'un widget i s'ha de tractar de forma diferent
         const userWidgetFilter = createFilterFunction(widgetTemplate);
@@ -388,560 +378,6 @@ export function addBaseToUrl(base, url) {
 }
 
 /**
- * @param {*} value
- * @param {string | undefined} type
- * @returns {*}
- */
-export const performCasting = function (value, type) {
-    if (!type || typeof value === type) {
-        return value;
-    }
-    switch (type) {
-        case ("boolean"):
-            if (value === 1 || value === "1" || value === true || value === "true") {
-                value = true;
-            } else {
-                value = false;
-            }
-            break;
-        case ("number"):
-            try {
-                let parsed;
-                if ((value + '').indexOf(".") < 0) {
-                    parsed = parseInt(value);
-                } else {
-                    parsed = parseFloat(value);
-                }
-                if (!isNaN(parsed)) {
-                    value = parsed;
-                } else {
-                    value = 0;
-                    console.error(`Error parsing number ${value}`);
-                }
-            } catch (ex) {
-                value = 0;
-                console.error(`Error parsing number ${value}`);
-            }
-            break;
-        case ("string"):
-            if (typeof value === 'object') {
-                value = JSON.stringify(value);
-            } else {
-                value = value + "";
-            }
-            break;
-        default:
-            console.error(`Fail to cast ${value} to ${type}`);
-    }
-    return value;
-};
-
-/**
- * @param {unknown} a
- * @param {unknown} b
- */
-const xor = function (a, b) {
-    return !a !== !b;
-};
-
-/**
- * @param {string} str
- * @param {*} match
- * @param {string} replacement
- * @returns {string}
- */
-const replaceStrPart = function (str, match, replacement) {
-    if (!match.indices) {
-        console.error("RegExp match does not include indices");
-        return str;
-    }
-    const [a, b] = match.indices[1];
-    return str.substring(0, a) + replacement + str.substring(b);
-};
-
-/**
- * Replaces the first capturing group in regexExpr by replacement,
- * The remaining capturing groups are removed.
- * @param {string} regexExpr
- * @param {string} replacement
- * @returns {string}
- */
-const getValueFromRegex = function (regexExpr, replacement) {
-    const reParser = /\((?!\?:).*?\)/g;
-    let capturingGroupCount = 0;
-    return regexExpr.replace(reParser, () => {
-        capturingGroupCount++;
-        if (capturingGroupCount === 1) {
-            return replacement + '';
-        }
-        return ""; // Remove all other capturing groups
-    });
-};
-
-/**
- * @param {JQuery<HTMLElement>} $e - The target element
- * @returns
- */
-const bindingFactory = function ($e) {
-    /** @this {Record<string, Function>} */
-    const methods = {
-        /**
-         * @param {string} className
-         * @param {string=} query
-         * @param {boolean=} neg
-         * @returns {Binding}
-         */
-        hasClass: (className, query, neg) => {
-            /** @type {JQuery<HTMLElement>} */
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            return {
-                // @ts-ignore
-                getValue: () => {
-                    const res = xor(neg, elem.hasClass(className));
-                    return Boolean(res);
-                },
-                // @ts-ignore
-                setValue: (bool) => {
-                    if (xor(neg, bool)) {
-                        elem.addClass(className);
-                    } else {
-                        elem.removeClass(className);
-                    }
-                }
-            };
-        },
-        /**
-         * @param {string} className
-         * @param {string=} query
-         * @returns {Binding}
-         */
-        notHasClass: (className, query) => {
-            return methods.hasClass(className, query, true);
-        },
-        /**
-         * @param {string} classExpr
-         * @param {string=} query
-         * @param {string=} castTo
-         * @returns {Binding}
-         */
-        classRegex: (classExpr, query, castTo) => {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            return {
-                getValue: () => {
-                    let ret = '';
-                    const classes = (elem.attr('class') ?? '').split(' ');
-                    for (const clazz of classes) {
-                        const match = new RegExp(classExpr).exec(clazz);
-                        if (match?.[1] && typeof (match[1]) === "string") {
-                            ret = match[1];
-                            break;
-                        }
-                    }
-                    return performCasting(ret, castTo);
-                },
-                setValue: (val) => {
-                    const cl = elem.attr('class')?.split(/\s+/) ?? [];
-                    let found = false;
-                    cl.forEach(c => {
-                        const match = new RegExp(classExpr, 'd').exec(c);
-                        if (match === null) {
-                            return;
-                        }
-                        found = true;
-                        elem.removeClass(c);
-                        const newCls = replaceStrPart(c, match, val + '');
-                        elem.addClass(newCls);
-                    });
-                    // If not found, then set the regExp replacing the
-                    // first capturing group with val, and removing the remaining groups.
-                    if (!found) {
-                        const newCls = getValueFromRegex(classExpr, val + '');
-                        elem.addClass(newCls);
-                    }
-                }
-            };
-        },
-        /**
-         * @param {string} attrName
-         * @param {string=} query
-         * @param {string=} castTo
-         * @returns {Binding}
-         */
-        attr: (attrName, query, castTo) => {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            return {
-                getValue: () => {
-                    return performCasting(elem.attr(attrName), castTo);
-                },
-                // @ts-ignore
-                setValue: (val) => {
-                    if (typeof val === "boolean") {
-                        val = val ? 1 : 0;
-                    }
-                    const attrVal = val + '';
-                    elem.attr(attrName, attrVal);
-                    if (attrName === 'href' || attrName === 'src') {
-                        elem.attr('data-mce-' + attrName, attrVal);
-                    }
-                }
-            };
-        },
-        /**
-         * Adapted to take into account both data- and data-bs- for Boostrap 4 & 5 compatibility.
-         * @param {string} attrName - Name without data- nor data-bs-
-         * @param {string=} query
-         * @param {string=} castTo
-         * @param {number=} version - 4 or 5 depending the version of BS currently using
-         * @returns {Binding}
-         */
-        attrBS: (attrName, query, castTo, version) => {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            return {
-                getValue: () => {
-                    // If version=4 it has preference BS4 over BS5, it will not remove BS4 prefix
-                    let p1 = '';
-                    let p2 = 'bs-';
-                    if (version === 5) {
-                        p1 = p2;
-                        p2 = '';
-                    }
-                    let value = elem.attr('data-' + p1 + attrName);
-                    if (value === undefined) {
-                        value = elem.attr('data-' + p2 + attrName);
-                    }
-                    return performCasting(value || '', castTo);
-                },
-                // @ts-ignore
-                setValue: (val) => {
-                    if (typeof val === "boolean") {
-                        val = val ? 1 : 0;
-                    }
-                    const attrVal = val + '';
-                    elem.attr('data-bs-' + attrName, attrVal);
-                    if (version === 5) {
-                        elem.removeAttr('data-' + attrName);
-                    } else {
-                        elem.attr('data-' + attrName, attrVal);
-                    }
-                }
-            };
-        },
-        /**
-         * @param {string} attr
-         * @param {string=} query
-         * @param {boolean=} neg
-         * @returns {Binding}
-         */
-        hasAttr: (attr, query, neg) => {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            const parts = attr.split("=");
-            const attrName = parts[0].trim();
-            let attrValue = '';
-            if (parts.length > 1) {
-                attrValue = parts[1].trim();
-            }
-            return {
-                getValue: () => {
-                    let found = elem.attr(attrName) != null;
-                    if (attrValue) {
-                        found = found && elem.attr(attrName) === attrValue;
-                    }
-                    return xor(neg, found);
-                },
-                // @ts-ignore
-                setValue: (bool) => {
-                    if (xor(neg, bool)) {
-                        elem.attr(attrName, attrValue || '');
-                        if (attrName === 'href' || attrName === 'src') {
-                            elem.attr('data-mce-' + attrName, attrValue + '');
-                        }
-                    } else {
-                        elem.removeAttr(attrName);
-                        if (attrName === 'href' || attrName === 'src') {
-                            elem.removeAttr('data-mce-' + attrName);
-                        }
-                    }
-                }
-            };
-        },
-        /**
-         * Variant to check for compatibility between Bootstrap 4 and 5.
-         * @param {string} attr - attr name without data- nor data-bs-
-         * @param {string=} query
-         * @param {boolean=} neg
-         * @param {number=} version - 4 or 5
-         * @returns {Binding}
-         */
-        hasAttrBS: (attr, query, neg, version) => {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            const parts = attr.split("=");
-            const attrName = parts[0].trim();
-            let attrValue = '';
-            if (parts.length > 1) {
-                attrValue = parts[1].trim();
-            }
-            const getValuePrefix = (/** @type{string} **/ prefix) => {
-                let found = elem.attr(prefix + attrName) != null;
-                if (attrValue) {
-                    found = found && elem.attr(prefix + attrName) === attrValue;
-                }
-                return xor(neg, found);
-            };
-            return {
-                getValue: () => {
-                    let p1 = 'data-';
-                    let p2 = 'data-bs-';
-                    if (version === 5) {
-                        p2 = p1;
-                        p1 = 'data-bs-';
-                    }
-                    return getValuePrefix(p1) || getValuePrefix(p2);
-                },
-                // @ts-ignore
-                setValue: (bool) => {
-                    if (xor(neg, bool)) {
-                        elem.attr('data-bs-' + attrName, attrValue || '');
-                        if (version === 5) {
-                            elem.removeAttr('data-' + attrName);
-                        } else {
-                            elem.attr('data-' + attrName, attrValue || '');
-                        }
-                    } else {
-                        elem.removeAttr('data-' + attrName);
-                        elem.removeAttr('data-bs-' + attrName);
-                    }
-                }
-            };
-        },
-        /**
-         * @param {string} attr
-         * @param {string=} query
-         * @returns {Binding}
-         */
-        notHasAttr: (attr, query) => {
-            return methods.hasAttr(attr, query, true);
-        },
-        /**
-         * @param {string} attr - Regex of attr
-         * @param {string=} query
-         * @param {string=} castTo
-         * @returns {Binding}
-         */
-        attrRegex: function (attr, query, castTo) {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            const parts = attr.split("=");
-            const attrName = parts[0].trim();
-            let attrValue = '';
-            if (parts.length > 1) {
-                // TODO: Remove leading/trailing " o '
-                attrValue = parts[1].trim();
-            }
-            return {
-                getValue() {
-                    const found = elem.attr(attrName) != null;
-                    if (found) {
-                        const match = elem.attr(attrName)?.match(attrValue);
-                        if (match?.[1] && typeof (match[1]) === "string") {
-                            return performCasting(match[1], castTo);
-                        }
-                        return '';
-                    }
-                    return null;
-                },
-                setValue(val) {
-                    const oldValue = elem.attr(attrName) ?? '';
-                    const match = new RegExp(attrValue, 'd').exec(oldValue);
-                    let newValue;
-                    if (match) {
-                        newValue = replaceStrPart(oldValue, match, val + '');
-                    } else {
-                        newValue = getValueFromRegex(attrValue, val + '');
-                    }
-                    elem.attr(attrName, newValue);
-                    if (attrName === 'href' || attrName === 'src') {
-                        elem.attr('data-mce-' + attrName, newValue + '');
-                    }
-                }
-            };
-        },
-        /**
-         * @param {string} sty
-         * @param {string=} query
-         * @param {boolean=} neg
-         * @returns {Binding}
-         */
-        hasStyle: function (sty, query, neg) {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            const parts = sty.split(":");
-            let styName = parts[0].trim();
-            /** @type {string | undefined} */
-            let styValue;
-            if (parts.length > 1) {
-                styValue = parts[1].trim();
-            }
-            return {
-                getValue() {
-                    const st = elem.prop('style');
-                    const pValue = st.getPropertyValue(styName);
-                    const has = styValue === undefined ? pValue !== '' : pValue === styValue;
-                    return xor(has, neg);
-                },
-                // @ts-ignore
-                setValue(bool) {
-                    if (xor(bool, neg)) {
-                        elem.css(styName, styValue ?? '');
-                    } else {
-                        const st = elem.prop('style');
-                        st.removeProperty(styName);
-                    }
-                    // TODO: better way to update data-mce-style
-                    elem.attr('data-mce-style', elem[0].style.cssText);
-                }
-            };
-        },
-        /**
-         * @param {string} sty
-         * @param {string=} query
-         * @returns {Binding}
-         */
-        notHasStyle: (sty, query) => {
-            return methods.hasStyle(sty, query, true);
-        },
-        /**
-         * @param {string} attr - styName:styValue where styValue is a regex with (.*)
-         * @param {string=} query
-         * @param {string=} castTo
-         * @returns {Binding}
-         */
-        styleRegex: function (attr, query, castTo) {
-            let elem = $e;
-            if (query) {
-                elem = $e.find(query);
-            }
-            const parts = attr.split(":");
-            const styName = parts[0].trim();
-            let styValue = '';
-            if (parts.length > 1) {
-                styValue = parts[1].trim();
-            }
-            return {
-                /** @returns {string | null} */
-                getValue() {
-                    const st = elem.prop('style');
-                    const currentVal = st?.getPropertyValue(styName);
-                    if (currentVal) {
-                        if (styValue) {
-                            const match = new RegExp(styValue).exec(currentVal);
-                            if (match?.[1] && (typeof match[1]) === "string") {
-                                return performCasting(match[1], castTo);
-                            }
-                        } else {
-                            return performCasting(currentVal, castTo);
-                        }
-                    }
-                    return performCasting('', castTo);
-                },
-                // @ts-ignore
-                setValue(val) {
-                    let newValue;
-                    if (styValue) {
-                        // Case val <= 0 && styName contains width or height
-                        if ((styName.includes("width") || styName.includes("height")) && (parseFloat(val + '') <= 0)) {
-                            newValue = '';
-                        } else {
-                            const oldValue = elem.prop('style').getPropertyValue(styName) ?? '';
-                            if (oldValue) {
-                                const match = new RegExp(styValue, 'd').exec(oldValue);
-                                // @ts-ignore
-                                newValue = replaceStrPart(oldValue, match, val + '');
-                            } else {
-                                newValue = styValue.replace('(.*)', val + '');
-                            }
-                        }
-                    } else {
-                        newValue = val + '';
-                    }
-                    elem.css(styName, newValue);
-                    // TODO: better way to update data-mce-style
-                    elem.attr('data-mce-style', elem[0].style.cssText);
-                }
-            };
-        }
-    };
-    return methods;
-};
-
-/**
- * @typedef {Object} Binding
- * @property {() => unknown} getValue
- * @property {(value: string | boolean | number, valueMap: Object.<string, string | boolean | number>) => void} setValue
- */
-/**
- * @param {string | {get: string, set: string}} definition
- * @param {JQuery<HTMLElement>} elem  - The root of widget
- * @param {string=} castTo  - The type that must be returned
- * @returns {Binding | null}
- */
-export const createBinding = (definition, elem, castTo) => {
-    /** @type {Binding | null} */
-    let bindFn = null;
-    if (typeof (definition) === 'string') {
-        return evalInContext({ ...bindingFactory(elem) }, definition, true);
-    } else {
-        // The user provides the get and set functions
-        bindFn = {
-            getValue: () => {
-                let v = evalInContext({ elem }, `(${definition.get})(elem)`);
-                if (castTo) {
-                    v = performCasting(v, castTo);
-                }
-                return v;
-            },
-            setValue: (v, vm) => {
-                if (definition.set) {
-                    // Utils object
-                    const u = {
-                        // @ts-ignore
-                        css: function (e, query, prop, value) {
-                            const targetElem = e.find(query);
-                            targetElem.css(prop, value);
-                            // In TinyMCE must update the attr data-mce-style
-                            targetElem.attr('data-mce-style', targetElem.attr('style') ?? '');
-                        }
-                    };
-                    evalInContext({ elem, v, vm, u }, `(${definition.set})(elem, v, vm, u)`);
-                }
-            }
-        };
-    }
-    return bindFn;
-};
-
-/**
  * Capitalizes the first letter of a string
  * @param {string | undefined | null} s
  * @returns {string}
@@ -999,7 +435,7 @@ export function toRgba(hex, alpha) {
         g = parseInt(result[2], 16);
         b = parseInt(result[3], 16);
     }
-    if (alpha === 1) {
+    if (alpha2 === 1) {
         return `rgb(${r},${g},${b})`;
     }
     return `rgba(${r},${g},${b},${alpha2})`;
@@ -1051,3 +487,173 @@ export function toggleClass(elem, ...classNames) {
         }
     });
 }
+
+/**
+ * Normalize version string to [major, minor, patch]
+ * @param {string} v
+ * @returns {number[]}
+ */
+function parseVersion(v) {
+    return v
+        .split('.')
+        .map(part => Number(part.trim()))
+        .concat([0, 0])
+        .slice(0, 3);
+}
+
+/**
+ * Compares a version with a given condition.
+ * @param {string} current - The current version to compare against condition in major.minor.revision format
+ * @param {string | null | undefined} [condition] - The condition to meet. In <, <=, =, >=, major.minor.revision
+ * @returns {boolean} True if current meets condition
+ */
+export function compareVersion(current, condition) {
+    if (!condition) {
+        return true;
+    }
+
+    // Parse condition string
+    const match = condition.trim().match(/^(>=|<=|>|<|=)?\s*(\d+(?:\.\d+){0,2})$/);
+    if (!match) {
+        console.error("Invalid version condition: " + condition);
+        return true;
+    }
+
+    const operator = match[1] || "=";
+    const targetVersion = parseVersion(match[2]);
+    const currentVersion = parseVersion(current);
+
+    // Compare versions
+    let cmp = 0;
+    for (let i = 0; i < 3; i++) {
+        if (currentVersion[i] > targetVersion[i]) {
+            cmp = 1;
+            break;
+        }
+        if (currentVersion[i] < targetVersion[i]) {
+            cmp = -1;
+            break;
+        }
+    }
+
+    // Evaluate based on operator
+    switch (operator) {
+        case ">": return cmp > 0;
+        case ">=": return cmp >= 0;
+        case "<": return cmp < 0;
+        case "<=": return cmp <= 0;
+        case "=": return cmp === 0;
+        default:
+            console.log("Unknown operator: " + operator);
+            return true;
+    }
+}
+
+/**
+ * Parameters that are generated from $RND must never
+ * be stored as recently used, nor used as new contexts
+ * @param {Record<string, any>} ctx
+ * @param {import('./options').Param[]} parameters
+ * @returns {Record<string, any>}
+ */
+export function removeRndFromCtx(ctx, parameters) {
+    return Object.fromEntries(
+        Object.entries(ctx).filter(([k]) => {
+            const val = parameters.find(p => p.name === k)?.value;
+            return val !== '$RND';
+        })
+    );
+}
+
+/**
+ * Helper to load scripts
+ * @param {import('./plugin').TinyMCE} editor
+ * @param {string} src
+ * @returns {Promise<void>}
+ */
+export function loadScriptAsync(editor, src) {
+    return new Promise((resolve, reject) => {
+        const s = editor.dom.create('script', { src });
+        s.onload = () => resolve();
+        s.onerror = reject;
+        const head = editor.getDoc().querySelector("head");
+        head.appendChild(s);
+    });
+}
+
+/**
+ * Convert an HTML string into DOM element(s)
+ * @param {Document} doc - The page document
+ * @param {string} html - HTML string
+ * @returns {HTMLElement} - Returns a single element if one root, or a DocumentFragment if multiple
+ */
+export function htmlToElement(doc, html) {
+    const template = doc.createElement('template');
+    template.innerHTML = html.trim();
+
+    if (template.content.childElementCount === 1) {
+        // @ts-ignore
+        return template.content.firstElementChild;
+    } else {
+        // If multiple root elements, return a fragment
+        // @ts-ignore
+        return template.content;
+    }
+}
+
+/**
+ * @deprecated Use native editor.dom.setStyle instead.
+ * @param {HTMLElement} target
+ * @param {string} propName
+ * @param {string} propValue
+ */
+export function setStyleMCE(target, propName, propValue) {
+    if (!target) {
+        return;
+    }
+    target.style.setProperty(propName, propValue);
+    // Sync data-mce-style
+    target.setAttribute('data-mce-style', target.getAttribute('style') ?? '');
+}
+
+/**
+ * @param {HTMLElement} target
+ * @param {string} propName
+ */
+export function removeStyleMCE(target, propName) {
+    if (!target) {
+        return;
+    }
+    target.style.removeProperty(propName);
+    // Sync data-mce-style
+    target.setAttribute('data-mce-style', target.getAttribute('style') ?? '');
+}
+
+/**
+ * @param {Element} target
+ * @param {string} propName
+ * @param {string} propValue
+ */
+export function setAttributeMCE(target, propName, propValue) {
+    if (!target) {
+        return;
+    }
+    target.setAttribute(propName, propValue);
+    if (propName === 'href' || propName === 'src') {
+        target.setAttribute('data-mce-' + propName, propValue);
+    }
+}
+
+
+/**
+ * Any menu item, different from |, is prefixed by componentName_ and ended with _item.
+ * @param {string[]} items
+ * @param {string} prefix
+ * @param {string[]} [skipItems]
+ * @param {string} [separator]
+ * @returns {string[]}
+ */
+export function prefixItemsWith(items, prefix, skipItems = [], separator = '_') {
+    return items.map(e => skipItems.includes(e) ? e : `${prefix}${separator}${e}`);
+}
+

@@ -8,7 +8,7 @@ instructions: >
 template: |
   <p><br></p> 
   <!--ini imatgefons-->
-  <div class="iedib-background-img" style="background-image: url('{{url}}'); padding:10px; min-height:40px; background-repeat: no-repeat; -webkit-background-size: cover; background-size: cover; background-position: 50% 50%;">
+  <div class="iedib-background-img{{#white}} text-white{{/white}}" style="background-image: url('{{url}}'); padding:10px; min-height:40px; background-repeat: no-repeat; -webkit-background-size: cover; background-size: cover; background-position: 50% 50%;">
   <p>Quina probabilitat tinc de guanyar els jocs d'atzar?</p>
   <p><em>Probabilitat i Estadística</em></p>
   </div>
@@ -23,6 +23,12 @@ parameters:
     tip: També podeu pujar una imatge al vostre curs i enllaçar-la aquí.
     bind: | 
       styleRegex("background-image:url\\(['\"]?([^'\")]*)['\"]?\\)")
+  - name: white
+    title: Text blanc
+    type: checkbox
+    value: false
+    bind: hasClass('text-white')
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2022.06.24
+version: 2.3.1
+icon: fa-solid fa-image

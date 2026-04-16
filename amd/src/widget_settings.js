@@ -1,5 +1,5 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
-/* eslint-disable no-alert */
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -22,14 +22,14 @@
  * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-import jQuery from 'jquery';
-import YmlEditor from './libs/ymleditor-lazy';
-import {parse, stringify, Scalar} from './libs/yaml-lazy';
+import { YmlEditor, YAML } from './libs/ymleditor-lazy';
 // eslint-disable-next-line camelcase
-import {get_strings as getStrings, get_string} from 'core/str';
-import {getTemplateSrv} from './service/template_service';
-import {applyPartials} from './options';
+import { get_strings as getStrings, get_string } from 'core/str';
+import Notification from 'core/notification';
+import { getTemplateSrv, createDefaultsForParam } from './service/template_service';
+import { applyPartials } from './options';
 import common from './common';
+import { compareVersion, htmlToElement } from './util';
 
 /**
  * Does a key name of the yaml file requires a block format?
@@ -37,10 +37,10 @@ import common from './common';
  * @returns {boolean}
  */
 function needsBlock(str) {
-  return typeof str === 'string' && str.includes('\n');
+    return typeof str === 'string' && str.includes('\n');
 }
 
-const {component} = common;
+const { component } = common;
 const templateSrv = getTemplateSrv();
 const DEFAULT_DOC =
     `key: username_sample-key
@@ -52,6 +52,7 @@ template: |
   <p><br></p>
 parameters:
   - name: greeting
+    title: Greeting message
     value: Hello world!
 author: Your name <email@site.com>
 version: 1.0.0`;
@@ -120,20 +121,20 @@ export default {
     /**
      * @param {number} id
      * @returns {{
-     *     $ymlArea: JQuery<HTMLTextAreaElement>,
-     *     $jsonArea: JQuery<HTMLTextAreaElement>,
-     *     $partialInput: JQuery<HTMLInputElement>,
+     *     ymlArea: HTMLTextAreaElement,
+     *     jsonArea: HTMLTextAreaElement,
+     *     partialInput: HTMLInputElement,
      * }}
      */
-    getAreas: function(id) {
+    getAreas: function (id) {
         /** @type {*} */
-        const $ymlArea = jQuery(`#id_s_${component}_defyml_${id}`);
+        const ymlArea = document.querySelector(`#id_s_${component}_defyml_${id}`);
         /** @type {*} */
-        const $jsonArea = jQuery(`#id_s_${component}_def_${id}`);
+        const jsonArea = document.querySelector(`#id_s_${component}_def_${id}`);
         /** @type {*} */
-        const $partialInput = jQuery(`#id_s_${component}_partials_${id}`);
+        const partialInput = document.querySelector(`#id_s_${component}_partials_${id}`);
         return {
-            $ymlArea, $jsonArea, $partialInput
+            ymlArea, jsonArea, partialInput
         };
     },
     /**
@@ -141,9 +142,9 @@ export default {
      * @param {*} codeProEditor
      * @returns
      */
-    updateYaml: function(id, codeProEditor) {
-        const {$jsonArea} = this.getAreas(id);
-        const json = (($jsonArea.val() ?? '') + '').trim();
+    updateYaml: function (id, codeProEditor) {
+        const { jsonArea } = this.getAreas(id);
+        const json = ((jsonArea.value ?? '') + '').trim();
         if (!json) {
             if (id) {
                 codeProEditor.setValue('');
@@ -163,7 +164,7 @@ export default {
             for (const [key, style] of Object.entries(blockKeys)) {
                 if (needsBlock(_obj[key])) {
                     /** @type {any} */
-                    const scalar = new Scalar(_obj[key]);
+                    const scalar = new YAML.Scalar(_obj[key]);
                     scalar.type = style;
                     if (style === 'BLOCK_FOLDED') {
                         scalar.chomping = 'CLIP';
@@ -174,20 +175,20 @@ export default {
             if (Array.isArray(_obj.parameters)) {
                 for (const param of _obj.parameters) {
                     if (param.bind && typeof param.bind === 'object') {
-                    ['get', 'set'].forEach(key => {
-                        if (needsBlock(param.bind[key])) {
-                            param.bind[key] = new Scalar(param.bind[key]);
-                            param.bind[key].type = 'BLOCK_LITERAL';
-                        }
-                    });
+                        ['get', 'set'].forEach(key => {
+                            if (needsBlock(param.bind[key])) {
+                                param.bind[key] = new YAML.Scalar(param.bind[key]);
+                                param.bind[key].type = 'BLOCK_LITERAL';
+                            }
+                        });
                     }
                 }
             }
-            const yml = stringify(_obj, {indent: 2});
+            const yml = YAML.stringify(_obj, { indent: 2 });
             codeProEditor.setValue(yml);
         } catch (ex) {
             console.error(ex);
-            $jsonArea.val('');
+            jsonArea.value = '';
             codeProEditor.setValue('');
         }
     },
@@ -198,7 +199,7 @@ export default {
      * @returns {Promise<{msg: string, json?: string, html?: string}>}
      */
     // eslint-disable-next-line complexity
-    validate: async function(yml, opts, partials) {
+    validate: async function (yml, opts, partials) {
         /**
          * @type {{
          *     msg: string,
@@ -206,13 +207,13 @@ export default {
          *     json: string | undefined
          * }}
          * */
-        const validation = {msg: '', html: '', json: undefined};
+        const validation = { msg: '', html: '', json: undefined };
         try {
             // Check if the code is a valid Yaml
             /** @type {import('./options').RawWidget} */
             let jsonObj;
             try {
-                jsonObj = parse(yml);
+                jsonObj = YAML.parse(yml);
             } catch (ex) {
                 validation.msg = await get_string('erryaml', component) + ':: ' + ex;
                 return validation;
@@ -220,7 +221,7 @@ export default {
             validation.json = JSON.stringify(jsonObj, null, 0);
 
             // Check if the structure is correct
-            if (!jsonObj?.key) {
+            if (!jsonObj?.key?.trim()) {
                 validation.msg = await get_string('errproprequired', component, "'key'") + ' ';
             } else if (jsonObj.key === 'partials') {
                 // Do not apply validation on partials file
@@ -258,7 +259,7 @@ export default {
                 /** @type {Object.<string, any>} */
                 const ctx = {};
                 (jsonObj.parameters ?? []).forEach(param => {
-                    ctx[param.name] = param.value;
+                    ctx[param.name] = createDefaultsForParam(param, true);
                 });
                 const engine = jsonObj?.engine;
                 try {
@@ -290,6 +291,15 @@ export default {
                         }
                     });
             }
+
+            // Check if the widget is compatible the with current release
+            if (jsonObj.plugin_release && !compareVersion(common.currentRelease, jsonObj.plugin_release)) {
+                const errStr3 = await get_string('errversionmismatch', component, {
+                    required: jsonObj.plugin_release,
+                    installed: common.currentRelease
+                });
+                validation.msg += errStr3;
+            }
         } catch (ex) {
             validation.msg = await get_string('errunexpected', component) + ':: ' + ex;
         }
@@ -301,42 +311,52 @@ export default {
      * @param {{id: number, keys: string[]}} opts
      * @returns
      */
-    init: async function(opts) {
-        const {$ymlArea, $jsonArea, $partialInput} = this.getAreas(opts.id);
-        $ymlArea.css({
-            "border": "1px solid gray"
-        });
-        $ymlArea.addClass(component + '-loader');
+    init: async function (opts) {
+        const { ymlArea, jsonArea, partialInput } = this.getAreas(opts.id);
+        ymlArea.style.border = '1px solid gray';
+        ymlArea.classList.add(component + '-loader');
         const i18n = await getStrings([
-            {key: 'confirmdelete', component: component},
-            {key: 'delete', component: component},
-            {key: 'preview', component: component},
-            {key: 'savechanges', component: component}
+            { key: 'cancel', component: component },
+            { key: 'errunexpected', component: component },
+            { key: 'preview', component: component },
+            { key: 'savechanges', component: component }
         ]);
-        const [confirmdeleteStr, deleteStr, previewStr, savechangesStr] = i18n;
+        const [cancelStr, errunexpectedStr, previewStr, savechangesStr] = i18n;
 
         // Partials are passed through a hidden input element
-        const partials = JSON.parse($partialInput.val() || '{}');
+        const partials = JSON.parse(partialInput.value || '{}');
 
         // Hide the control that handles JSON and it is actually saved
-        $jsonArea.css("display", "none");
-        const $target = $jsonArea.parent();
-        const $form = $jsonArea.closest("form");
+        jsonArea.style.display = 'none';
+        // Immediate parent
+        const target = jsonArea.parentElement?.parentElement;
+        // Closest ancestor matching selector
+        const form = jsonArea.closest("form");
+        if (!form || !target) {
+            return;
+        }
+        // Hide default info div
+        form.querySelector('div.form-defaultinfo')?.classList?.add('d-none');
+
         // Hide any submit button if found
-        $form.find('button[type="submit"], input[type="submit"]').hide();
+        /** @type {NodeListOf<HTMLElement>} */
+        const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+        submitButtons.forEach(elem => {
+            elem.style.display = 'none';
+        });
         // Add submit buttons and manually trigger form submit.
-        const $formButtons = jQuery(`<div class="row"><div class="form-buttons offset-sm-3 col-sm-3">
+        const formButtons = htmlToElement(document, `<div class="row"><div class="form-buttons offset-sm-3 col-sm-3">
             <button type="button" class="btn btn-primary form-submit">${savechangesStr}</button></div></div>`);
-        $form.append($formButtons);
-        const $saveBtn = $formButtons.find("button");
+        form.appendChild(formButtons);
+        const saveBtn = formButtons.querySelector("button");
 
         // Create a preview panel
-        const $previewPanel = jQuery(`<div id="${component}_pp_${opts.id}" class="${component}-previewpanel d-none"></div>`);
-        $target.append($previewPanel);
+        const previewPanel = htmlToElement(document, `<div id="${component}_pp_${opts.id}" class="${component}-previewpanel d-none"></div>`);
+        target.appendChild(previewPanel);
 
-        const $previewBtn = jQuery(`<button type="button" class="btn btn-secondary m-1">
+        const previewBtn = htmlToElement(document, `<button type="button" class="btn btn-secondary m-1">
             <i class="fas fa fa-magnifying-glass"></i> ${previewStr}</button>`);
-        $previewBtn.on('click', async() => {
+        previewBtn.addEventListener('click', async () => {
             const yml = ymleditor.getValue();
             const validation = await this.validate(yml, opts, partials);
             if (validation.json && JSON.parse(validation.json).key === 'partials') {
@@ -344,61 +364,38 @@ export default {
                 return;
             }
             if (validation.msg) {
-                alert(validation.msg);
+                Notification.alert(errunexpectedStr, validation.msg, cancelStr);
             } else if (validation.html) {
-                $previewPanel.removeClass('d-none');
-                $jsonArea.trigger('focusin');
-                $jsonArea.val(validation.json ?? '');
-                $jsonArea.trigger('change');
-                $previewPanel.html(validation.html);
+                previewPanel.classList.remove('d-none');
+                jsonArea.dispatchEvent(new Event('focusin', { bubbles: true }));
+                jsonArea.value = validation.json ?? '';
+                jsonArea.dispatchEvent(new Event('change', { bubbles: true }));
+                previewPanel.innerHTML = validation.html;
             }
         });
-        $target.append($previewBtn);
+        target.appendChild(previewBtn);
 
-        if (opts.id > 0) {
-            // Only show delete button on saved widgets (id=0 is reserved for new ones)
-            const $deleteBtn = jQuery(`<button type="button" class="btn btn-outline-danger m-1">
-                <i class="fas fa fa-trash"></i> ${deleteStr}</button>`);
-            $deleteBtn.on('click', async() => {
-                // Ask confirmation
-                const answer = confirm(confirmdeleteStr);
-                if (!answer) {
-                    return;
-                }
-                // Clear all the controls
-                $jsonArea.trigger('focusin');
-                $jsonArea.val('');
-                $jsonArea.trigger('change');
-                $ymlArea.val('');
-                $previewPanel.html('');
-                // Send form by skipping validation
-                $form.trigger('submit');
-            });
-            $target.append($deleteBtn);
-        }
+        const ymleditor = new YmlEditor(ymlArea);
 
-        const ymleditor = new YmlEditor($ymlArea[0]);
-
-        $saveBtn.on("click",
-            async() => {
-                // Must update the content from the Yaml control
-                const yml = ymleditor.getValue();
-                // First validate the definition of the widget
-                const validation = await this.validate(yml, opts, partials);
-                if (validation.msg) {
-                    alert(validation.msg);
-                } else {
-                    // Ensure that there is a change in the form value to force
-                    // the set_updatedcallback to be called
-                    $jsonArea.trigger('focusin');
-                    $jsonArea.val((validation.json ?? '') + ' ');
-                    $jsonArea.trigger('change');
-                    // Submit form
-                    $form.trigger('submit');
-                }
-            });
+        saveBtn?.addEventListener("click", async () => {
+            // Must update the content from the Yaml control
+            const yml = ymleditor.getValue();
+            // First validate the definition of the widget
+            const validation = await this.validate(yml, opts, partials);
+            if (validation.msg) {
+                Notification.alert(errunexpectedStr, validation.msg, cancelStr);
+            } else {
+                // Ensure that there is a change in the form value to force
+                // the set_updatedcallback to be called
+                jsonArea.dispatchEvent(new Event('focusin', { bubbles: true }));
+                jsonArea.value = (validation.json ?? '') + ' ';
+                jsonArea.dispatchEvent(new Event('change', { bubbles: true }));
+                // Submit form
+                form.requestSubmit();
+            }
+        });
 
         this.updateYaml(opts.id, ymleditor);
-        $ymlArea.removeClass(component + '-loader');
+        ymlArea.classList.remove(component + '-loader');
     }
 };

@@ -1,20 +1,21 @@
 key: desplegable2
 name: Desplegable
 category: bootstrap
+icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 432c8.8 0 16-7.2 16-16l0-320c0-8.8-7.2-16-16-16L64 80c-8.8 0-16 7.2-16 16l0 320c0 8.8 7.2 16 16 16l320 0zm64-16c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96C0 60.7 28.7 32 64 32l320 0c35.3 0 64 28.7 64 64l0 320zM224 352c-6.7 0-13-2.8-17.6-7.7l-104-112c-6.5-7-8.2-17.2-4.4-25.9S110.5 192 120 192l208 0c9.5 0 18.2 5.7 22 14.4s2.1 18.9-4.4 25.9l-104 112c-4.5 4.9-10.9 7.7-17.6 7.7z"/></svg>
 instructions: |
   Crea un grup de desplegables. El nombre de desplegables es defineix en camp 'nombre'. Assegureu-vos que el títol de
   cada desplegable sigui clicable. Recordeu a col·lapsar els desplegables abans de desar. No modifiqueu l'identificador
   generat aleatòriament ja que ha d'ésser diferent per a cada desplegable que creeu en la pàgina.
-  <a class="d-block m-1" href="https://iedib.net/avirtual/mod/book/view.php?id=37192&chapterid=41216&snpt=bootstrap$desplegable2" target="_blank"><i class="fas fa fa-book"></i> Més informació...</a>
 template: >
   <p><br></p> 
   <!--ini desplegable-->
   <div id="{{ID}}" class="accordion iedib-accordion">
   {{#each}}[nombre]<div class="accordion-group">
   <div class="accordion-heading"><a class="accordion-toggle" href="#collapse_{{ID}}_{{i}}"
+  id="heading_{{ID}}_{{i}}" role="button" aria-expanded="false" aria-controls="collapse_{{ID}}_{{i}}"
   data-toggle="collapse" data-bs-toggle="collapse" {{#independents}}data-parent="#{{ID}}" data-bs-parent="#{{ID}}"{{/independents}}><span class="icon
   icon-plus-sign"></span> <span>&nbsp;</span><span>Desplegable{{i}}&nbsp;</span></a></div>
-  <div id="collapse_{{ID}}_{{i}}" class="accordion-body collapse" {{^independents}}data-parent="#{{ID}}" data-bs-parent="#{{ID}}"{{/independents}}>
+  <div id="collapse_{{ID}}_{{i}}" class="accordion-body collapse" role="region" aria-labelledby="heading_{{ID}}_{{i}}" {{^independents}}data-parent="#{{ID}}" data-bs-parent="#{{ID}}"{{/independents}}>
   <div class="accordion-inner">
   <p>Més informació sobre l'apartat {{i}}...</p>
   </div>
@@ -40,4 +41,4 @@ contextmenu:
   - predicate: div.accordion-group
     actions: moveup movedown insertafter | remove
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.15
+version: 3.0.0

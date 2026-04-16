@@ -8,5 +8,6 @@
     "scope": "^page-question-type-",
     "stars": 2,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2022.12.10"
+    "version": "2.2.0",
+    "icon": "fa-solid fa-highlighter"
 }

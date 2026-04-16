@@ -5,14 +5,14 @@ instructions: >
   Defineix un contenidor per a incrustar un video H5P on s'hi aplica un amplada màxima responsiva.
 template: |
   <p><br></p>
-  <!--ini youtube-->
+  <!--ini h5p-->
   <div class="iedib-video-container" {{#if}}[ampladaMax>100]style="max-width:{{ampladaMax}}px"{{/if}}>
     <div class="iedib-videoWrapper">
       <div class="h5p-placeholder" contenteditable="false"></div>
     </div>
       <div class="iedib-caption">Vídeo: <em>{{titol}}</em></div>
   </div>
-  <!--end youtube-->
+  <!--end h5p-->
   <p><br></p>
 parameters:
   - name: ampladaMax
@@ -24,4 +24,5 @@ parameters:
     title: Títol descriptiu.
 nou: true
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.2.0
+version: 3.2.1
+icon: fa-solid fa-file-video

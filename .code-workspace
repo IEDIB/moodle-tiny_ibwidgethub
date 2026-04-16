@@ -1,0 +1,11 @@
+{
+  "folders": [
+    { "path": "tests/jsunit" },
+    { "path": "tests/e2e" }
+  ],
+  "settings": {
+    // Force TypeScript server to use only project-local types
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
+  }
+}

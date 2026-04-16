@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 // This file is part of Moodle - http://moodle.org/
 //
@@ -17,13 +18,15 @@
 /**
  * Tiny WidgetHub plugin.
  *
- * @module      tiny_ibwidgethub/plugin
+ * @module      tiny_widgethub/plugin
  * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {getPluginOptionName} from 'editor_tiny/options';
+import { getPluginOptionName } from 'editor_tiny/options';
 import Common from './common';
+import { compareVersion, genID } from './util';
+import { createDefaultsForParam } from './service/template_service';
 const pluginName = Common.pluginName;
 
 const showPlugin = getPluginOptionName(pluginName, 'showplugin');
@@ -31,7 +34,7 @@ const userInfoOpt = getPluginOptionName(pluginName, 'user');
 const courseId = getPluginOptionName(pluginName, 'courseid');
 const widgetList = getPluginOptionName(pluginName, 'widgetlist');
 
-const shareStyles = getPluginOptionName(pluginName, 'sharestyles');
+const shareCss = getPluginOptionName(pluginName, 'sharecss');
 const additionalCss = getPluginOptionName(pluginName, 'additionalcss');
 const globalConfig = getPluginOptionName(pluginName, 'cfg');
 
@@ -49,7 +52,7 @@ export const register = (editor) => {
     registerOption(userInfoOpt, {
         processor: 'object',
         "default": {
-            id: '0',
+            id: 0,
             username: '',
             roles: []
         },
@@ -57,7 +60,7 @@ export const register = (editor) => {
 
     registerOption(courseId, {
         processor: 'string',
-        "default": '-1',
+        "default": "-1",
     });
 
     registerOption(widgetList, {
@@ -65,7 +68,7 @@ export const register = (editor) => {
         "default": [],
     });
 
-    registerOption(shareStyles, {
+    registerOption(shareCss, {
         processor: 'boolean',
         "default": true,
     });
@@ -80,14 +83,6 @@ export const register = (editor) => {
         "default": {},
     });
 };
-
-
-/**
- * @typedef {Object} UserInfo
- * @property {string | number} id
- * @property {string} username
- * @property {string[]} roles
- */
 
 /**
  * @param {import('./plugin').TinyMCE} editor
@@ -105,13 +100,21 @@ export const getAdditionalCss = (editor) => {
 
 /**
  * @param {import('./plugin').TinyMCE} editor
+ * @returns {boolean} - whether site styles should be inserted into iframe
+ */
+export const isShareCss = (editor) => {
+    return editor.options.get(shareCss);
+};
+
+/**
+ * @param {import('./plugin').TinyMCE} editor
  * @param {string} key
  * @param {string} defaultValue
  * @returns {string} - An object with the key/value properties
  */
 export const getGlobalConfig = (editor, key, defaultValue) => {
     const dict = editor.options.get(globalConfig) ?? {};
-    return dict[key] ?? defaultValue;
+    return dict[key]?.trim() ?? defaultValue;
 };
 
 /**
@@ -141,13 +144,15 @@ export const getWidgetDict = (editor) => {
     const wrappedWidgets = rawWidgets
         .map(w => new Widget(w, partials || {}));
 
-    // Remove those buttons that aren't usable for the current user
+    // Remove those widgets that aren't usable for the current user
+    // and not supported by the currentVersion of the plugin.
     const userInfo = editor.options.get(userInfoOpt);
-    wrappedWidgets.filter(w => w.isFor(userInfo)).forEach(w => {
-        if (_widgetDict) {
-            _widgetDict[w.key] = w;
-        }
-    });
+    wrappedWidgets.filter(w => w.isFor(userInfo) && compareVersion(Common.currentRelease, w.prop('plugin_release')))
+        .forEach(w => {
+            if (_widgetDict) {
+                _widgetDict[w.key] = w;
+            }
+        });
     return _widgetDict;
 };
 
@@ -160,7 +165,7 @@ export class EditorOptions {
     }
 
     /**
-     * @returns {UserInfo} - an integer with the id of the current user
+     * @returns {{id: number, username: string, roles: string[]}} - an integer with the id of the current user
      */
     get userInfo() {
         return this.editor.options.get(userInfoOpt);
@@ -174,10 +179,10 @@ export class EditorOptions {
     }
 
     /**
-     * @returns {Object.<string, Widget>} - a dictionary of "usable" widgets for the current user
+     * @returns {Object.<string, Widget>} - a dictionary of "usable" widgets for the current userId
      */
     get widgetDict() {
-       return getWidgetDict(this.editor);
+        return getWidgetDict(this.editor);
     }
 }
 
@@ -252,7 +257,7 @@ export function expandPartial(obj, partials) {
             console.error(`Cannot find partial for ${partialKey}`);
         } else {
             // Override with passed properties.
-            obj = {...partials[partialKey], ...obj};
+            obj = { ...partials[partialKey], ...obj };
         }
     }
     return obj;
@@ -307,7 +312,7 @@ export function applyPartials(widget, partials) {
  * @property {string=} partial
  * @property {string} name
  * @property {string} title
- * @property {'textfield' | 'numeric' | 'checkbox' | 'select' | 'autocomplete' | 'textarea' | 'image' | 'color'} [type]
+ * @property {'textfield' | 'numeric' | 'checkbox' | 'select' | 'autocomplete' | 'textarea' | 'image' | 'color' | 'repeatable'} [type]
  * @property {(ParamOption | string)[]} [options]
  * @property {any} value
  * @property {string=} tip
@@ -315,23 +320,31 @@ export function applyPartials(widget, partials) {
  * @property {number=} min
  * @property {number=} max
  * @property {string=} transform
- * @property {string | {get: string, set: string} } [bind]
+ * @property {string | {get?: string, set?: string, getValue?: string, setValue?: string} } [bind]
+ * @property {string} [item_selector]
  * @property {string=} when
  * @property {boolean} [hidden]
  * @property {boolean} [editable]
  * @property {string} [for]
+ * @property {Param[]} [fields]
  */
 /**
  * @typedef {Object} Action
- * @property {string} predicate
- * @property {string} actions
+ * @property {string} [predicate] - If predicate is absent, it assumes the element holding the widget root.
+ * @property {string} actions - Space separated and use | to define a separator.
+ * @property {string} [description] - Description is used in context menus and context toolbars.
+ */
+/**
+ * @typedef {Object} RequiresSpec
+ * @property {string} url - The url of the js dependency to be included along with the widget.
+ * @property {string} [query] - Condition in the form of a css query relative to editor's body. The dependency will be added if the query returns some node.
  */
 /**
  * @typedef {Object} RawWidget
- * @property {number} id
+ * @property {string} [plugin_release]
+ * @property {number} [id]
  * @property {string} key
  * @property {string} name
- * @property {string} [order] - Optional to redefine position by name
  * @property {string} category
  * @property {string} [scope] - Regex for idenfying allowed body ids
  * @property {string} [instructions]
@@ -344,14 +357,14 @@ export function applyPartials(widget, partials) {
  * @property {string} [insertquery]
  * @property {string} [unwrap]
  * @property {string} [for]
- * @property {string} [forids]
+ * @property {string} [forids] - Equivalent to [for]
  * @property {string} [forusernames]
  * @property {string} [forroles]
- * @property {string} [formatch]
+ * @property {string} [formatch] - AND or OR, Defaults to AND (The rules must be satified if present)
  * @property {string} [autocomplete]
  * @property {string} version
  * @property {string} author
- * @property {string[]} [requires]
+ * @property {string | RequiresSpec} [requires]
  * @property {boolean} [hidden]
  * @property {number} [stars]
  * @property {Action[]} [contextmenu]
@@ -372,6 +385,10 @@ export class Widget {
      * @param {Object.<string, any>=} partials
      */
     constructor(widget, partials) {
+        if (!widget.key) {
+            // Define a random key
+            widget.key = 'w' + genID();
+        }
         partials = partials ?? {};
         applyPartials(widget, partials);
         this._widget = widget;
@@ -379,8 +396,8 @@ export class Widget {
     /**
      * @returns {number}
      */
-     get id() {
-        return this._widget.id;
+    get id() {
+        return this._widget.id ?? 0;
     }
     /**
      * @returns {string}
@@ -407,10 +424,10 @@ export class Widget {
         return this._widget.template ?? this._widget.filter ?? '';
     }
     /**
-     * @returns {string}
+     * @returns {string | undefined}
      */
     get category() {
-        return this._widget.category ?? "MISC";
+        return this._widget.category;
     }
     /**
      * @returns {string=}
@@ -453,22 +470,44 @@ export class Widget {
         return this._widget.parameters ?? [];
     }
     /**
+     * @returns {RequiresSpec | null}
+     */
+    get requires() {
+        if (typeof this._widget.requires === 'object' && this._widget.requires.url) {
+            return {
+                url: this._widget.requires.url.trim(),
+                query: this._widget.requires.query?.trim()
+            };
+        } else if (typeof this._widget.requires === 'string') {
+            const [url, query] = this._widget.requires.split('|').map(e => e.trim());
+            return { url, query };
+        }
+        return null;
+    }
+    /**
      * @returns {Object.<string, any>}
      */
     get defaults() {
+        return this.defaultsWithRepeatable(false);
+    }
+    /**
+     * @param {boolean} [populateRepeatable]
+     * @returns {Object.<string, any>}
+     */
+    defaultsWithRepeatable(populateRepeatable = true) {
         /** @type {Object.<string, any> } */
         const obj = {};
         (this._widget.parameters ?? []).forEach((param) => {
-            obj[param.name] = param.value;
+            obj[param.name] = createDefaultsForParam(param, populateRepeatable);
         });
         return obj;
     }
     /**
-     * @param {UserInfo} userInfo
+     * @param {{id: number, username: string, roles: string[]}} userInfo
      * @returns {boolean}
      */
     isFor(userInfo) {
-       if (this._widget.hidden === true) {
+        if (this._widget.hidden === true) {
             return false;
         }
 
@@ -514,6 +553,11 @@ export class Widget {
         }
 
         const isAllowed = matchMode === 'OR' ? results.some(Boolean) : results.every(Boolean);
+
+        if (!isAllowed) {
+            console.warn(`Widget ${this._widget.key} not allowed for user ${userInfo.id}`);
+        }
+
         return isAllowed;
     }
 
@@ -539,9 +583,26 @@ export class Widget {
     /**
      * @returns {boolean}
      */
-    hasBindings() {
-        return (this._widget.parameters ?? []).some(param => param.bind !== undefined);
+    isSelectCapable() {
+        return this._widget.selectors !== undefined && this._widget.insertquery !== undefined;
     }
+    /**
+     * Determine if a widget contains bindings
+     * @returns {boolean}
+     */
+    hasBindings() {
+        const parameters = this._widget.parameters ?? [];
+        return parameters.some(param => {
+            if (param.type === 'repeatable') {
+                const hasFieldBindings = param.fields?.some(f => f.bind !== undefined);
+                return (typeof param.bind === 'object') ||
+                    (hasFieldBindings && typeof param.item_selector === 'string');
+            } else {
+                return param.bind !== undefined;
+            }
+        });
+    }
+
     /**
      * Recovers the property value named name of the original definition
      * @param {string} name

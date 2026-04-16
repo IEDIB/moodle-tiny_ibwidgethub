@@ -1,0 +1,63 @@
+key: bs-alert
+name: Capses 'alert' de Bootstrap
+category: bootstrap
+instructions: > 
+  Permet inserir capses "alert" de Boostrap de diferent tipus. Emprau aquestes capses si desitjau
+  que l'usuari les pugui tancar.
+template: |
+  <p></p>
+  <div class="m-2 alert alert-{{severity}}{{#closable}} alert-dismissible{{/closable}} fade show" role="alert">
+    {{#closable}}
+     <button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
+       <span aria-hidden="true">&times;</span>
+     </button>
+    {{/closable}}
+    <div class="alert-content">
+      <p>Lorem ipsum.</p>
+    </div>
+  </div>
+  <p></p>
+selectors: div[role="alert"].alert:not(.iedib-capsa)
+insertquery: div[role="alert"].alert .alert-content
+unwrap: '*'
+parameters:
+  - name: severity
+    title: Tipus d'alerta
+    bind: classRegex('alert-(.*)')
+    value: primary    
+    options:
+      - primary
+      - secondary
+      - success
+      - info
+      - warning
+      - danger
+      - light
+      - dark
+  - name: closable
+    title: Tancable
+    value: true
+    bind:
+      getValue: function(elem) { return elem.querySelector("button.close") !== null; }
+      setValue: |
+        function(elem, v) {
+            if (v && !elem.querySelector("button.close")) {
+              var btn = '<button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+              elem.insertAdjacentHTML('afterbegin', btn);
+              elem.classList.add('alert-dismissible');
+            } else if (!v) {
+              elem.classList.remove('alert-dismissible');
+              var closeBtn = elem.querySelector("button.close");
+              if (closeBtn) {
+                closeBtn.remove();
+              }
+            }
+        }
+autocomplete: severity
+forids: "31"
+contextmenu:
+  - actions: printable
+nou: true
+author: Josep Mulet <pep.mulet@gmail.com>
+version: 2.0.0
+icon: fa-solid fa-circle-exclamation

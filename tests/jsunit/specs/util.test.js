@@ -1,10 +1,12 @@
 /**
- * @jest-environment jsdom
+ *
+ * Tiny WidgetHub plugin.
+ *
+ * @module      tiny_widgethub/plugin
+ * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require('./module.mocks')(jest);
 const U = require("../src/util");
-/** @ts-ignore */
-const jQuery = require("jquery").default;
 
 /**
  * @param {number} delay 
@@ -17,6 +19,16 @@ const wait = function(delay) {
 }
 
 describe('utils module tests', () => {
+    /** @type {any} */
+    let consoleSpy;
+
+    beforeEach(() => {
+        consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        consoleSpy.mockRestore();
+    });
 
     test('genID starts with alpha-numeric', () => {
         const g = U.genID();
@@ -79,7 +91,7 @@ describe('utils module tests', () => {
         res = U.evalInContext(scope, "");
         expect(res).toBe(undefined);
         const f = () => U.evalInContext(scope, "7*h");
-        expect(f).toThrowError();
+        expect(f).toThrow();
         res = U.evalInContext({}, "5*4-8");
         expect(res).toBe(12);
     });
@@ -132,7 +144,7 @@ describe('utils module tests', () => {
 
     it("It applies widgetFilter", async() => {
         /** @type {*} */
-        const editor = require('./editor.mock')();
+        const editor = global.Mocks.editorFactory();
         editor.getContent.mockReturnValue("<p>This is the editor's content</p>");
         const coreStr = {
             get_strings: (/** @type {any[]} **/ lst) => {
@@ -178,28 +190,6 @@ describe('utils module tests', () => {
         });
         expect(res).toBe(true);
         expect(editor.setContent).toHaveBeenCalledWith("<p>This is the TinyMCE editor's content</p>");
-    });
-
-
-    test('performCasting', () => {
-        expect(U.performCasting('true', 'boolean')).toStrictEqual(true);
-        expect(U.performCasting(true, 'boolean')).toStrictEqual(true);
-        expect(U.performCasting(1, 'boolean')).toStrictEqual(true);
-        expect(U.performCasting('false', 'boolean')).toStrictEqual(false);
-        expect(U.performCasting(false, 'boolean')).toStrictEqual(false);
-        expect(U.performCasting(0, 'boolean')).toStrictEqual(false);
-
-        expect(U.performCasting('wrong number', 'number')).toStrictEqual(0);
-        expect(U.performCasting('12', 'number')).toStrictEqual(12);
-        expect(U.performCasting('-12', 'number')).toStrictEqual(-12);
-        expect(U.performCasting('7.5', 'number')).toStrictEqual(7.5);
-
-        expect(U.performCasting('a string', 'string')).toStrictEqual('a string');
-        expect(U.performCasting(12, 'string')).toStrictEqual('12');
-        expect(U.performCasting(true, 'string')).toStrictEqual('true');
-        expect(U.performCasting(false, 'string')).toStrictEqual('false');
-        expect(U.performCasting({a: 1}, 'string')).toStrictEqual('{"a":1}');
-        expect(U.performCasting({a: 1}, 'unktype')).toStrictEqual({"a":1});
     });
 
     test('findVariableByName', () => {
@@ -278,182 +268,6 @@ describe('utils module tests', () => {
     });
 
     test.each([
-        ["hasClass('editable')", `<span class="a editable"></span>`, true],
-        ["hasClass('editable')", `<span class="b locked c"></span>`, false],
-
-        ["notHasClass('editable')", `<span class="editable"></span>`, false],
-        ["notHasClass('editable')", `<span class="locked"></span>`, true],
-
-        ["classRegex('locked-(.*)')", `<span class="locked"></span>`, ''],
-        ["classRegex('locked-(.*)')", `<span class="locked-"></span>`, ''],
-        ["classRegex('locked-(.*)')", `<span class="locked-abc"></span>`, 'abc'],
-        ["classRegex('locked-([0-9]*)-some(.*)')", `<span class="etc"></span>`, ''],
-        ["classRegex('locked-([0-9]*)-some(.*)')", `<span class="locked--some etc"></span>`, ''],
-        ["classRegex('locked-([0-9]*)-some(.*)')", `<span class="locked-123-somes etc"></span>`, '123'],
- 
-        ["hasAttr('data-locked')", `<span data-locked></span>`, true],
-        ["hasAttr('data-locked')", `<span data-locked="false"></span>`, true],
-        ["hasAttr('data-locked')", `<span data-open="false"></span>`, false],
-        ["hasAttr('data-locked=silent')", `<span data-locked="silent"></span>`, true],
-
-        ["notHasAttr('data-locked')", `<span data-locked></span>`, false],
-        ["notHasAttr('data-locked')", `<span data-locked="false"></span>`, false],
-        ["notHasAttr('data-locked')", `<span data-open="false"></span>`, true],
-
-        ["attr('data-locked')", `<span data-locked="false"></span>`, "false"],
-        ["attr('data-locked', null, 'number')", `<span data-locked="4"></span>`, 4],
-        ["attr('data-locked')", `<span></span>`, undefined],
-
-        ["attrRegex('role=channel(.*)')", `<span role="channel1234"></span>`, '1234'],
-        ["attrRegex('role=channel(.*)', null, 'number')", `<span role="channel1234"></span>`, 1234],
-        ["attrRegex('role=channel(.*)')", `<span role="channel"></span>`, ''],
-        ["attrRegex('role=locked-([0-9]*)-abc')", `<span role="locked--abc"></span>`, ''],
-        ["attrRegex('role=locked-([0-9]*)-abc')", `<span role="locked-123-abc"></span>`, '123'],
-        
-        ["hasStyle('width')", `<span style="width: 100px;"></span>`, true],
-        ["hasStyle('height')", `<span style="width: 100px;"></span>`, false],
-        ["hasStyle('color:red')", `<span style="color: red;"></span>`, true],
-
-        ["notHasStyle('width')", `<span style="width: 100px;"></span>`, false],
-        ["notHasStyle('height')", `<span style="width: 100px;"></span>`, true],
-
-        ["styleRegex('width: (.*)px')", `<span style="width: 100px;"></span>`, "100"],
-        ["styleRegex('width: (.*)px', null, 'number')", `<span style="width: 100px;"></span>`, 100],
-        [`styleRegex("background-image:url\\\\(['\\"]?([^'\\")]*)['\\"]?\\\\)")`, 
-            `<span class="iedib-background-img" style="background-image:url(http://localhost:4545/pluginfile.php/19/mod_page/content/5/icon.png); padding: 10px; min-height: 40px; background-repeat: no-repeat; background-size: cover; background-position: 50% 50%;">
-            Quina probabilitat tinc de guanyar els jocs d'atzar?</span>`, 'http://localhost:4545/pluginfile.php/19/mod_page/content/5/icon.png']
-    ])('Create GET binding %s on %s returns %s', (bindDef, elemDef, result) => {
-        let $e = jQuery(elemDef)
-        // Binding on the same element
-        let binding = U.createBinding(bindDef, $e);
-        expect(binding).not.toBeNull();
-        expect(binding?.getValue()).toBe(result);
-
-        // Binding on a child
-        $e = jQuery(`<div class="container">${elemDef}</div>`);
-        if (bindDef.indexOf("null") > 0) {
-            bindDef = bindDef.replace("null", "'span'");
-        } else {
-            bindDef = bindDef.substring(0, bindDef.length - 1) + ", 'span')";
-        }
-        binding = U.createBinding(bindDef, $e);
-        expect(binding).not.toBeNull();
-        expect(binding?.getValue()).toBe(result);
-    });
-
-    test('Testing class regex', () => {
-        let [bindDef, elemDef, result] = ["classRegex('alert-(.*)')", `<div class="m-2 alert alert-secondary fade show" role="alert"><div class="alert-content"><p>Lorem ipsum.</p></div></div>`, 'secondary'];
-        let $e = jQuery(elemDef);
-        expect($e.length).toBe(1);
-        // Binding on the same element
-        let binding = U.createBinding(bindDef, $e);
-        expect(binding).not.toBeNull();
-        expect(binding?.getValue()).toBe(result);
-    });
-
-
-    test.each([
-        ["hasClass('editable')", `<span class="a editable"></span>`, true, `<span class="a editable"></span>`],
-        ["hasClass('editable')", `<span class="a editable"></span>`, false, `<span class="a"></span>`],
-        ["hasClass('editable')", `<span class="b locked c"></span>`, false, `<span class="b locked c"></span>`],
-        ["hasClass('editable')", `<span class="b locked c"></span>`, true, `<span class="b locked c editable"></span>`],
-
-        ["notHasClass('editable')", `<span class="a editable"></span>`, true, `<span class="a"></span>`],
-        ["notHasClass('editable')", `<span class="a editable"></span>`, false, `<span class="a editable"></span>`],
-        ["notHasClass('editable')", `<span class="b locked c"></span>`, false, `<span class="b locked c editable"></span>`],
-        ["notHasClass('editable')", `<span class="b locked c"></span>`, true, `<span class="b locked c"></span>`],
-
-       // ["classRegex('locked-(.*)')", `<span class="locked"></span>`, 'mood', `<span class="locked locked-mood"></span>`],
-        ["classRegex('locked-(.*)')", `<span class="locked-"></span>`, 'mood', `<span class="locked-mood"></span>`],
-        ["classRegex('locked-(.*)')", `<span class="locked-abc"></span>`, 'efg', `<span class="locked-efg"></span>`],
-        ["classRegex('locked-([0-9]*)-some(.*)')", `<span class="etc locked--some"></span>`, '789', `<span class="etc locked-789-some"></span>`],
-        ["classRegex('locked-([0-9]*)-some(.*)')", `<span class="etc locked-123-somes"></span>`, '345', '<span class="etc locked-345-somes"></span>'],
-        ["classRegex('locked-([0-9]*)-some(.*)')", `<span class="etc"></span>`, '790', `<span class="etc locked-790-some"></span>`],
-
-        ["hasAttr('data-locked')", `<span data-locked></span>`, true, `<span data-locked=""></span>`],
-        ["hasAttr('data-locked')", `<span data-locked></span>`, false, `<span></span>`],
-        ["hasAttr('data-locked')", `<span data-open="false"></span>`, true, `<span data-open="false" data-locked=""></span>`],
-        ["hasAttr('data-locked=silent')", `<span data-locked="silent"></span>`, true, `<span data-locked="silent"></span>`],
-        ["hasAttr('data-locked=silent')", `<span></span>`, true, `<span data-locked="silent"></span>`],
-
-        ["hasAttr('href=home')", `<span></span>`, true, `<span href="home" data-mce-href="home"></span>`],
-        ["hasAttr('href=home')", `<span href="home" data-mce-href="home"></span>`, false, `<span></span>`],
-
-        ["notHasAttr('data-locked')", `<span data-locked></span>`, true, `<span></span>`],
-        ["notHasAttr('data-locked')", `<span data-locked></span>`, false, `<span data-locked=""></span>`],
-        ["notHasAttr('data-locked')", `<span data-open="false"></span>`, true, `<span data-open="false"></span>`],
-        ["notHasAttr('data-locked=silent')", `<span data-locked="silent"></span>`, true, `<span></span>`],
-        ["notHasAttr('data-locked=silent')", `<span></span>`, false, `<span data-locked="silent"></span>`],
-
-        ["attr('data-locked')", `<span data-locked="false"></span>`, "enabled", `<span data-locked="enabled"></span>`],
-        ["attr('data-locked', null, 'number')", `<span data-locked="4"></span>`, 87, `<span data-locked="87"></span>`],
-        ["attr('data-locked')", `<span></span>`, "test", `<span data-locked="test"></span>`],
-
-        ["attrRegex('role=channel(.*)')", `<span role="channel1234"></span>`, '5678', `<span role="channel5678"></span>`],
-        ["attrRegex('role=channel(.*)', null, 'number')", `<span role="channel1234"></span>`, 'testing', `<span role="channeltesting"></span>`],
-
-        ["hasStyle('width:100px')", `<span style="height:10px;width: 100px;"></span>`, true, `<span style="height: 10px; width: 100px;" data-mce-style="height: 10px; width: 100px;"></span>`],
-        ["hasStyle('width:100px')", `<span style="height:10px;width: 100px;"></span>`, false, `<span style="height: 10px;" data-mce-style="height: 10px;"></span>`],
-        ["hasStyle('height:50px')", `<span style="width: 100px;"></span>`, true, `<span style="width: 100px; height: 50px;" data-mce-style="width: 100px; height: 50px;"></span>`],
-
-        ["notHasStyle('width:100px')", `<span style="height:10px;width: 100px;"></span>`, true, `<span style="height: 10px;" data-mce-style="height: 10px;"></span>`],
-        ["notHasStyle('width:100px')", `<span style="height:10px;width: 100px;"></span>`, false, `<span style="height: 10px; width: 100px;" data-mce-style="height: 10px; width: 100px;"></span>`],
-        ["notHasStyle('height:50px')", `<span style="width: 100px;"></span>`, true, `<span style="width: 100px;" data-mce-style="width: 100px;"></span>`],
-
-        ["styleRegex('width: (.*)px')", `<span style="width: 100px;"></span>`, "700", `<span style="width: 700px;" data-mce-style="width: 700px;"></span>`],
-        ["styleRegex('width: (.*)px', null, 'number')", `<span style="width: 100px;"></span>`, 700, `<span style="width: 700px;" data-mce-style="width: 700px;"></span>`],
-
-        [`styleRegex("background-image:url\\\\(['\\"]?([^'\\")]*)['\\"]?\\\\)")`, 
-            `<span class="iedib-background-img" style="background-image:url('http://localhost:4545/pluginfile.php/19/mod_page/content/5/icon.png'); padding: 10px;">
-            Quina probabilitat tinc de guanyar els jocs d'atzar?</span>`, 
-            'https://iedib.net/example.png', 
-            `<span class="iedib-background-img" style="background-image: url(https://iedib.net/example.png); padding: 10px;" data-mce-style="background-image: url(https://iedib.net/example.png); padding: 10px;">
-            Quina probabilitat tinc de guanyar els jocs d'atzar?</span>`]
-              
-
-    ])('Create SET binding %s on %s. If sets value %s yields %s', (bindDef, elemDef, value, result) => {
-        let $e = jQuery(elemDef)
-        // Binding on the same element
-        let binding = U.createBinding(bindDef, $e);
-        expect(binding).not.toBeNull();
-        binding?.setValue(value)
-        expect($e.prop('outerHTML')).toBe(result);
-
-        // Binding on a child
-        $e = jQuery(`<div class="container">${elemDef}</div>`);
-        if (bindDef.indexOf("null") > 0) {
-            bindDef = bindDef.replace("null", "'span'");
-        } else {
-            bindDef = bindDef.substring(0, bindDef.length - 1) + ", 'span')";
-        }
-        binding = U.createBinding(bindDef, $e);
-        expect(binding).not.toBeNull();
-        binding?.setValue(value)
-        expect($e.find("span").prop('outerHTML')).toBe(result);
-    });
-
-    test('User defined binding', () => {
-        const $e = jQuery(`<span></span>`);
-        const bindDef = {
-            get: `(e) => {
-                return e.hasClass('mood') && e.attr('role') !== undefined;
-            }`,
-            set: `(e, v) => {
-                if(v) {
-                    e.addClass('mood').attr('role', 'set');
-                } else {
-                    e.removeClass('mood').removeAttr('role'); 
-                }
-            }`,
-        };
-        const binding = U.createBinding(bindDef, $e);
-        expect(binding).not.toBeNull();
-        expect(binding?.getValue()).toBe(false);
-        binding?.setValue(true);
-        expect($e.prop('outerHTML')).toBe(`<span class="mood" role="set"></span>`);
-    });
-
-    test.each([
         [null, ''],
         [undefined, ''],
         ['', ''],
@@ -524,4 +338,92 @@ describe('utils module tests', () => {
         U.toggleClass(elem, 'cl1', 'cl3');
         expect([...elem.classList].sort()).toStrictEqual(['cl2', 'cl4']);        
     });
+
+    test.each([
+        // Basic comparisons
+        ["1.2.3", "1.2.3", true, false],
+        ["1.2.3", "= 1.2.3", true, false],
+        ["1.2.3", "> 1.2.2", true, false],
+        ["1.2.3", ">= 1.2.3", true, false],
+        ["1.2.3", "< 1.2.4", true, false],
+        ["1.2.3", "<= 1.2.3", true, false],
+        ["1.2.3", "< 1.2.3", false, false],
+        ["1.2.3", "> 1.2.3", false, false],
+        ["1.2.3", "= 1.2.2", false, false],
+
+        // Missing minor or patch
+        ["1", "= 1.0.0", true, false],
+        ["1", ">= 0.9.9", true, false],
+        ["1.2", "= 1.2.0", true, false],
+        ["1.2", "< 1.2.1", true, false],
+        ["1.2.3", "> 1.1", true, false],
+        ["2", "<= 2.0.0", true, false],
+
+        // Spaces around numbers/operators
+        [" 1.2.3 ", " = 1.2.3 ", true, false],
+        ["1.2.3", ">= 1.2", true, false],
+        ["1.2.3", " < 2.0.0 ", true, false],
+        [" 1.2.3", " >1.2.4", false, false],
+        ["1.2.3", "= 1.2.3 ", true, false],
+        ["1 . 2 . 3", "= 1.2.3", true, false],
+
+        // Edge cases
+        ["0.0.0", "= 0", true, false],
+        ["0.0.1", "> 0", true, false],
+        ["0.1", "< 0.2.0", true, false],
+        ["1.0.0", "< 2", true, false],
+        ["2.0.0", "> 1.9.9", true, false],
+
+        // Invalid / empty / null / undefined
+        ["1.2.3", ">> 1.2.3", true, true],
+        ["1.2.3", "=> 1.2.3", true, true],
+        ["1.2.3", "1..2", true, true],
+        ["1.2.3", ">= abc", true, true],
+        ["1.2.3", "", true, false],
+        ["1.2.3", null, true, false],
+        ["1.2.3", undefined, true, false],
+    ])(
+        'compareVersion(%s, %s)',
+        (current, condition, expected, shouldThrow) => {
+            expect(U.compareVersion(current, condition)).toBe(expected);
+            if (shouldThrow) {
+                expect(consoleSpy).toHaveBeenCalled();
+            } 
+            }
+    );
+
+
+    test("removeRndFromCtx should remove parameters associated to $RND", () => {
+        /** @type {*} */
+        const parameters = [
+            {name: 'q', value: ''},
+            {name: 'id', value: '$RND'},
+            {name: 'effect', value: 'none'},
+        ];
+        const ctx = {
+            q: 'foo value',
+            id: 'd24523fvvv_34',
+            effect: 'fade'
+        }
+        expect(U.removeRndFromCtx(ctx, parameters)).toStrictEqual({ 
+            q: 'foo value',
+            effect: 'fade'}
+        );
+    });
+
+    test("removeRndFromCtx should not remove any parameters", () => {
+        /** @type {*} */
+        const parameters = [
+            {name: 'q', value: ''},
+            {name: 'id', value: 'RND'},
+            {name: 'effect', value: 'none'},
+        ];
+        const ctx = {
+            q: 'foo value',
+            id: 'd24523fvvv_34',
+            effect: 'fade'
+        }
+        expect(U.removeRndFromCtx(ctx, parameters)).toStrictEqual(ctx);
+    });
+
 });

@@ -1,5 +1,6 @@
 key: codi-programacio
 name: Codi de programació
+category: misc
 instructions: |
   Utilitzeu aquest snippet per incloure un bloc de codi de programació.
 template: >
@@ -67,23 +68,30 @@ parameters:
     hint: Deixau en blanc perquè es detecti automàticament.
     title: Estableix llenguatge
     bind:
-      get: |
-          function(e) {
-            var cls = e.find('code').attr('class');
+      getValue: |
+          function(elem) {
+            var codeElem = elem.querySelector('code');
+            if (!codeElem) {
+              return '';
+            }
+            var cls = codeElem.getAttribute('class');
             var lc = cls?.split(/\s+/).find(cn => cn.startsWith('language-')) || '';
             if (lc) {
               lc = lc.substring('language-'.length);
             }
             return lc;
           }
-      set: |
-          function(e, v) {
-            var ce = e.find('code');
-            var lc = ce.attr('class')
-              ?.split(/\s+/).find(cn => cn.startsWith('language-'));
-            ce.removeClass(lc)
+      setValue: |
+          function(elem, v) {
+            var codeElem = elem.querySelector('code');
+            if (!codeElem) {
+              return;
+            }
+            var cls = codeElem.getAttribute('class');
+            var lc = cls?.split(/\s+/).find(cn => cn.startsWith('language-'));
+            codeElem.classList.remove(lc)
             if (v) {
-              ce.addClass('language-'+v);
+              codeElem.classList.add('language-'+v);
             }
           }
   - name: lnum
@@ -96,7 +104,10 @@ parameters:
     title: Mostra el nom del llenguatge
     bind: hasClass('display-lang')
     when: "syntax"
-requires: "/sd/programacio.min.js | syntax"
+requires: 
+  url: /sd/programacio.min.js
+  query: pre.iedib-code > code:not(.nohighlight)
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.29
+version: 3.2.1
+icon: fa-solid fa-code

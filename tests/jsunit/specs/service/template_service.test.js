@@ -1,4 +1,10 @@
-require('../module.mocks')(jest);
+/**
+ * Tiny WidgetHub plugin.
+ *
+ * @module      tiny_widgethub/plugin
+ * @copyright   2024 Josep Mulet Pol <pep.mulet@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 const { TemplateSrv } = require("../../src/service/template_service");
 const Mustache = require("mustache");
 

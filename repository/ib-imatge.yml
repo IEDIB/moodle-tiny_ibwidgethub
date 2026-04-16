@@ -53,6 +53,9 @@ parameters:
       - {v: 'zm', l: 'Imatges amb zoom'}
       - {v: 'lb', l: "Pas d'imatges a pantalla completa"}
 stars: 3
-requires: "/sd/images.min.js | effect!='none'"
+requires: 
+  url: /sd/images.min.js
+  query: div.iedib-figura[data-snptd]
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.3.0
+version: 3.4.1
+icon: fa-solid fa-image

@@ -1,15 +1,15 @@
 key: taula-predefinida
 name: Taula predefinida
+category: misc
 instructions: >
  Crea una taula predefinida amb n files i m columnes.
  Cal que reviseu la visualització en dispositius mòbils.
-  <a class="d-block m-1" href="https://iedib.net/avirtual/mod/book/view.php?id=37192&chapterid=41216&snpt=altres$taula-predefinida" target="_blank"><i class="fas fa fa-book"></i> Més informació...</a>
 template: |
   <p><br></p> 
   <!--ini taula predef-->
   <table class="iedib-table"
   style="table-layout:{{amplades}};border-collapse: collapse; border-spacing: 0px;width:{{ampladaTPC}}%">
-  {{#capsaleres}}<thead><tr>{{#each}}[j=columnes]<th style="border: {{gruix}}px solid {{vorera}};background:
+  {{#capsaleres}}<thead><tr>{{#each}}[j=columnes]<th scope="col" style="border: {{gruix}}px solid {{vorera}};background:
   {{fonsCapsalera}};">Títol{{j}}</th>{{/each}}</tr></thead>{{/capsaleres}}
   <tbody>{{#each}}[files]<tr>{{#each}}[columnes]
   <td style="border: {{gruix}}px solid {{vorera}};"> </td>{{/each}}</tr>{{/each}}</tbody></table>
@@ -62,4 +62,5 @@ parameters:
       - {v: 'white', l: 'Blanc'}   
 stars: 1
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.2.0
+version: 3.2.2
+icon: fa-solid fa-table-cells
