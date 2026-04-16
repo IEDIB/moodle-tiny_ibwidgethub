@@ -22,9 +22,11 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {getFormCtrl} from '../controller/form_ctrl';
-import {getModalSrv} from '../service/modal_service';
-import {createBinding} from '../bindings';
+import { getFormCtrl } from '../controller/form_ctrl';
+import { getModalSrv } from '../service/modal_service';
+import { createBinding } from '../bindings';
+import { setAttributeMCE, setStyleMCE, removeStyleMCE } from '../util';
+const bindingsUtil = { setAttributeMCE, setStyleMCE, removeStyleMCE };
 
 /**
  * @typedef {JQuery<HTMLElement>} ModalDialogue
@@ -194,12 +196,12 @@ export class WidgetPropertiesCtrl {
                             continue;
                         }
                         Object.keys(valueObject).forEach(objKey => {
-                            bindingObject[objKey]?.setValue(valueObject[objKey]);
+                            bindingObject[objKey]?.setValue(valueObject[objKey], updatedValues, bindingsUtil);
                         });
                     }
                 } else {
                     // Regular binding or strategy 2 for repeatable.
-                    bindingsDOM[key]?.setValue(val);
+                    bindingsDOM[key]?.setValue(val, updatedValues, bindingsUtil);
                 }
             });
         });
@@ -208,9 +210,9 @@ export class WidgetPropertiesCtrl {
         try {
             // @ts-ignore
             this.modal.body.popover({
-            container: "body",
-            selector: "[data-toggle=popover][data-trigger=hover]",
-            trigger: "hover"
+                container: "body",
+                selector: "[data-toggle=popover][data-trigger=hover]",
+                trigger: "hover"
             });
         } catch (ex) {
             // console.error(ex);

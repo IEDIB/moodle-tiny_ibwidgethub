@@ -30,6 +30,6 @@ parameters:
     when: "!SELECT_MODE" 
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.08
+version: 3.0.0
 icon: fa-solid fa-highlighter
 

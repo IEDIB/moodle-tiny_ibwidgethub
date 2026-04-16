@@ -187,13 +187,15 @@ export async function provider(ctx) {
             // selectedElement right clicked must be a tag img
             const key = ctx.path?.widget?.key;
             const elem = ctx.path?.selectedElement;
-            const isImg = (
+            const isImg =
                 key !== undefined &&
                 key !== 'imatge' &&
                 key !== 'grid-imatge' &&
                 elem?.tagName === 'IMG' &&
                 // Do not take into account images in ib-card
-                !elem?.classList?.contains('card-img-top'));
+                !elem?.closest('div.ib-card') &&
+                // Do not take into account images in carousel
+                !elem?.closest('[data-widget="ib-carousel"]');
             if (ctx.path && isImg && elem) {
                 ctx.path.targetElement = elem;
             }

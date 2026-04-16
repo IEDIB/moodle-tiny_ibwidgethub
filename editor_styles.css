@@ -184,3 +184,7 @@ pre.iedib-code code:not(.nohljsln)::before {
     height: inherit !important;
     aspect-ratio: 16/9;
 }
+
+[data-widget="ib-carousel"] .carousel-caption {
+    display: block !important;
+}

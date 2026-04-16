@@ -608,6 +608,9 @@ export function htmlToElement(doc, html) {
  * @param {string} propValue
  */
 export function setStyleMCE(target, propName, propValue) {
+    if (!target) {
+        return;
+    }
     target.style.setProperty(propName, propValue);
     // Sync data-mce-style
     target.setAttribute('data-mce-style', target.getAttribute('style') ?? '');
@@ -618,6 +621,9 @@ export function setStyleMCE(target, propName, propValue) {
  * @param {string} propName
  */
 export function removeStyleMCE(target, propName) {
+    if (!target) {
+        return;
+    }
     target.style.removeProperty(propName);
     // Sync data-mce-style
     target.setAttribute('data-mce-style', target.getAttribute('style') ?? '');
@@ -629,6 +635,9 @@ export function removeStyleMCE(target, propName) {
  * @param {string} propValue
  */
 export function setAttributeMCE(target, propName, propValue) {
+    if (!target) {
+        return;
+    }
     target.setAttribute(propName, propValue);
     if (propName === 'href' || propName === 'src') {
         target.setAttribute('data-mce-' + propName, propValue);

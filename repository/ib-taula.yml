@@ -1,9 +1,9 @@
 key: taula-predefinida
 name: Taula predefinida
+category: misc
 instructions: >
  Crea una taula predefinida amb n files i m columnes.
  Cal que reviseu la visualització en dispositius mòbils.
-  <a class="d-block m-1" href="https://iedib.net/avirtual/mod/book/view.php?id=37192&chapterid=41216&snpt=altres$taula-predefinida" target="_blank"><i class="fas fa fa-book"></i> Més informació...</a>
 template: |
   <p><br></p> 
   <!--ini taula predef-->
@@ -62,5 +62,5 @@ parameters:
       - {v: 'white', l: 'Blanc'}   
 stars: 1
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 3.2.1
+version: 3.2.2
 icon: fa-solid fa-table-cells

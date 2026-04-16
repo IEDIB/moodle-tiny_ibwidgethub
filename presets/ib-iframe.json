@@ -1,6 +1,7 @@
 {
     "key": "iframe",
     "name": "Inserir IFrame/HTML",
+    "category": "misc",
     "instructions": "Aquest snippet permet inserir el codi HTML d'un IFrame en un punt determinat del document. No inseriu mai IFrames en fòrums o en missatges.\n",
     "template": "{{{codi}}}",
     "parameters": [
@@ -13,6 +14,6 @@
     ],
     "stars": 2,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2025.05.08",
+    "version": "2.3.1",
     "icon": "fa-brands fa-html5"
 }

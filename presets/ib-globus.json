@@ -3,7 +3,7 @@
     "name": "Anotació globus multi-propòsit",
     "category": "bootstrap",
     "instructions": "Afegeix una anotació tipus globus a una paraula/es. S'activa quan es passa el ratolí per sobre o es fa click.\n",
-    "template": "<a href=\"javascript:void(0)\" data-toggle=\"popover\" data-bs-toggle=\"popover\" data-trigger=\"{{trigger}}\" data-bs-trigger=\"{{trigger}}\" \ndata-original-title=\"{{titol}}\" data-bs-original-title=\"{{titol}}\" \ndata-content=\"{{{anotacio}}}\" data-bs-content=\"{{{anotacio}}}\" data-html=\"true\" data-bs-html=\"true\" \ndata-container=\"body\" data-bs-container=\"body\" data-placement=\"auto\" data-bs-placement=\"auto\"><span class=\"iedib-inspoint\">{{paraula}}</span></a>\n",
+    "template": "<a href=\"#\" data-toggle=\"popover\" data-bs-toggle=\"popover\" data-trigger=\"{{trigger}}\" data-bs-trigger=\"{{trigger}}\" \ndata-original-title=\"{{titol}}\" data-bs-original-title=\"{{titol}}\" \ndata-content=\"{{{anotacio}}}\" data-bs-content=\"{{{anotacio}}}\" data-html=\"true\" data-bs-html=\"true\" \ndata-container=\"body\" data-bs-container=\"body\" data-placement=\"auto\" data-bs-placement=\"auto\"><span class=\"iedib-inspoint\">{{paraula}}</span></a>\n",
     "insertquery": ".iedib-inspoint",
     "selectors": "a[data-toggle=\"popover\"]:not([href^=\"#speak_\"]),a[data-bs-toggle=\"popover\"]:not([href^=\"#speak_\"])",
     "unwrap": ".iedib-inspoint",
@@ -47,6 +47,6 @@
     ],
     "stars": 2,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2025.05.16",
+    "version": "2.3.0",
     "icon": "fa-solid fa-comment-dots"
 }

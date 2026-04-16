@@ -1,5 +1,6 @@
 key: capcalera
 name: Capçalera general
+category: misc
 instructions: Insereix una capçalera general amb fons blau. 
   Per crear seccions en llibres és recomana emprar l'snippet `sub-subsecció`.
 template: >-
@@ -16,5 +17,5 @@ parameters:
     when: "!SELECT_MODE"
 scope: ^page-mod-(page|quizz|assign)-mod$
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.17
+version: 2.3.1
 icon: fa-solid fa-heading

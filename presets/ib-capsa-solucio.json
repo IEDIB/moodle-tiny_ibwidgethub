@@ -10,6 +10,6 @@
     "scope": "^page-mod-(page|assign)-mod$",
     "stars": 2,
     "author": "Josep Mulet Pol <pep.mulet@gmail.com>",
-    "version": "2022.12.11",
+    "version": "2.3.0",
     "icon": "fa-solid fa-key"
 }

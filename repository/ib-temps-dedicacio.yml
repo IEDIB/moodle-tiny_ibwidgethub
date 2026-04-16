@@ -1,5 +1,6 @@
 key: dedication-time
 name: Temps de dedicació
+category: misc
 instructions: >
   Aquest snippet serveix per recomanar un temps de dedicació mínim a un recurs. 
   Emprau preferentment múltiples de 15 per als minuts. 
@@ -34,5 +35,5 @@ parameters:
 forids: "4,31"
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.16
+version: 3.0.1
 icon: fa-solid fa-stopwatch

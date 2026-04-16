@@ -1,5 +1,6 @@
 key: capcalera-examen
 name: Capçalera examen
+category: misc
 instructions: > 
   Capçalera per crear un examen model a l'aula virtual Moodle
 template: |
@@ -81,5 +82,5 @@ parameters:
 scope: ^page-mod-(page|book)
 stars: 1
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2025.05.07
+version: 2.3.1
 icon: fa-solid fa-file-signature

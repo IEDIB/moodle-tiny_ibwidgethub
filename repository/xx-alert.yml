@@ -38,16 +38,19 @@ parameters:
     title: Tancable
     value: true
     bind:
-      get: function(e) { return e.find("button.close").length > 0; }
-      set: |
-        function(e, v) {
-            if (v && !e.find("button.close")[0]) {
+      getValue: function(elem) { return elem.querySelector("button.close") !== null; }
+      setValue: |
+        function(elem, v) {
+            if (v && !elem.querySelector("button.close")) {
               var btn = '<button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-              e.prepend(btn);
-              e.addClass('alert-dismissible');
+              elem.insertAdjacentHTML('afterbegin', btn);
+              elem.classList.add('alert-dismissible');
             } else if (!v) {
-              e.removeClass('alert-dismissible');
-              e.find("button.close").remove();
+              elem.classList.remove('alert-dismissible');
+              var closeBtn = elem.querySelector("button.close");
+              if (closeBtn) {
+                closeBtn.remove();
+              }
             }
         }
 autocomplete: severity
@@ -56,5 +59,5 @@ contextmenu:
   - actions: printable
 nou: true
 author: Josep Mulet <pep.mulet@gmail.com>
-version: 1.4.2
+version: 2.0.0
 icon: fa-solid fa-circle-exclamation

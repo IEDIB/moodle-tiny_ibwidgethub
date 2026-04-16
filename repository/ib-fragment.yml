@@ -1,5 +1,6 @@
 key: fragment-text
 name: Fragment de text
+category: misc
 instructions: |
   Utilitzeu aquest snippet per introduir un fragment de text d'algun llibre. 
   Si voleu reduir l'amplada podeu establir una amplada màxima, p.e. 400 px.
@@ -37,5 +38,5 @@ I18n:
     de: TEXTFRAGMENT
 stars: 2
 author: Josep Mulet Pol <pep.mulet@gmail.com>
-version: 2023.01.08
+version: 2.3.1
 icon: fa-solid fa-quote-left

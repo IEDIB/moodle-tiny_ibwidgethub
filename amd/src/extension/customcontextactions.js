@@ -106,7 +106,7 @@ export function changeBoxLangAction() {
         } else if (lateral) {
             lateral.innerHTML = I18n[langKey][iso];
             if (theType) {
-                lateral.append('<span class="iedib-' + theType + '-logo"></span>');
+                lateral.insertAdjacentHTML('beforeend', `<span class="iedib-${theType}-logo"></span>`);
             }
         }
     }

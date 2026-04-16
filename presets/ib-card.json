@@ -22,7 +22,8 @@
             "type": "checkbox",
             "when": "!flip",
             "bind": {
-                "get": "function(e) {\n  var cardInner = e.find('.ib-card-inner')[0];\n  return cardInner && cardInner.style.height !== '';\n}\n"
+                "getValue": "function(elem) {\n  var cardInner = elem.querySelector('.ib-card-inner');\n  return cardInner && cardInner.style.height !== '';\n}\n",
+                "setValue": "function() {}"
             }
         },
         {
@@ -33,8 +34,8 @@
             "min": 100,
             "when": "forceHeight || flip",
             "bind": {
-                "get": "function(e) {\n  return parseInt(e.find('.ib-card-inner')[0].style.height ?? '350');\n}\n",
-                "set": "function(e, v, vm, u) {\n  var fh = vm['forceHeight'] || vm['flip'];\n  var cih = '';\n  var cfh = '';\n  if (fh) {\n    cih = v + 'px';\n    cfh = 'calc(' + v + 'px - 100px)';\n    u.css(e, '.ib-card-front', 'position', '');\n  } else {\n    u.css(e, '.ib-card-front', 'position', 'relative');\n  }\n  u.css(e, '.ib-card-inner', 'height', cih);\n  u.css(e, '.ib-card-front .card-body', 'height', cfh);\n}\n"
+                "getValue": "function(elem) {\n  return parseInt(elem.querySelector('.ib-card-inner')?.style?.height ?? '350');\n}\n",
+                "setValue": "function(elem, v, vm, util) {\n  var fh = vm['forceHeight'] || vm['flip'];\n  var cih = '';\n  var cfh = '';\n  var ibCardFront = elem.querySelector('.ib-card-front');\n  var ibCardInner = elem.querySelector('.ib-card-inner');\n  var ibCardBody = elem.querySelector('.ib-card-front .card-body');\n  if (fh) {\n    cih = v + 'px';\n    cfh = 'calc(' + v + 'px - 100px)';\n    util.setStyleMCE(ibCardFront, 'position', '');\n  } else {\n    util.setStyleMCE(ibCardFront, 'position', 'relative');\n  }\n  util.setStyleMCE(ibCardInner, 'height', cih);\n  util.setStyleMCE(ibCardBody, 'height', cfh);\n}\n"
             }
         },
         {
@@ -43,8 +44,8 @@
             "type": "checkbox",
             "value": true,
             "bind": {
-                "get": "function(e) {return e.find('.ib-card-front img.card-img-top').length > 0;}\n",
-                "set": "function(e, v) {\n  if (v) {\n    if (e.find('.ib-card-front img.card-img-top').length) {\n      return;\n    }\n    var img = '<img src=\"https://picsum.photos/300/100\" class=\"card-img-top\" alt=\"Imatge targeta\">';\n    e.find('.ib-card-front').prepend(img);\n  } else {\n    e.find('.ib-card-front img.card-img-top').remove();\n  }\n}\n"
+                "getValue": "function(elem) {return elem.querySelector('.ib-card-front img.card-img-top') !== null;}\n",
+                "setValue": "function(elem, v) {\n  if (v) {\n    if (elem.querySelector('.ib-card-front img.card-img-top')) {\n      return;\n    }\n    var img = '<img src=\"https://picsum.photos/300/100\" class=\"card-img-top\" alt=\"Imatge targeta\">';\n    elem.querySelector('.ib-card-front')?.insertAdjacentHTML('afterbegin', img);\n  } else {\n    var imgEl = elem.querySelector('.ib-card-front img.card-img-top');\n    if (imgEl) { imgEl.remove(); }\n  }\n}\n"
             }
         },
         {
@@ -61,8 +62,8 @@
             "type": "checkbox",
             "value": false,
             "bind": {
-                "get": "function(e) {return e.find('.ib-card-front div.card-header').length > 0;}\n",
-                "set": "function(e, v) {\n  if (v) {\n    if(e.find('.ib-card-front div.card-header').length) {\n      return;\n    }\n    var imgtop = e.find('.ib-card-front img.card-img-top');\n    var header = '<div class=\"card-header\">Capçalera de targeta</div>';\n    if (imgtop.length) {\n      imgtop.after(header);\n    } else {\n      e.find('.ib-card-front').prepend(header);\n    }\n  } else {\n    e.find('.ib-card-front div.card-header').remove();\n  }\n}\n"
+                "getValue": "function(elem) {return elem.querySelector('.ib-card-front div.card-header') !== null;}\n",
+                "setValue": "function(elem, v) {\n  if (v) {\n    if(elem.querySelector('.ib-card-front div.card-header')) {\n      return;\n    }\n    var imgtop = elem.querySelector('.ib-card-front img.card-img-top');\n    var header = '<div class=\"card-header\">Capçalera de targeta</div>';\n    if (imgtop) {\n      imgtop.insertAdjacentHTML('afterend', header);\n    } else {\n      elem.querySelector('.ib-card-front')?.insertAdjacentHTML('afterbegin', header);\n    }\n  } else {\n    var cardHeader = elem.querySelector('.ib-card-front div.card-header');\n    if (cardHeader) { cardHeader.remove(); }\n  }\n}\n"
             }
         },
         {
@@ -71,8 +72,8 @@
             "type": "checkbox",
             "value": false,
             "bind": {
-                "get": "function(e) {return e.find('.ib-card-front div.card-footer').length > 0;}\n",
-                "set": "function(e, v) {\n  if (v) {\n    if (e.find('.ib-card-front div.card-footer').length > 0) {\n      return;\n    }\n    e.find('.ib-card-front').append('<div class=\"card-footer\">Peu de targeta</div>');\n  } else {\n    e.find('.ib-card-front div.card-footer').remove();\n  }\n}\n"
+                "getValue": "function(elem) {return elem.querySelector('.ib-card-front div.card-footer') !== null;}\n",
+                "setValue": "function(elem, v) {\n  if (v) {\n    if (elem.querySelector('.ib-card-front div.card-footer')) {\n      return;\n    }\n    elem.querySelector('.ib-card-front')?.insertAdjacentHTML('beforeend', '<div class=\"card-footer\">Peu de targeta</div>');\n  } else {\n    var cardFooter = elem.querySelector('.ib-card-front div.card-footer');\n    if (cardFooter) { cardFooter.remove(); }\n  }\n}\n"
             }
         },
         {
@@ -112,8 +113,8 @@
             "type": "checkbox",
             "value": false,
             "bind": {
-                "get": "function(e) {return e.hasClass('ib-card-flip');} \n",
-                "set": "function(e, v) {\n  if(v) {\n    if (e.hasClass('ib-card-flip')) {\n      return;\n    }\n    e.addClass('ib-card-flip');\n    const html = '<div class=\"card ib-card-back\" data-face=\"back\"><div class=\"card-body\"><h5 class=\"card-title\">Títol revers targeta</h5><p class=\"card-text\">Text del revers de la targeta.</p></div></div>';\n    e.find('.ib-card-front').after(html);\n  } else {\n    e.removeClass('ib-card-flip');\n    e.find('.ib-card-back').remove();\n  }\n}\n"
+                "getValue": "function(elem) {return elem.classList.contains('ib-card-flip');} \n",
+                "setValue": "function(elem, v) {\n  if(v) {\n    if (elem.classList.contains('ib-card-flip')) {\n      return;\n    }\n    elem.classList.add('ib-card-flip');\n    const html = '<div class=\"card ib-card-back\" data-face=\"back\"><div class=\"card-body\"><h5 class=\"card-title\">Títol revers targeta</h5><p class=\"card-text\">Text del revers de la targeta.</p></div></div>';\n    elem.querySelector('.ib-card-front')?.insertAdjacentHTML('afterend', html);\n  } else {\n    elem.classList.remove('ib-card-flip');\n    var cardBack = elem.querySelector('.ib-card-back');\n    if (cardBack) { cardBack.remove(); }\n  }\n}\n"
             }
         },
         {
@@ -156,6 +157,6 @@
     ],
     "author": "Josep Mulet <pep.mulet@gmail.com>",
     "nou": true,
-    "version": "1.1.1",
+    "version": "2.5.0",
     "icon": "fa-solid fa-id-card"
 }
