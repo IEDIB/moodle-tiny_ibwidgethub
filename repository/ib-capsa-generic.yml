@@ -2,6 +2,8 @@ key: capsa-generica
 name: Capsa multi-propòsit
 category: capses
 instructions: > 
+  <b>No modifiqueu manualment el títol de la capsa ni canvieu la seva icona.</b>
+  <br>
   <b>Alerta</b>: Serveix per informar d'una errada o situació greu a tenir en compte. <br>
   <b>Ampliació</b>: Marcau que el material és d'ampliació per als alumnes.<br>
   <b>Consell</b>: Donau un consell als alumnes.<br>
@@ -16,7 +18,7 @@ template: |
         <span aria-hidden="true">&times;</span>
       </button>
     {{/closable}}
-    <div class="iedib-lateral iedib-{{severity}}">
+    <div class="iedib-lateral iedib-{{severity}} mceNonEditable">
       <p class="iedib-titolLateral">{{#I18n}}msg_{{severity}}{{/I18n}}<span class="iedib-{{severity}}-logo"></span></p>
     </div>
     <div class="iedib-central">
