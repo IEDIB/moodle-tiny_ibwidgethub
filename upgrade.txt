@@ -55,4 +55,6 @@ Issue #38 Error on contextmenu remove or insert: unrecognized expression:
 
 == 1.4.3 ==
  - Review widget definitions.
- - Allow alphanumeric lists.
+ - Allow alphanumeric and roman sorted lists.
+ - Improve styles for light and dark backgrounds for numbered lists.
+ 
