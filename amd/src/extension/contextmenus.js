@@ -418,7 +418,7 @@ export async function provider(ctx) {
         subMenuItems: () => {
             // Determine if the class is there
             const isBeauty = ctx.path?.targetElement?.classList?.contains('iedib-falist');
-            return [
+            const menu = [
                 {
                     type: 'menuitem',
                     text: i18n.beautified,
@@ -439,6 +439,9 @@ export async function provider(ctx) {
                         } else {
                             // @ts-ignore
                             removeStyleMCE(target, "counter-reset");
+                            target.classList.remove('iedib-falist--alpha', 'iedib-falist--roman',
+                                'iedib-falist--upper-alpha', 'iedib-falist--upper-roman',
+                                'iedib-falist--primary', 'iedib-falist--light', 'iedib-falist--dark');
                         }
                     }
                 },
@@ -467,6 +470,48 @@ export async function provider(ctx) {
                     },
                 }
             ];
+            if (isBeauty) {
+                const classActionType = (/** @type {string} */ cls) => {
+                    const target = ctx.path?.targetElement;
+                    if (!target) {
+                        return;
+                    }
+                    target.classList.remove('iedib-falist--alpha', 'iedib-falist--upper-alpha', 'iedib-falist--roman', 'iedib-falist--upper-roman');
+                    if (cls) {
+                        target.classList.add('iedib-falist--' + cls);
+                    }
+                };
+                /**
+                 * @param {string} cls
+                 */
+                const classActionColor = (/** @type {string} */ cls) => {
+                    const target = ctx.path?.targetElement;
+                    if (!target) {
+                        return;
+                    }
+                    target.classList.remove('iedib-falist--primary', 'iedib-falist--light', 'iedib-falist--dark');
+                    if (cls) {
+                        target.classList.add('iedib-falist--' + cls);
+                    }
+                };
+                // Submenú to change the type of the list (flattened — TinyMCE doesn't support nested submenus)
+                //@ts-ignore
+                menu.push({ type: 'separator' });
+                menu.push({ type: 'menuitem', text: 'Tipus: Números 1, 2, 3..', onAction: () => classActionType('') });
+                menu.push({ type: 'menuitem', text: 'Tipus: Lletres a), b), c)..', onAction: () => classActionType('alpha') });
+                menu.push({ type: 'menuitem', text: 'Tipus: Lletres A), B), C)..', onAction: () => classActionType('upper-alpha') });
+                menu.push({ type: 'menuitem', text: 'Tipus: Romans i), ii), iii)..', onAction: () => classActionType('roman') });
+                menu.push({ type: 'menuitem', text: 'Tipus: Romans I), II), III)..', onAction: () => classActionType('upper-roman') });
+
+                // Submenú to change the color of the list (flattened)
+                //@ts-ignore
+                menu.push({ type: 'separator' });
+                menu.push({ type: 'menuitem', text: 'Fons: Gris', onAction: () => classActionColor('') });
+                menu.push({ type: 'menuitem', text: 'Fons: Blau', onAction: () => classActionColor('primary') });
+                menu.push({ type: 'menuitem', text: 'Fons: Blanc', onAction: () => classActionColor('light') });
+                menu.push({ type: 'menuitem', text: 'Fons: Negre', onAction: () => classActionColor('dark') });
+            }
+            return menu;
         }
     };
 

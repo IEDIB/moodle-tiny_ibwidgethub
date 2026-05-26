@@ -1064,6 +1064,39 @@ ol.iedib-falist>li::before {
   vertical-align: middle;
 }
 
+/* Modifier types */
+ol.iedib-falist.iedib-falist--alpha>li::before {
+  content: counter(iedibfalist-counter, lower-alpha) ')';
+}
+
+ol.iedib-falist.iedib-falist--roman>li::before {
+  content: counter(iedibfalist-counter, lower-roman) ')';
+}
+
+ol.iedib-falist.iedib-falist--upper-alpha>li::before {
+  content: counter(iedibfalist-counter, upper-alpha) ')';
+}
+
+ol.iedib-falist.iedib-falist--upper-roman>li::before {
+  content: counter(iedibfalist-counter, upper-roman) ')';
+}
+
+/* Color variants */
+ol.iedib-falist.iedib-falist--primary>li::before {
+  background: #0d6efd;
+}
+
+ol.iedib-falist.iedib-falist--light>li::before {
+  background: white;
+  border: none;
+  color: #212529;
+}
+
+ol.iedib-falist.iedib-falist--dark>li::before {
+  background: #212529;
+  color: whitesmoke;
+}
+
 /** iedib glossari **/
 .iedib-glossari {
   margin: 10px;

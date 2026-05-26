@@ -52,3 +52,7 @@ Issue #38 Error on contextmenu remove or insert: unrecognized expression:
 
 == 1.4.2 ==
  - Add delete button to widget settings.
+
+== 1.4.3 ==
+ - Review widget definitions.
+ - Allow alphanumeric lists.
