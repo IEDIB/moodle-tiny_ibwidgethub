@@ -345,59 +345,87 @@ export class FormCtrl {
    }
 
    /**
-    * @param {HTMLElement} modalBody - The modal body
+       * @param {HTMLElement} modalBody - The modal body
+       * @param {import('../service/modal_service').ListenerTracker} listenerTracker
+       */
+   attachPickers(modalBody, listenerTracker) {
+      this.attachFilePickers(modalBody, listenerTracker);
+      this.attachColorPickers(modalBody, listenerTracker);
+   }
+
+   /**
+    * @param {HTMLElement} element - The element to attach file pickers to
     * @param {import('../service/modal_service').ListenerTracker} listenerTracker
     */
-   attachPickers(modalBody, listenerTracker) {
-      // Find all file pickers
-      const canShowFilePicker = typeof this.fileSrv.getImagePicker() !== 'undefined';
-      if (canShowFilePicker) {
-         /** @type {NodeListOf<HTMLButtonElement>} */
-         const pickers = modalBody.querySelectorAll('button.whb-image-picker');
-         pickers.forEach(picker => {
-            picker.disabled = !canShowFilePicker;
-            // Attach a click handler to any image-picker buttons
-            const pickerHandler = async (/** @type {Event} */ evt) => {
-               evt.preventDefault();
-               const parent = /** @type {HTMLElement} */ (evt.currentTarget).parentElement;
-               const input = parent?.querySelector('input');
-               try {
-                  /** @type {{url?: string}} */
-                  const params = await this.fileSrv.displayImagePicker();
-                  if (params?.url && input) {
-                     input.value = params.url;
-                  }
-               } catch (ex) {
-                  console.error(ex);
-               }
-            };
-            listenerTracker(picker, 'click', pickerHandler);
-         });
-      }
-
-      // Find all color pickers
-      /** @type {NodeListOf<HTMLInputElement>} */
-      const colorPickers = modalBody.querySelectorAll('input[type="color"]');
-      colorPickers.forEach(inputColor => {
-         const name = inputColor.getAttribute('name');
-         if (!name) {
-            return;
-         }
-         // Find corresponding range slider
-         /** @type {HTMLInputElement | null} */
-         const inputRange = modalBody.querySelector(`input[name="${name}_alpha"]`);
-         if (!inputRange) {
-            return;
-         }
-         const opacity = inputRange.value ?? 1;
-         inputColor.style.opacity = '' + opacity;
-         // Bind envent change
-         const inputRangeHandler = () => {
-            const opacity = inputRange.value ?? 1;
-            inputColor.style.opacity = '' + opacity;
-         };
-         listenerTracker(inputRange, 'change', inputRangeHandler);
+   attachFilePickers(element, listenerTracker) {
+      /** @type {NodeListOf<HTMLButtonElement>} */
+      const pickers = element.querySelectorAll('button.whb-image-picker');
+      pickers.forEach(picker => {
+         this.attachFilePickerToElement(picker, listenerTracker);
       });
+   }
+
+   /**
+    * @param {HTMLElement} element - The element to attach color pickers to
+    * @param {import('../service/modal_service').ListenerTracker} listenerTracker
+    */
+   attachColorPickers(element, listenerTracker) {
+      /** @type {NodeListOf<HTMLInputElement>} */
+      const colorPickers = element.querySelectorAll('input[type="color"]');
+      colorPickers.forEach(inputColor => {
+         this.attachColorPickerToElement(inputColor, listenerTracker);
+      });
+   }
+
+   /**
+    * @param {HTMLButtonElement} element - The element to attach pickers to
+    * @param {import('../service/modal_service').ListenerTracker} listenerTracker
+    */
+   attachFilePickerToElement(element, listenerTracker) {
+      const canShowFilePicker = typeof this.fileSrv.getImagePicker() !== 'undefined';
+      element.disabled = !canShowFilePicker;
+      const pickerHandler = async (/** @type {Event} */ evt) => {
+         evt.preventDefault();
+         // Blur the button before opening the YUI file picker to avoid
+         // an aria-hidden conflict — YUI sets aria-hidden on page content
+         // while the button is still focused inside the hidden subtree.
+         /** @type {HTMLElement} */ (evt.currentTarget).blur();
+         const parent = /** @type {HTMLElement} */ (evt.currentTarget).parentElement;
+         const input = parent?.querySelector('input');
+         try {
+            /** @type {{url?: string}} */
+            const params = await this.fileSrv.displayImagePicker();
+            if (params?.url && input) {
+               input.value = params.url;
+            }
+         } catch (ex) {
+            console.error(ex);
+         }
+      };
+      listenerTracker(element, 'click', pickerHandler);
+   }
+
+   /**
+    * @param {HTMLInputElement} element - The element to attach pickers to
+    * @param {import('../service/modal_service').ListenerTracker} listenerTracker
+    */
+   attachColorPickerToElement(element, listenerTracker) {
+      const name = element.getAttribute('name');
+      if (!name) {
+         return;
+      }
+      /** @type {HTMLInputElement | null | undefined} */
+      const inputRange = element.closest('.form-group')?.querySelector(`input[name="${name}_alpha"]`);
+      if (!inputRange) {
+         return;
+      }
+      const opacity = inputRange.value ?? 1;
+      element.style.opacity = '' + opacity;
+      const inputRangeHandler = () => {
+         const opacity = inputRange.value ?? 1;
+         element.style.opacity = '' + opacity;
+      };
+      listenerTracker(inputRange, 'change', inputRangeHandler);
    }
 
    /**
@@ -490,8 +518,9 @@ export class FormCtrl {
     * Create controllers for every repeatable element in form.
     * @param {HTMLElement} form
     * @param {import("../options").Widget} widget
+    * @param {import('../service/modal_service').ListenerTracker} listenerTracker
     */
-   attachRepeatable(form, widget) {
+   attachRepeatable(form, widget, listenerTracker) {
       const that = this;
 
       widget.parameters.filter(p => p.type === 'repeatable').forEach((param) => {
@@ -525,7 +554,10 @@ export class FormCtrl {
             div.innerHTML = controls.join(" ");
             return div;
          };
-         new RepeatableCtrl(subform, itemBuilder, param);
+         const onNewItem = (/** @type{HTMLElement} **/ item) => {
+            that.attachPickers(item, listenerTracker);
+         };
+         new RepeatableCtrl(subform, itemBuilder, onNewItem, param);
       });
    }
 }
@@ -552,13 +584,16 @@ class RepeatableCtrl {
    /**
     * @param {HTMLElement} form - The container element to append the list to.
     * @param {ItemBuilder} itemBuilder - A function that returns the content for a new item.
+    * @param {function(HTMLElement): void} onNewItem - A function to be called when a new item is created.
     * @param {RepeatableOptions} [opts={}] - Configuration options for the controller.
     */
-   constructor(form, itemBuilder, opts = {}) {
+   constructor(form, itemBuilder, onNewItem, opts = {}) {
       /** @private */
       this._form = form;
       /** @private */
       this._itemBuilder = itemBuilder;
+      /** @private */
+      this._onNewItem = onNewItem;
       /** @private */
       this._opts = { min: 1, ...opts };
       /** @private */
@@ -687,7 +722,9 @@ class RepeatableCtrl {
       if (btn.classList.contains('tiny_widgethub-addbtn')) {
          this._itemCount += 1;
          const content = this._itemBuilder(this._itemCount);
-         li.after(RepeatableCtrl.createRegularItem(content, true), RepeatableCtrl.createAddItem());
+         const element = RepeatableCtrl.createRegularItem(content, true);
+         li.after(element, RepeatableCtrl.createAddItem());
+         this._onNewItem(element);
       } else if (btn.classList.contains('tiny_widgethub-removeitem')) {
          const separator = li.previousElementSibling;
          if (separator) {

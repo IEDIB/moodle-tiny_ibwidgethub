@@ -473,11 +473,12 @@ describe("FormCtrl", () => {
             };
             const form = document.createElement('form');
             form.innerHTML = `<div name="rep" type="repeatable"></div>`;
+            const listenerTracker = jest.fn();
 
             // We can't easily check if RepeatableCtrl was newed up because it's private/internal.
             // But we can check if the DOM was modified (RepeatableCtrl adds a UL).
 
-            formCtrl.attachRepeatable(form, widget);
+            formCtrl.attachRepeatable(form, widget, listenerTracker);
 
             expect(form.querySelector('ul.list-group')).not.toBeNull();
             expect(form.querySelector('.tiny_widgethub-additem')).not.toBeNull();
