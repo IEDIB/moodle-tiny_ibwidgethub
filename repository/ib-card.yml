@@ -2,11 +2,10 @@ key: ib-card
 name: Targeta
 category: bootstrap
 instructions: >
-  Emprau la targeta juntament amb grup de targetes per mostrar aplicacions
-  pràctiques
-
-  d'una situació d'aprenentatge. Emprau el <b>menú contextual</b> per canviar la
-  imatge.
+  Emprau la targeta juntament amb grup de targetes per mostrar una <b>curiositat</b>,
+  una <b>situació d'aprenentatge</b> o una <b>aplicació pràctica</b>.
+  <br>
+  Emprau el <b>menú contextual</b> per canviar la imatge.
 template: >
   <p><br></p> <div class="ib-card m-auto{{#flip}} ib-card-flip{{/flip}}"
   style="width:{{width}}px;"> <div class="ib-card-inner"
@@ -15,7 +14,7 @@ template: >
       {{#hasImg}}<img src="{{imgTop}}" class="card-img-top" alt="Imatge targeta">{{/hasImg}}
       {{#header}}<div class="card-header">Capçalera de targeta</div>{{/header}}
       <div class="card-body" {{#if}}[flip||(!flip&&forceHeight)] style="height: calc({{height}}px - 100px);"{{/if}}>
-        <h5 class="card-title">Títol targeta</h5>
+        <h5 class="card-title">Sabies que...</h5>
         <p class="card-text">Text del contingut de la targeta.</p>
       </div>
       {{#footer}}<div class="card-footer">Peu de targeta</div>{{/footer}}
@@ -210,4 +209,3 @@ author: Josep Mulet <pep.mulet@gmail.com>
 nou: true
 version: 2.5.0
 icon: fa-solid fa-id-card
-

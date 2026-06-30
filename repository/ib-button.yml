@@ -2,7 +2,7 @@ key: ib-button
 name: Hipervincle com a botó
 category: bootstrap
 icon: fa fa-hand-pointer
-instructions: Mostra un hipervincle amb format botó de Bootstrap.
+instructions: Mostra un hipervincle amb format botó de Bootstrap. <b>Maldament es vegi malament a l'editor</b>, el renderitzat final és correcte.
 template: |
   <a href="{{url}}" class="btn btn-{{severity}}"{{#blank}} target="_blank"{{/blank}} role="button"><i class="fa fa-{{icon}}" aria-hidden="true"></i> Lorem ipsum</a> 
 selectors: a.btn
@@ -42,4 +42,4 @@ parameters:
     bind: classRegex('fa-(.*)', 'i')
     value: tag
 author: Josep Mulet <pep.mulet@gmail.com>
-version: 1.2.0
+version: 1.2.1

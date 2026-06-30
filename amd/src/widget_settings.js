@@ -319,9 +319,11 @@ export default {
             { key: 'cancel', component: component },
             { key: 'errunexpected', component: component },
             { key: 'preview', component: component },
-            { key: 'savechanges', component: component }
+            { key: 'savechanges', component: component },
+            { key: 'confirmdelete', component: component },
+            { key: 'delete', component: component }
         ]);
-        const [cancelStr, errunexpectedStr, previewStr, savechangesStr] = i18n;
+        const [cancelStr, errunexpectedStr, previewStr, savechangesStr, confirmdeleteStr, deleteStr] = i18n;
 
         // Partials are passed through a hidden input element
         const partials = JSON.parse(partialInput.value || '{}');
@@ -374,6 +376,28 @@ export default {
             }
         });
         target.appendChild(previewBtn);
+
+        if (opts.id > 0) {
+            // Only show delete button on saved widgets (id=0 is reserved for new ones)
+            const deleteBtn = htmlToElement(document, `<button type="button" class="btn btn-outline-danger m-1">
+                <i class="fas fa fa-trash"></i> ${deleteStr}</button>`);
+            deleteBtn.addEventListener('click', async () => {
+                // Ask confirmation
+                const answer = confirm(confirmdeleteStr);
+                if (!answer) {
+                    return;
+                }
+                // Clear all the controls
+                jsonArea.dispatchEvent(new Event('focusin', { bubbles: true }));
+                jsonArea.value = '';
+                jsonArea.dispatchEvent(new Event('change', { bubbles: true }));
+                ymlArea.value = '';
+                previewPanel.innerHTML = '';
+                // Send form by skipping validation
+                form.requestSubmit();
+            });
+            target.appendChild(deleteBtn);
+        }
 
         const ymleditor = new YmlEditor(ymlArea);
 
