@@ -68,7 +68,9 @@ const configureToolbar = (toolbar) => {
 
     return toolbar.map((section) => {
         if (section.name === 'content') {
-            // Insert the button at the start of it.
+            // Allow to restore equation
+            section.items.unshift('tiny_restoreequation');
+            // Insert the button at the start of the content section.
             section.items.unshift(component);
         }
         return section;
