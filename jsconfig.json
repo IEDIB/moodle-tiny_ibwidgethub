@@ -23,6 +23,15 @@
             "editor_tiny/editor": [
                 "../../amd/src/editor"
             ],
+            "tiny_equation/common": [
+                "../equation/amd/src/common"
+            ],
+            "tiny_equation/equation": [
+                "../equation/amd/src/equation"
+            ],
+            "tiny_equation/ui": [
+                "../equation/amd/src/ui"
+            ],
             "core/str": [
                 "../../../../amd/src/str.js"
             ],

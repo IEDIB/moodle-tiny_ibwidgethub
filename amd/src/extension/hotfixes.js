@@ -14,8 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-import {subscribe} from "../extension";
-import {getGlobalConfig} from "../options";
+import { subscribe } from "../extension";
+import { getGlobalConfig } from "../options";
+import eqCommon from 'tiny_equation/common';
+import { getSelectedEquation as eqEqGetSelectedEquation } from 'tiny_equation/equation';
+import { handleAction as eqUiHandleAction } from 'tiny_equation/ui';
 
 /**
  * Tiny WidgetHub plugin.
@@ -143,7 +146,7 @@ export function emulateAttoNewlineBehaviour(editor) {
     if (!editor._orgSetContent) {
         editor._orgSetContent = editor.setContent;
 
-        editor.setContent = function(/** @type {string} */ content, /** @type {any} */ args) {
+        editor.setContent = function (/** @type {string} */ content, /** @type {any} */ args) {
             let processedContent = content;
             try {
                 if (!args || args.format === 'html') {
@@ -160,7 +163,7 @@ export function emulateAttoNewlineBehaviour(editor) {
     if (!editor._orgGetContent) {
         editor._orgGetContent = editor.getContent;
 
-        editor.getContent = function() {
+        editor.getContent = function () {
             let content = editor._orgGetContent.apply(this, arguments) || '';
             try {
                 // Convert empty <p></p> to <p><br></p> for Atto compatibility
@@ -178,31 +181,27 @@ export function emulateAttoNewlineBehaviour(editor) {
  * @param {import("../plugin").TinyMCE} editor
  */
 export function restoreEquationpluginButton(editor) {
-    window?.requirejs(['tiny_equation/common', 'tiny_equation/equation', 'tiny_equation/ui'],
-        // @ts-ignore
-        function(eqCommon, eqEq, eqUi) {
-            if (typeof eqUi.handleAction !== 'function') {
-                return;
-            }
-            editor.ui.registry.addIcon('tiny_restoreequation',
-                '<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 640 640"><path d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 128C512 92.7 483.3 64 448 64L192 64zM224 128L416 128C433.7 128 448 142.3 448 160L448 192C448 209.7 433.7 224 416 224L224 224C206.3 224 192 209.7 192 192L192 160C192 142.3 206.3 128 224 128zM240 296C240 309.3 229.3 320 216 320C202.7 320 192 309.3 192 296C192 282.7 202.7 272 216 272C229.3 272 240 282.7 240 296zM320 320C306.7 320 296 309.3 296 296C296 282.7 306.7 272 320 272C333.3 272 344 282.7 344 296C344 309.3 333.3 320 320 320zM448 296C448 309.3 437.3 320 424 320C410.7 320 400 309.3 400 296C400 282.7 410.7 272 424 272C437.3 272 448 282.7 448 296zM216 416C202.7 416 192 405.3 192 392C192 378.7 202.7 368 216 368C229.3 368 240 378.7 240 392C240 405.3 229.3 416 216 416zM344 392C344 405.3 333.3 416 320 416C306.7 416 296 405.3 296 392C296 378.7 306.7 368 320 368C333.3 368 344 378.7 344 392zM424 416C410.7 416 400 405.3 400 392C400 378.7 410.7 368 424 368C437.3 368 448 378.7 448 392C448 405.3 437.3 416 424 416zM192 488C192 474.7 202.7 464 216 464L328 464C341.3 464 352 474.7 352 488C352 501.3 341.3 512 328 512L216 512C202.7 512 192 501.3 192 488zM424 464C437.3 464 448 474.7 448 488C448 501.3 437.3 512 424 512C410.7 512 400 501.3 400 488C400 474.7 410.7 464 424 464z"/></svg>'
-            );
+    if (typeof eqUiHandleAction !== 'function') {
+        return;
+    }
+    editor.ui.registry.addIcon('tiny_restoreequation',
+        '<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 640 640"><path d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 128C512 92.7 483.3 64 448 64L192 64zM224 128L416 128C433.7 128 448 142.3 448 160L448 192C448 209.7 433.7 224 416 224L224 224C206.3 224 192 209.7 192 192L192 160C192 142.3 206.3 128 224 128zM240 296C240 309.3 229.3 320 216 320C202.7 320 192 309.3 192 296C192 282.7 202.7 272 216 272C229.3 272 240 282.7 240 296zM320 320C306.7 320 296 309.3 296 296C296 282.7 306.7 272 320 272C333.3 272 344 282.7 344 296C344 309.3 333.3 320 320 320zM448 296C448 309.3 437.3 320 424 320C410.7 320 400 309.3 400 296C400 282.7 410.7 272 424 272C437.3 272 448 282.7 448 296zM216 416C202.7 416 192 405.3 192 392C192 378.7 202.7 368 216 368C229.3 368 240 378.7 240 392C240 405.3 229.3 416 216 416zM344 392C344 405.3 333.3 416 320 416C306.7 416 296 405.3 296 392C296 378.7 306.7 368 320 368C333.3 368 344 378.7 344 392zM424 416C410.7 416 400 405.3 400 392C400 378.7 410.7 368 424 368C437.3 368 448 378.7 448 392C448 405.3 437.3 416 424 416zM192 488C192 474.7 202.7 464 216 464L328 464C341.3 464 352 474.7 352 488C352 501.3 341.3 512 328 512L216 512C202.7 512 192 501.3 192 488zM424 464C437.3 464 448 474.7 448 488C448 501.3 437.3 512 424 512C410.7 512 400 501.3 400 488C400 474.7 410.7 464 424 464z"/></svg>'
+    );
 
-            // Register the Menu Button as a toggle.
-            // This means that when highlighted over an existing Equation element it will show as toggled on.
-            editor.ui.registry.addToggleButton('tiny_restoreequation', {
-                icon: 'tiny_restoreequation',
-                tooltip: eqCommon.buttonText,
-                onAction: () => {
-                    eqUi.handleAction(editor);
-                },
-                onSetup: (/** @type {any}*/ api) => {
-                    editor.on('NodeChange', () => {
-                        const result = eqEq.getSelectedEquation(editor);
-                        api.setActive(result);
-                    });
-                },
+    // Register the Menu Button as a toggle.
+    // This means that when highlighted over an existing Equation element it will show as toggled on.
+    editor.ui.registry.addToggleButton('tiny_restoreequation', {
+        icon: 'tiny_restoreequation',
+        tooltip: eqCommon.buttonName,
+        onAction: () => {
+            eqUiHandleAction(editor);
+        },
+        onSetup: (/** @type {any}*/ api) => {
+            editor.on('NodeChange', () => {
+                const result = eqEqGetSelectedEquation(editor);
+                api.setActive(result);
             });
+        },
     });
 }
 
@@ -210,17 +209,17 @@ export function restoreEquationpluginButton(editor) {
  * @param {import("../plugin").TinyMCE} editor
  */
 export const listener = (editor) => {
-        // Newline emulation
-        const cfgLevel2 = getGlobalConfig(editor, 'emulate.atto.newlinebehaviour', '1');
-        if (cfgLevel2 !== '0') {
-            emulateAttoNewlineBehaviour(editor);
-        }
+    // Newline emulation
+    const cfgLevel2 = getGlobalConfig(editor, 'emulate.atto.newlinebehaviour', '1');
+    if (cfgLevel2 !== '0') {
+        emulateAttoNewlineBehaviour(editor);
+    }
 
-        // Restore equation plugin button
-        const cfgLevel3 = getGlobalConfig(editor, 'restore.equationplugin.button', '1');
-        if (cfgLevel3 !== '0') {
-            restoreEquationpluginButton(editor);
-        }
+    // Restore equation plugin button
+    const cfgLevel3 = getGlobalConfig(editor, 'restore.equationplugin.button', '1');
+    if (cfgLevel3 !== '0') {
+        restoreEquationpluginButton(editor);
+    }
 };
 
 subscribe('setup', listener);

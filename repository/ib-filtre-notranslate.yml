@@ -65,7 +65,7 @@ filter: >
      var msg_stats = "S'han detectat " + total + " fòrmules i s'han corregit "+formulesPendents;
      var markUpdated = formulesPendents > 0;
      return [markUpdated, msg_stats];
-forids: "31,794,5806,11378"
+forids: "31,794,5806,11378,5833,9320"
 stars: 1
 author: Josep Mulet Pol <pep.mulet@gmail.com>
 version: 2.3.0
