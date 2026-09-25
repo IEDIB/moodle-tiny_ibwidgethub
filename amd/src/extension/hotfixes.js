@@ -192,7 +192,7 @@ export function restoreEquationpluginButton(editor) {
     // This means that when highlighted over an existing Equation element it will show as toggled on.
     editor.ui.registry.addToggleButton('tiny_restoreequation', {
         icon: 'tiny_restoreequation',
-        tooltip: eqCommon.buttonName,
+        tooltip: eqCommon.component,
         onAction: () => {
             eqUiHandleAction(editor);
         },
