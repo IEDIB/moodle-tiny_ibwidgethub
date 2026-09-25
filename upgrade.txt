@@ -66,3 +66,5 @@ Issue #38 Error on contextmenu remove or insert: unrecognized expression:
  - New box widget "Capsa info"
  - Redesign "Capsa generic" type "introducció"
  
+ == 1.4.7 ==
+ - Fix context menu not working on mathjax equations.
